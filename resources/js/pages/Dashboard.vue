@@ -1,9 +1,10 @@
 <template>
   <div class="dashboard">
     <div class="header">
-      <strong>{{ profile?.account?.name || account.name }}</strong>
-      <span>({{ account.server }})</span>
+      <strong>{{ profile?.account?.name || account?.name || '...' }}</strong>
+      <span>({{ account?.server }})</span>
       <span v-if="profile?.account?.is_online">[online]</span>
+      <button v-if="profile?.is_admin" @click="goToAdmin">админ-панель</button>
       <button @click="logout">I am dick and wang!</button>
     </div>
 
@@ -19,17 +20,20 @@ import axios from 'axios'
 
 export default {
   name: 'Dashboard',
-  props: {
-    account: {
-      type: Object,
-      required: true
-    }
-  },
   data() {
     return {
+      account: null,
       profile: null,
       loading: true,
       error: null
+    }
+  },
+  created() {
+    const saved = localStorage.getItem('account')
+    if (saved) {
+      try {
+        this.account = JSON.parse(saved)
+      } catch (e) {}
     }
   },
   mounted() {
@@ -46,10 +50,14 @@ export default {
         this.loading = false
       }
     },
+    goToAdmin() {
+      this.$router.push('/admin/login')
+    },
     logout() {
       localStorage.removeItem('token')
       localStorage.removeItem('account')
-      this.$emit('logout')
+      localStorage.removeItem('admin_session')
+      this.$router.push('/login')
     }
   }
 }

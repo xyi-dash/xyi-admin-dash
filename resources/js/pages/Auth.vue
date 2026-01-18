@@ -86,9 +86,7 @@ export default {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('account', JSON.stringify(response.data.account))
         
-        this.success = `Добро пожаловать, ${response.data.account.name}!`
-        
-        this.$emit('login', response.data.account)
+        this.$router.push('/dashboard')
       } catch (err) {
         if (err.response?.status === 422) {
           const errors = err.response.data.errors
