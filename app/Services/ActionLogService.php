@@ -9,6 +9,9 @@ class ActionLogService
 {
     public const LOGIN = 'login';
     public const LOGOUT = 'logout';
+    public const ADMIN_AUTH = 'admin_auth';
+    public const CP_LOGIN = 'cp_login';
+
     public const ADMIN_PROMOTE = 'admin_promote';
     public const ADMIN_DEMOTE = 'admin_demote';
     public const ADMIN_WARN = 'admin_warn';
@@ -16,6 +19,23 @@ class ActionLogService
     public const ADMIN_REMOVE = 'admin_remove';
     public const ADMIN_GIVE_GA = 'admin_give_ga';
     public const ADMIN_REMOVE_GA = 'admin_remove_ga';
+    public const ADMIN_APPOINT = 'admin_appoint';
+    public const ADMIN_CONFIRM = 'admin_confirm';
+    public const ADMIN_PURCHASE_CONFIRM = 'admin_purchase_confirm';
+
+    public const NEWS_CREATE = 'news_create';
+    public const NEWS_UPDATE = 'news_update';
+    public const NEWS_DELETE = 'news_delete';
+
+    public const SERVER_SETTINGS_UPDATE = 'server_settings_update';
+
+    public const CP_USER_ADD = 'cp_user_add';
+    public const CP_USER_REMOVE = 'cp_user_remove';
+    public const CP_USER_UPDATE = 'cp_user_update';
+
+    public const VIEW_ADMIN_LOGS = 'view_admin_logs';
+    public const VIEW_GA_ACTIONS = 'view_ga_actions';
+    public const VIEW_REMOVED_ADMINS = 'view_removed_admins';
 
     public function log(
         string $actionType,
@@ -50,7 +70,6 @@ class ActionLogService
         ?array $details = null
     ): ActionLog {
         $user = $request->user();
-        
         return $this->log(
             $actionType,
             $user->game_account_id,
@@ -73,5 +92,45 @@ class ActionLogService
     {
         return $this->log(self::LOGOUT, $accountId, $accountName, $server, ip: $ip);
     }
-}
 
+    public function logAdminAuth(int $accountId, string $accountName, string $server, string $ip): ActionLog
+    {
+        return $this->log(self::ADMIN_AUTH, $accountId, $accountName, $server, ip: $ip);
+    }
+
+    public function logCPLogin(int $accountId, string $accountName, string $server, string $ip): ActionLog
+    {
+        return $this->log(self::CP_LOGIN, $accountId, $accountName, $server, ip: $ip);
+    }
+
+    public static function getActionTypes(): array
+    {
+        // would approve this mapping
+        return [
+            self::LOGIN => 'login',
+            self::LOGOUT => 'logout',
+            self::ADMIN_AUTH => 'admin auth',
+            self::CP_LOGIN => 'cp login',
+            self::ADMIN_PROMOTE => 'promote',
+            self::ADMIN_DEMOTE => 'demote',
+            self::ADMIN_WARN => 'warn',
+            self::ADMIN_UNWARN => 'unwarn',
+            self::ADMIN_REMOVE => 'remove',
+            self::ADMIN_GIVE_GA => 'give GA',
+            self::ADMIN_REMOVE_GA => 'remove GA',
+            self::ADMIN_APPOINT => 'appoint',
+            self::ADMIN_CONFIRM => 'confirm',
+            self::ADMIN_PURCHASE_CONFIRM => 'purchase confirm',
+            self::NEWS_CREATE => 'news create',
+            self::NEWS_UPDATE => 'news update',
+            self::NEWS_DELETE => 'news delete',
+            self::SERVER_SETTINGS_UPDATE => 'server settings',
+            self::CP_USER_ADD => 'cp user add',
+            self::CP_USER_REMOVE => 'cp user remove',
+            self::CP_USER_UPDATE => 'cp user update',
+            self::VIEW_ADMIN_LOGS => 'view admin logs',
+            self::VIEW_GA_ACTIONS => 'view ga actions',
+            self::VIEW_REMOVED_ADMINS => 'view removed',
+        ];
+    }
+}

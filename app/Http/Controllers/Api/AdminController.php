@@ -28,25 +28,13 @@ class AdminController extends Controller
         );
 
         if (!$isValid) {
-            $this->actionLogService->log(
-                ActionLogService::LOGIN_FAILED,
-                $user->game_account_id,
-                $user->game_account_name,
-                $user->server,
-                null, null, null,
-                ['type' => 'admin_auth'],
-                $request->ip()
-            );
             return response()->json(['error' => 'Invalid admin password'], 401);
         }
 
-        $this->actionLogService->log(
-            'admin_login',
+        $this->actionLogService->logAdminAuth(
             $user->game_account_id,
             $user->game_account_name,
             $user->server,
-            null, null, null,
-            null,
             $request->ip()
         );
 

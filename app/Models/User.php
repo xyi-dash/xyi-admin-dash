@@ -20,4 +20,10 @@ class User extends Authenticatable
         'created_at',
         'updated_at',
     ];
+
+    // filament wants this
+    public function getNameAttribute(): string
+    {
+        return $this->game_account_name ?? 'reimu';
+    }
 }

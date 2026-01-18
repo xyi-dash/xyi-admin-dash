@@ -3,6 +3,7 @@ window.axios = axios;
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use(config => {
     const token = localStorage.getItem('token');

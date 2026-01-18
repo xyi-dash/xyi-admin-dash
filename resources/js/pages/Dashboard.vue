@@ -5,6 +5,7 @@
       <span>({{ account?.server }})</span>
       <span v-if="profile?.account?.is_online">[online]</span>
       <button v-if="profile?.is_admin" @click="goToAdmin">{{ $t('dashboard.admin_panel') }}</button>
+      <button v-if="profile?.has_cp_access" @click="goToCP" class="cp-link">CP</button>
       <button @click="logout">{{ $t('dashboard.logout') }}</button>
     </div>
 
@@ -53,6 +54,14 @@ export default {
     goToAdmin() {
       this.$router.push('/admin/login')
     },
+    async goToCP() {
+      try {
+        const res = await axios.post('/api/cp/prepare')
+        window.location.href = '/cp?t=' + encodeURIComponent(res.data.token)
+      } catch (e) {
+        // reimu shrugs
+      }
+    },
     logout() {
       localStorage.removeItem('token')
       localStorage.removeItem('account')
@@ -73,6 +82,15 @@ export default {
 }
 .header button {
   margin-left: 10px;
+}
+.cp-link {
+  margin-left: 10px;
+  padding: 4px 8px;
+  background: #6366f1;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 12px;
 }
 pre {
   background: rgba(255,255,255,0.1);

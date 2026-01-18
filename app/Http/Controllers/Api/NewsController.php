@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActionLogService;
 use App\Services\NewsService;
 use App\Services\GameAccountService;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,8 @@ class NewsController extends Controller
 {
     public function __construct(
         private NewsService $newsService,
-        private GameAccountService $gameService
+        private GameAccountService $gameService,
+        private ActionLogService $actionLog
     ) {}
 
     public function index(): JsonResponse
@@ -54,6 +56,12 @@ class NewsController extends Controller
             $user->game_account_name
         );
 
+        $this->actionLog->logFromRequest(
+            ActionLogService::NEWS_CREATE,
+            $request,
+            details: ['news_id' => $id, 'title' => $request->title]
+        );
+
         return response()->json(['id' => $id, 'ok' => true]);
     }
 
@@ -76,6 +84,12 @@ class NewsController extends Controller
             $request->message2
         );
 
+        $this->actionLog->logFromRequest(
+            ActionLogService::NEWS_UPDATE,
+            $request,
+            details: ['news_id' => $id, 'title' => $request->title]
+        );
+
         return response()->json(['ok' => true]);
     }
 
@@ -86,6 +100,12 @@ class NewsController extends Controller
         }
 
         $this->newsService->delete($id);
+
+        $this->actionLog->logFromRequest(
+            ActionLogService::NEWS_DELETE,
+            $request,
+            details: ['news_id' => $id]
+        );
 
         return response()->json(['ok' => true]);
     }

@@ -20,6 +20,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logs', [LogController::class, 'index']);
     Route::get('/logs/types', [LogController::class, 'types']);
     Route::get('/logs/person/{personId}/{server}', [LogController::class, 'byPerson']);
+    
+    Route::post('/cp/prepare', function (\Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $token = encrypt($user->id . '|' . $user->server . '|' . time());
+        return response()->json(['ok' => true, 'token' => base64_encode($token)]);
+    });
 });
 
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {

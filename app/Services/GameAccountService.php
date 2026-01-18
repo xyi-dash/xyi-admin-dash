@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GameAccountService
@@ -182,6 +183,9 @@ class GameAccountService
         $user->update(['game_account_name' => $gameAccount->Name]);
 
         $user->tokens()->delete();
+
+        // also establish session for filament cp
+        Auth::login($user);
 
         return $user->createToken('auth-token')->plainTextToken;
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ControlPanelUser;
 use App\Services\GameAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,10 +32,16 @@ class AccountController extends Controller
             $user->game_account_name
         );
 
+        $hasCPAccess = ControlPanelUser::hasAccess(
+            $user->game_account_name,
+            $user->server
+        );
+
         return response()->json([
             'account' => $this->formatAccountData($account),
             'is_admin' => $adminLevel > 0,
             'admin_level' => $adminLevel,
+            'has_cp_access' => $hasCPAccess,
         ]);
     }
 

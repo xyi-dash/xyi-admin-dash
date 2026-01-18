@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActionLogService;
 use App\Services\AdminLogService;
 use App\Services\GameAccountService;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,8 @@ class AdminLogController extends Controller
 {
     public function __construct(
         private AdminLogService $logService,
-        private GameAccountService $gameService
+        private GameAccountService $gameService,
+        private ActionLogService $actionLog
     ) {}
 
     // 6+ can view this
@@ -95,6 +97,14 @@ class AdminLogController extends Controller
             $request->admin_name,
             $myAdmin->ID,
             $user->game_account_name
+        );
+
+        $this->actionLog->logFromRequest(
+            ActionLogService::ADMIN_PURCHASE_CONFIRM,
+            $request,
+            targetName: $request->admin_name,
+            targetServer: $user->server,
+            details: ['confirmed_admin' => $request->admin_name]
         );
 
         return response()->json(['ok' => true]);
@@ -180,6 +190,17 @@ class AdminLogController extends Controller
             $request->ads_enabled,
             $request->ads_link,
             $request->ads_description
+        );
+
+        $this->actionLog->logFromRequest(
+            ActionLogService::SERVER_SETTINGS_UPDATE,
+            $request,
+            details: [
+                'server' => $request->server,
+                'donate_multiplier' => $request->donate_multiplier,
+                'discounts_enabled' => $request->discounts_enabled,
+                'ads_enabled' => $request->ads_enabled,
+            ]
         );
 
         return response()->json(['ok' => true]);

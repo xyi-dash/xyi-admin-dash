@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
+use App\Services\ActionLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,17 +48,7 @@ class LogController extends Controller
 
     public function types(): JsonResponse
     {
-        return response()->json([
-            'login' => 'Вход в систему',
-            'logout' => 'Выход из системы',
-            'admin_promote' => 'Повышение админа',
-            'admin_demote' => 'Понижение админа',
-            'admin_warn' => 'Выдача предупреждения',
-            'admin_unwarn' => 'Снятие предупреждения',
-            'admin_remove' => 'Снятие админа',
-            'admin_give_ga' => 'Выдача ГА',
-            'admin_remove_ga' => 'Снятие ГА',
-        ]);
+        return response()->json(ActionLogService::getActionTypes());
     }
 }
 
