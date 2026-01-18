@@ -1,35 +1,32 @@
 <template>
-    <div class="dashboard">
-        <h1>Monser Dashboard</h1>
-        <p>Welcome to the dashboard</p>
-    </div>
+  <Dashboard v-if="account" :account="account" @logout="handleLogout" />
+  <Auth v-else @login="handleLogin" />
 </template>
 
 <script setup>
-// Vue 3 Composition API
-</script>
+import { ref, onMounted } from 'vue'
+import Auth from './pages/Auth.vue'
+import Dashboard from './pages/Dashboard.vue'
 
-<style lang="scss" scoped>
-.dashboard {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    color: #eee;
-    font-family: "JetBrains Mono", monospace;
+const account = ref(null)
 
-    h1 {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(90deg, #00d9ff, #00ff88);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+onMounted(() => {
+  const saved = localStorage.getItem('account')
+  if (saved) {
+    try {
+      account.value = JSON.parse(saved)
+    } catch (e) {
+      localStorage.removeItem('account')
+      localStorage.removeItem('token')
     }
+  }
+})
 
-    p {
-        opacity: 0.7;
-    }
+function handleLogin(acc) {
+  account.value = acc
 }
-</style>
+
+function handleLogout() {
+  account.value = null
+}
+</script>

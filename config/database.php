@@ -83,6 +83,59 @@ return [
             ]) : [],
         ],
 
+        // game server databases
+        'gangwar' => [
+            'driver' => 'mariadb',
+            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'port' => env('GAME_DB_PORT', '3310'),
+            'database' => 'gangwar',
+            'username' => env('GAME_DB_USERNAME'),
+            'password' => env('GAME_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+
+        'gangwar2' => [
+            'driver' => 'mariadb',
+            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'port' => env('GAME_DB_PORT', '3310'),
+            'database' => 'gangwar2',
+            'username' => env('GAME_DB_USERNAME'),
+            'password' => env('GAME_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+
+        'gangwar3' => [
+            'driver' => 'mariadb',
+            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'port' => env('GAME_DB_PORT', '3310'),
+            'database' => 'gangwar3',
+            'username' => env('GAME_DB_USERNAME'),
+            'password' => env('GAME_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+
+        'gangwar4' => [
+            'driver' => 'mariadb',
+            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'port' => env('GAME_DB_PORT', '3310'),
+            'database' => 'gangwar4',
+            'username' => env('GAME_DB_USERNAME'),
+            'password' => env('GAME_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
