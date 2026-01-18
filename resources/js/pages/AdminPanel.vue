@@ -87,7 +87,7 @@
         <h2>{{ $t('admin.admins_list.title') }}</h2>
         <p>{{ $t('common.total') }}: {{ adminList?.total || 0 }} | {{ $t('common.online') }}: {{ adminList?.online || 0 }}</p>
         
-        <div v-for="level in [6,5,4,3,2,1]" :key="level">
+        <div v-for="level in availableLevels" :key="level">
           <h3>{{ $t('admin.admins_list.level_title', { level }) }}</h3>
           <table v-if="getAdminsByLevel(level).length">
             <tr>
@@ -422,6 +422,10 @@ export default {
     canBuy() {
       if (!this.myAdmin) return false
       return this.myAdmin.level <= 5
+    },
+    availableLevels() {
+      if (!this.adminList?.admins) return []
+      return [...new Set(this.adminList.admins.map(a => a.level))].sort((a, b) => b - a)
     }
   },
   mounted() {
