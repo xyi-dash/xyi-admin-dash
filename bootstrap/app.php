@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+        // pure token auth, no cookies bs
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -46,6 +46,34 @@ class GameAccountService
             ->first();
     }
 
+    public function getFullAccountData(string $server, int $accountId): ?object
+    {
+        $connection = $this->getConnection($server);
+        if (!$connection) {
+            return null;
+        }
+
+        return DB::connection($connection)
+            ->table('a27ccount')
+            ->where('ID', $accountId)
+            ->first();
+    }
+
+    public function getAdminLevel(string $server, string $nickname): int
+    {
+        $connection = $this->getConnection($server);
+        if (!$connection) {
+            return 0;
+        }
+
+        $admin = DB::connection($connection)
+            ->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$nickname])
+            ->first(['Adm']);
+
+        return $admin?->Adm ?? 0;
+    }
+
     public function createSessionToken(object $gameAccount, string $server): string
     {
         $user = User::firstOrCreate(

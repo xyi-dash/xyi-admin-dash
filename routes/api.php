@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\LogController;
 
 Route::prefix('auth')->group(function () {
@@ -11,6 +12,8 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/account/profile', [AccountController::class, 'profile']);
+    
     Route::get('/logs', [LogController::class, 'index']);
     Route::get('/logs/types', [LogController::class, 'types']);
     Route::get('/logs/person/{personId}/{server}', [LogController::class, 'byPerson']);
