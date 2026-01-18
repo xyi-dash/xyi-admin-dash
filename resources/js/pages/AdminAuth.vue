@@ -1,6 +1,6 @@
 <template>
   <div class="admin-auth">
-    <h1>Авторизация в админку</h1>
+    <h1>{{ $t('admin_auth.title') }}</h1>
     <p>{{ accountName }}</p>
     
     <div v-if="error" class="error">{{ error }}</div>
@@ -9,16 +9,16 @@
       <input
         v-model="password"
         type="password"
-        placeholder="Админ пароль"
+        :placeholder="$t('admin_auth.password_placeholder')"
         :disabled="loading"
         autofocus
       />
       <button type="submit" :disabled="loading">
-        {{ loading ? '...' : 'Войти' }}
+        {{ loading ? '...' : $t('admin_auth.login') }}
       </button>
     </form>
     
-    <button class="back" @click="$router.push('/dashboard')">← назад</button>
+    <button class="back" @click="$router.push('/dashboard')">← {{ $t('admin_auth.back') }}</button>
   </div>
 </template>
 
@@ -61,9 +61,9 @@ export default {
         if (err.response?.status === 401) {
           this.error = 'wrong password'
         } else if (err.response?.status === 403) {
-          this.error = 'youre not an admin'
+          this.error = this.$t('errors.not_admin')
         } else {
-          this.error = 'error'
+          this.error = this.$t('errors.failed_load')
         }
       } finally {
         this.loading = false
@@ -121,4 +121,3 @@ button:hover {
   margin-bottom: 10px;
 }
 </style>
-

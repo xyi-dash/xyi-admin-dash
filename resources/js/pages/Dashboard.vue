@@ -4,11 +4,11 @@
       <strong>{{ profile?.account?.name || account?.name || '...' }}</strong>
       <span>({{ account?.server }})</span>
       <span v-if="profile?.account?.is_online">[online]</span>
-      <button v-if="profile?.is_admin" @click="goToAdmin">админ-панель</button>
-      <button @click="logout">I am dick and wang!</button>
+      <button v-if="profile?.is_admin" @click="goToAdmin">{{ $t('dashboard.admin_panel') }}</button>
+      <button @click="logout">{{ $t('dashboard.logout') }}</button>
     </div>
 
-    <div v-if="loading">загрузка...</div>
+    <div v-if="loading">{{ $t('common.loading') }}</div>
     <div v-else-if="error">{{ error }}</div>
     
     <pre v-else-if="profile">{{ JSON.stringify(profile, null, 2) }}</pre>
@@ -45,7 +45,7 @@ export default {
         const response = await axios.get('/api/account/profile')
         this.profile = response.data
       } catch (err) {
-        this.error = 'не удалось загрузить профиль'
+        this.error = this.$t('errors.failed_load')
       } finally {
         this.loading = false
       }

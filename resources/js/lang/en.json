@@ -1,0 +1,173 @@
+{
+  "common": {
+    "loading": "loading...",
+    "back": "back",
+    "exit": "exit",
+    "save": "save",
+    "cancel": "cancel",
+    "search": "search",
+    "delete": "delete",
+    "edit": "edit",
+    "create": "create",
+    "confirm": "confirm",
+    "yes": "yes",
+    "no": "no",
+    "on": "ON",
+    "off": "OFF",
+    "page": "page",
+    "total": "Total",
+    "online": "Online",
+    "nothing": "nothing here",
+    "not_implemented": "not implemented yet"
+  },
+  "errors": {
+    "no_access": "no access",
+    "not_found": "not found",
+    "failed_load": "failed to load",
+    "failed_save": "failed to save",
+    "not_admin": "not an admin lil blud 🙏😭"
+  },
+  "auth": {
+    "title": "Account Login",
+    "server": "Server",
+    "select_server": "Select server",
+    "nickname": "Game nickname",
+    "nickname_placeholder": "Enter your game nickname",
+    "password": "Password",
+    "password_placeholder": "Enter password",
+    "login": "Login",
+    "logging_in": "Please wait...",
+    "welcome": "Welcome, {name}."
+  },
+  "admin_auth": {
+    "title": "Admin Login",
+    "password": "Admin password",
+    "password_placeholder": "Enter admin password",
+    "login": "Enter admin panel",
+    "back": "Back"
+  },
+  "dashboard": {
+    "admin_panel": "admin panel",
+    "logout": "logout"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "level": "lvl",
+    "ga": "GA",
+    "nav": {
+      "home": "Home",
+      "admins": "Admins",
+      "actions": "Admin Actions",
+      "warnings": "Warnings",
+      "purchases": "Purchases",
+      "removed": "Removed Admins",
+      "ga_actions": "GA Actions",
+      "news": "News",
+      "servers": "Servers"
+    },
+    "home": {
+      "title": "My Info",
+      "level": "Level",
+      "warnings": "Warnings",
+      "appointed_by": "Appointed by",
+      "appointed_date": "Date",
+      "last_online": "Last online",
+      "confirmed": "Confirmed",
+      "reputation": "Reputation",
+      "playtime": "Playtime",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "day_before": "Day before",
+      "week": "Week",
+      "stats": "Stats",
+      "hours_played": "Hours played",
+      "punishments": "Punishments",
+      "reports_answered": "Reports answered",
+      "shop": "Shop (pechenki zone)",
+      "promotion": "Promotion",
+      "available": "available",
+      "remove_warning": "Remove warning",
+      "no_warns": "no warns lol",
+      "payment_not_ready": "payment not implemented yet, reimu is working on it"
+    },
+    "admins_list": {
+      "title": "Admin List",
+      "level_title": "Level {level}",
+      "name": "Name",
+      "warns": "Warns",
+      "rep": "Reputation",
+      "three_days": "3 days",
+      "status": "Status",
+      "no_admins": "no admins"
+    },
+    "actions": {
+      "title": "Admin Actions",
+      "admin": "Admin",
+      "player": "Player",
+      "cmd": "CMD",
+      "amount": "Amount",
+      "reason": "Reason",
+      "date": "Date"
+    },
+    "warnings_page": {
+      "title": "Issued Warnings",
+      "issued_by": "issued by",
+      "issued_to": "issued to",
+      "by": "By",
+      "to": "To",
+      "no_warnings": "no warnings found"
+    },
+    "purchases_page": {
+      "title": "Purchases Monitor",
+      "admin": "admin",
+      "vk": "vk page",
+      "type": "Type",
+      "level": "Level",
+      "all_types": "all types",
+      "buy_admin": "buy admin",
+      "promotion": "promotion",
+      "remove_warn": "remove warn",
+      "action": "Action",
+      "no_purchases": "no purchases"
+    },
+    "removed_page": {
+      "title": "Removed Admins",
+      "removed": "removed admin",
+      "removed_by": "removed by",
+      "no_removed": "no removed admins"
+    },
+    "ga_actions_page": {
+      "title": "GA Actions",
+      "ga": "GA admin",
+      "target": "target",
+      "all": "all",
+      "warn": "warn",
+      "unwarn": "unwarn",
+      "promote": "promote",
+      "demote": "demote",
+      "remove": "remove",
+      "appoint": "appoint"
+    },
+    "news_page": {
+      "title": "News Management",
+      "add_new": "add new",
+      "title_field": "title",
+      "external_msg": "external message (html)",
+      "internal_msg": "internal message (html)",
+      "author": "Author",
+      "actions": "Actions",
+      "no_news": "no news is good news",
+      "delete_confirm": "delete this news?"
+    },
+    "servers_page": {
+      "title": "Server Settings",
+      "donate_multiplier": "Donate multiplier",
+      "discounts": "Discounts",
+      "ads": "Ads",
+      "ads_link": "Ads link",
+      "ads_desc": "Ads desc",
+      "failed_load": "failed to load"
+    }
+  }
+}
+

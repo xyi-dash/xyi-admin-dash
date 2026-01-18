@@ -3,7 +3,7 @@
     <div class="auth-container">
       <div class="header">
         <h1 class="logo">Monser DM</h1>
-        <p class="subtitle">Авторизация аккаунта</p>
+        <p class="subtitle">{{ $t('auth.title') }}</p>
       </div>
 
       <div class="steps">
@@ -17,9 +17,9 @@
 
       <form @submit.prevent="submitForm">
         <div class="form-group">
-          <label class="form-label">Сервер</label>
+          <label class="form-label">{{ $t('auth.server') }}</label>
           <select v-model="form.server" class="form-input" required :disabled="loading">
-            <option disabled value="">Выберите сервер</option>
+            <option disabled value="">{{ $t('auth.select_server') }}</option>
             <option value="one">Server 01</option>
             <option value="two">Server 02</option>
             <option value="three">Server 03</option>
@@ -27,30 +27,30 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Игровой никнейм</label>
+          <label class="form-label">{{ $t('auth.nickname') }}</label>
           <input
             v-model="form.nickname"
             class="form-input"
-            placeholder="Введите ваш игровой никнейм"
+            :placeholder="$t('auth.nickname_placeholder')"
             required
             :disabled="loading"
           />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Пароль</label>
+          <label class="form-label">{{ $t('auth.password') }}</label>
           <input
             v-model="form.password"
             type="password"
             class="form-input"
-            placeholder="Введите пароль"
+            :placeholder="$t('auth.password_placeholder')"
             required
             :disabled="loading"
           />
         </div>
 
         <button class="submit-btn" :disabled="loading">
-          {{ loading ? 'Подождите...' : 'Войти' }}
+          {{ loading ? $t('auth.logging_in') : $t('auth.login') }}
         </button>
       </form>
     </div>
@@ -90,9 +90,9 @@ export default {
       } catch (err) {
         if (err.response?.status === 422) {
           const errors = err.response.data.errors
-          this.error = Object.values(errors).flat()[0] || 'Неверные данные'
+          this.error = Object.values(errors).flat()[0] || this.$t('errors.not_found')
         } else {
-          this.error = 'Ошибка сервера. Попробуйте позже.'
+          this.error = this.$t('errors.failed_load')
         }
       } finally {
         this.loading = false
