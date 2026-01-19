@@ -21,6 +21,7 @@ class ActionLogService
     public const ADMIN_REMOVE_GA = 'admin_remove_ga';
     public const ADMIN_APPOINT = 'admin_appoint';
     public const ADMIN_CONFIRM = 'admin_confirm';
+    public const ADMIN_RESET_PASSWORD = 'admin_reset_password';
     public const ADMIN_PURCHASE_CONFIRM = 'admin_purchase_confirm';
 
     public const NEWS_CREATE = 'news_create';
@@ -32,10 +33,6 @@ class ActionLogService
     public const CP_USER_ADD = 'cp_user_add';
     public const CP_USER_REMOVE = 'cp_user_remove';
     public const CP_USER_UPDATE = 'cp_user_update';
-
-    public const VIEW_ADMIN_LOGS = 'view_admin_logs';
-    public const VIEW_GA_ACTIONS = 'view_ga_actions';
-    public const VIEW_REMOVED_ADMINS = 'view_removed_admins';
 
     public function log(
         string $actionType,
@@ -120,6 +117,7 @@ class ActionLogService
             self::ADMIN_REMOVE_GA => 'remove GA',
             self::ADMIN_APPOINT => 'appoint',
             self::ADMIN_CONFIRM => 'confirm',
+            self::ADMIN_RESET_PASSWORD => 'reset password',
             self::ADMIN_PURCHASE_CONFIRM => 'purchase confirm',
             self::NEWS_CREATE => 'news create',
             self::NEWS_UPDATE => 'news update',
@@ -128,9 +126,6 @@ class ActionLogService
             self::CP_USER_ADD => 'cp user add',
             self::CP_USER_REMOVE => 'cp user remove',
             self::CP_USER_UPDATE => 'cp user update',
-            self::VIEW_ADMIN_LOGS => 'view admin logs',
-            self::VIEW_GA_ACTIONS => 'view ga actions',
-            self::VIEW_REMOVED_ADMINS => 'view removed',
         ];
     }
 }

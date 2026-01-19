@@ -167,6 +167,41 @@
       "ads_link": "Ссылка рекламы",
       "ads_desc": "Описание рекламы",
       "failed_load": "не удалось загрузить"
+    },
+    "manage": {
+      "title": "Управление админом",
+      "select_action": "выберите действие",
+      "reason_placeholder": "причина",
+      "execute": "выполнить",
+      "back_to_list": "вернуться к списку",
+      "history": "история действий",
+      "no_actions": "нет доступных действий",
+      "success": "готово",
+      "actions": {
+        "warn": "выдать пред",
+        "unwarn": "снять пред",
+        "promote": "повысить",
+        "demote": "понизить",
+        "remove": "снять админа",
+        "reset_password": "сбросить пароль",
+        "confirm": "подтвердить",
+        "give_ga": "выдать доступ ГА",
+        "remove_ga": "снять доступ ГА"
+      },
+      "errors": {
+        "admin_not_found": "админ не найден",
+        "max_warnings": "уже максимум предов",
+        "no_warnings": "нет предов для снятия",
+        "cannot_promote_higher": "нельзя повысить до этого уровня",
+        "cannot_demote_same_or_higher": "нельзя понизить такого же или выше уровня",
+        "already_lowest": "уже минимальный уровень",
+        "cannot_remove_same_or_higher": "нельзя снять такого же или выше уровня",
+        "cannot_reset_same_or_higher": "нельзя сбросить пароль такому же или выше уровню",
+        "already_confirmed": "уже подтверждён",
+        "already_ga": "уже имеет статус ГА",
+        "not_ga": "не имеет статуса ГА",
+        "action_not_allowed": "действие недоступно"
+      }
     }
   }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminLogController;
 use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\AdminManagementController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -36,6 +37,11 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::get('/me', [AdminController::class, 'me']);
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
+
+    // 6+ admin management
+    Route::post('/manage', [AdminManagementController::class, 'execute']);
+    Route::get('/manage/{adminName}/actions', [AdminManagementController::class, 'availableActions']);
+    Route::get('/manage/{adminName}/history', [AdminManagementController::class, 'history']);
 
     // 6+ logs
     Route::get('/logs/actions', [AdminLogController::class, 'adminActions']);

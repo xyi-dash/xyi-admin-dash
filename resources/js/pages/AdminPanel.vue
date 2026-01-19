@@ -99,7 +99,7 @@
               <th>{{ $t('admin.admins_list.status') }}</th>
             </tr>
             <tr v-for="admin in getAdminsByLevel(level)" :key="admin.id">
-              <td>{{ admin.name }}</td>
+              <td><a href="#" @click.prevent="openManage(admin.name)" class="admin-link">{{ admin.name }}</a></td>
               <td>{{ admin.warnings }}/3</td>
               <td>+{{ admin.reputation.up }}/-{{ admin.reputation.down }}</td>
               <td>{{ admin.playtime_3days }}</td>
@@ -363,6 +363,43 @@
           </div>
         </div>
       </div>
+
+      <!-- manage admin -->
+      <div v-if="currentPage === 'manage'" class="page">
+        <button @click="switchPage('admins')" class="back-btn">← {{ $t('admin.manage.back_to_list') }}</button>
+        <h2>{{ $t('admin.manage.title') }}: {{ manageData.admin?.name }}</h2>
+        
+        <p v-if="pageLoading">{{ $t('common.loading') }}</p>
+        <div v-else-if="manageData.admin">
+          <table class="admin-info">
+            <tr><td>{{ $t('admin.home.level') }}:</td><td>{{ manageData.admin.level }}</td></tr>
+            <tr><td>{{ $t('admin.ga') }}:</td><td>{{ manageData.admin.is_ga ? $t('common.yes') : $t('common.no') }}</td></tr>
+            <tr><td>{{ $t('admin.home.warnings') }}:</td><td>{{ manageData.admin.warnings }}/3</td></tr>
+            <tr><td>{{ $t('admin.home.confirmed') }}:</td><td>{{ manageData.admin.needs_confirm ? $t('common.no') : $t('common.yes') }}</td></tr>
+            <tr><td>{{ $t('admin.home.appointed_by') }}:</td><td>{{ manageData.admin.appointed_by }}</td></tr>
+          </table>
+
+          <div v-if="manageData.actions.length" class="manage-form">
+            <h3>{{ $t('admin.purchases_page.action') }}</h3>
+            <select v-model="manageForm.action">
+              <option value="">{{ $t('admin.manage.select_action') }}</option>
+              <option v-for="act in manageData.actions" :key="act" :value="act">
+                {{ $t('admin.manage.actions.' + act) }}
+              </option>
+            </select>
+            <input 
+              v-if="manageForm.action && !['reset_password', 'confirm'].includes(manageForm.action)"
+              v-model="manageForm.reason" 
+              :placeholder="$t('admin.manage.reason_placeholder')" 
+            />
+            <button @click="executeAction" :disabled="!manageForm.action || manageExecuting">
+              {{ manageExecuting ? '...' : $t('admin.manage.execute') }}
+            </button>
+            <span v-if="manageMessage" class="manage-msg">{{ manageMessage }}</span>
+          </div>
+          <p v-else><i>{{ $t('admin.manage.no_actions') }}</i></p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -399,7 +436,12 @@ export default {
         purchases: { admin: '', vk: '', type: '', page: 0 },
         removed: { removed: '', removed_by: '', level: '' },
         ga: { ga: '', target: '', type: '', page: 0 }
-      }
+      },
+      
+      manageData: { admin: null, actions: [] },
+      manageForm: { action: '', reason: '' },
+      manageExecuting: false,
+      manageMessage: ''
     }
   },
   computed: {
@@ -653,6 +695,56 @@ export default {
     goBack() {
       localStorage.removeItem('admin_session')
       this.$router.push('/dashboard')
+    },
+    
+    async openManage(adminName) {
+      this.currentPage = 'manage'
+      this.manageData = { admin: null, actions: [] }
+      this.manageForm = { action: '', reason: '' }
+      this.manageMessage = ''
+      this.pageLoading = true
+      
+      try {
+        const res = await axios.get('/api/admin/manage/' + encodeURIComponent(adminName) + '/actions')
+        this.manageData.admin = res.data.admin
+        this.manageData.actions = res.data.actions
+      } catch (e) {
+        console.warn('failed to load manage data')
+      } finally {
+        this.pageLoading = false
+      }
+    },
+    
+    async executeAction() {
+      if (!this.manageForm.action || !this.manageData.admin) return
+      
+      const needsReason = !['reset_password', 'confirm'].includes(this.manageForm.action)
+      if (needsReason && !this.manageForm.reason.trim()) {
+        this.manageMessage = this.$t('admin.actions.reason') + '!'
+        return
+      }
+      
+      this.manageExecuting = true
+      this.manageMessage = ''
+      
+      try {
+        const res = await axios.post('/api/admin/manage', {
+          target_name: this.manageData.admin.name,
+          action: this.manageForm.action,
+          reason: this.manageForm.reason || ' '
+        })
+        
+        this.manageMessage = this.$t('admin.manage.success')
+        this.manageData.admin = res.data.admin
+        this.manageForm = { action: '', reason: '' }
+        
+        this.loadData()
+      } catch (e) {
+        const errKey = e.response?.data?.error
+        this.manageMessage = errKey ? this.$t('admin.manage.errors.' + errKey) : this.$t('errors.failed_save')
+      } finally {
+        this.manageExecuting = false
+      }
     }
   }
 }
@@ -702,4 +794,13 @@ h2, h3 { margin-top: 20px; }
 .news-form { margin: 15px 0; padding: 15px; background: #1a1a1a; border: 1px solid #333; }
 .news-form input, .news-form textarea { width: 100%; margin-bottom: 10px; padding: 8px; background: #222; color: #fff; border: 1px solid #444; }
 .news-form textarea { min-height: 100px; }
+.admin-link { color: #6cf; cursor: pointer; }
+.admin-link:hover { text-decoration: underline; }
+.back-btn { margin-bottom: 15px; }
+.admin-info { margin-bottom: 20px; }
+.manage-form { margin: 20px 0; padding: 15px; background: #1a1a1a; border: 1px solid #333; }
+.manage-form select, .manage-form input { padding: 8px; margin-right: 10px; background: #222; color: #fff; border: 1px solid #444; }
+.manage-form button { padding: 8px 16px; background: #444; color: #fff; border: 1px solid #555; cursor: pointer; }
+.manage-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+.manage-msg { margin-left: 10px; color: #fc6; }
 </style>

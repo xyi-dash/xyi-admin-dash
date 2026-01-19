@@ -167,6 +167,41 @@
       "ads_link": "Ads link",
       "ads_desc": "Ads desc",
       "failed_load": "failed to load"
+    },
+    "manage": {
+      "title": "Manage Admin",
+      "select_action": "select action",
+      "reason_placeholder": "reason",
+      "execute": "execute",
+      "back_to_list": "back to list",
+      "history": "action history",
+      "no_actions": "no actions available",
+      "success": "done",
+      "actions": {
+        "warn": "warn",
+        "unwarn": "unwarn",
+        "promote": "promote",
+        "demote": "demote",
+        "remove": "remove admin",
+        "reset_password": "reset password",
+        "confirm": "confirm",
+        "give_ga": "give GA access",
+        "remove_ga": "remove GA access"
+      },
+      "errors": {
+        "admin_not_found": "admin not found",
+        "max_warnings": "already at max warnings",
+        "no_warnings": "no warnings to remove",
+        "cannot_promote_higher": "cannot promote to this level",
+        "cannot_demote_same_or_higher": "cannot demote same or higher level",
+        "already_lowest": "already at lowest level",
+        "cannot_remove_same_or_higher": "cannot remove same or higher level",
+        "cannot_reset_same_or_higher": "cannot reset password for same or higher level",
+        "already_confirmed": "already confirmed",
+        "already_ga": "already has GA access",
+        "not_ga": "does not have GA access",
+        "action_not_allowed": "action not allowed"
+      }
     }
   }
 }
