@@ -79,7 +79,17 @@
       "removed": "Снятые админы",
       "ga_actions": "Действия Гл. администрации",
       "news": "Новости",
-      "servers": "Серверы"
+      "servers": "Серверы",
+      "extended": "Доп. меню",
+      "player_search": "Поиск игрока",
+      "reputation_logs": "Лог репутации",
+      "nickname_logs": "Смены ников",
+      "unban_logs": "Разблокировки",
+      "permanent_bans": "Вечные блокировки",
+      "ip_bans": "Блокировки IP",
+      "matchmaking": "Статистика ММ",
+      "money_logs": "Передача денег",
+      "accessory_logs": "Аксессуары"
     },
     "home": {
       "title": "Моя информация",
@@ -217,6 +227,125 @@
         "already_ga": "уже имеет статус ГА",
         "not_ga": "не имеет статуса ГА",
         "action_not_allowed": "действие недоступно"
+      }
+    },
+    "extended": {
+      "title": "Дополнительное меню",
+      "player_search": {
+        "title": "Поиск игрока",
+        "by_nick": "по нику",
+        "by_id": "по ID аккаунта",
+        "not_found": "игрок не найден"
+      },
+      "player_stats": {
+        "title": "Статистика игрока",
+        "account_id": "ID аккаунта",
+        "email": "Email",
+        "email_verified": "подтверждён",
+        "registered": "Зарегистрирован",
+        "last_online": "Последний вход",
+        "ip_last": "Посл. IP",
+        "ip_reg": "Рег. IP",
+        "level": "Уровень",
+        "cash": "Деньги",
+        "kills": "Убийств",
+        "deaths": "Смертей",
+        "kd": "K/D",
+        "donate": "Донат",
+        "gangwar": "GangWar",
+        "rank": "Звание",
+        "security": "Безопасность"
+      },
+      "reputation": {
+        "title": "Лог репутации",
+        "from": "от игрока",
+        "to": "игроку",
+        "type": "+/-",
+        "comment": "Комментарий",
+        "date": "Дата",
+        "no_logs": "логов репутации нет"
+      },
+      "nicknames": {
+        "title": "История смены ников",
+        "account_id": "ID аккаунта",
+        "old_nick": "старый ник",
+        "new_nick": "новый ник",
+        "approved_by": "Одобрил",
+        "date": "Дата",
+        "no_logs": "смен ников нет"
+      },
+      "unbans": {
+        "title": "История разблокировок",
+        "player": "игрок",
+        "date": "Дата",
+        "no_logs": "разблокировок нет... видимо все ведут себя хорошо"
+      },
+      "bans": {
+        "title": "Вечные блокировки",
+        "player": "игрок",
+        "reason": "Причина",
+        "admin": "Админ",
+        "date": "Дата",
+        "no_bans": "вечных блокировок нет"
+      },
+      "ip_bans": {
+        "title": "Вечные блокировки IP",
+        "ip": "IP",
+        "admin": "админ",
+        "admin_ip": "IP админа",
+        "date": "Дата",
+        "no_bans": "вечных блокировок IP нет"
+      },
+      "matchmaking": {
+        "title": "Статистика ММ",
+        "player": "игрок",
+        "elo": "ЭЛО",
+        "cash": "Деньги",
+        "kills": "Убийств",
+        "deaths": "Смертей",
+        "games": "Игр",
+        "wins": "Побед",
+        "mvp": "MVP",
+        "winrate": "Винрейт",
+        "no_stats": "статистики ММ нет"
+      },
+      "money_transfers": {
+        "title": "Лог передачи денег",
+        "from_id": "от ID",
+        "from_name": "от ника",
+        "to_id": "кому ID",
+        "to_name": "кому ник",
+        "amount": "Сумма",
+        "date": "Дата",
+        "no_logs": "переводов денег нет"
+      },
+      "accessories": {
+        "title": "Лог аксессуаров",
+        "account_id": "ID аккаунта",
+        "account_name": "имя аккаунта",
+        "accessory": "аксессуар",
+        "ip": "IP",
+        "accessory_name": "Аксессуар",
+        "action": "Действие",
+        "date": "Дата",
+        "no_logs": "логов аксессуаров нет"
+      },
+      "ranks": {
+        "hakurei_shrine_visitor": "Посетитель храма",
+        "newbie": "Новичок",
+        "beginner": "Начинающий",
+        "amateur": "Любитель",
+        "settled": "Освоившийся",
+        "advanced": "Продвинутый",
+        "experienced": "Опытный",
+        "master": "Мастер",
+        "professional": "Профессионал",
+        "fearless": "Бесстрашный",
+        "invincible": "Непобедимый",
+        "monster": "Монстер",
+        "immortal": "Бессмертный",
+        "matchless": "Бесподобный",
+        "legend": "Легенда"
       }
     }
   }

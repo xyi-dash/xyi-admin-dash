@@ -12,7 +12,6 @@ class GameAccountService
         'one' => 'gangwar',
         'two' => 'gangwar2',
         'three' => 'gangwar3',
-        'four' => 'gangwar4',
     ];
 
     public function authenticate(string $server, string $nickname, string $password): ?object

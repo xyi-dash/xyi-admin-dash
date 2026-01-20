@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Traits\ResolvesServer;
 use App\Services\GameAccountService;
 use App\Services\ActionLogService;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    use ResolvesServer;
+
     public function __construct(
         private GameAccountService $gameAccountService,
         private ActionLogService $actionLogService
@@ -44,12 +47,17 @@ class AdminController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
+        $server = $this->resolveServer($request);
         
-        $myAdmin = $this->gameAccountService->getAdminByName($user->server, $user->game_account_name);
+        if (!$server) {
+            return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
+        }
+
+        $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $myAdmin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
         $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
 
-        $admins = $this->gameAccountService->getAdminList($user->server, $myLevel, $isGA);
+        $admins = $this->gameAccountService->getAdminList($server, $myLevel, $isGA);
 
         return response()->json([
             'admins' => $admins,
@@ -62,16 +70,21 @@ class AdminController extends Controller
     public function show(Request $request, int $adminId): JsonResponse
     {
         $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
+        $server = $this->resolveServer($request);
+        
+        if (!$server) {
+            return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
+        }
 
-        $admin = $this->gameAccountService->getAdminById($user->server, $adminId);
+        $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $admin = $this->gameAccountService->getAdminById($server, $adminId);
 
         if (!$admin) {
-            return response()->json(['error' => 'Admin not found'], 404);
+            return response()->json(['error' => 'admin vanished into the gap'], 404);
         }
 
         if ($admin->Adm >= $myLevel && $admin->Name !== $user->game_account_name) {
-            return response()->json(['error' => 'Cannot view admins of same or higher level'], 403);
+            return response()->json(['error' => 'yukari says no peeking at higher levels'], 403);
         }
 
         return response()->json([
@@ -82,11 +95,16 @@ class AdminController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
+        $server = $this->resolveServer($request);
+        
+        if (!$server) {
+            return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
+        }
 
-        $admin = $this->gameAccountService->getAdminByName($user->server, $user->game_account_name);
+        $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
 
         if (!$admin) {
-            return response()->json(['error' => 'You are not an admin lil blud'], 404);
+            return response()->json(['error' => 'you are not an admin on this server lil blud'], 404);
         }
 
         return response()->json([

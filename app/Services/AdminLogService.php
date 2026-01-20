@@ -10,7 +10,6 @@ class AdminLogService
         'one' => 'gangwar',
         'two' => 'gangwar2',
         'three' => 'gangwar3',
-        'four' => 'gangwar4',
     ];
 
     // logsadmin2 types

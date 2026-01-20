@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Traits\ResolvesServer;
 use App\Services\ActionLogService;
 use App\Services\AdminLogService;
 use App\Services\GameAccountService;
@@ -11,25 +12,30 @@ use Illuminate\Http\Request;
 
 class AdminLogController extends Controller
 {
+    use ResolvesServer;
+
     public function __construct(
         private AdminLogService $logService,
         private GameAccountService $gameService,
         private ActionLogService $actionLog
     ) {}
 
-    // 6+ can view this
     public function adminActions(Request $request): JsonResponse
     {
-        if (!$this->canViewLogs($request)) {
-            return response()->json(['error' => 'nope'], 403);
+        $server = $this->resolveServer($request, 6);
+        if (!$server) {
+            return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
+        if (!$this->canViewLogs($request, $server)) {
+            return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
+        }
+
+        $myLevel = $this->getAdminLevelOnServer($request, $server);
 
         return response()->json(
             $this->logService->getAdminActions(
-                $user->server,
+                $server,
                 $myLevel,
                 (int) $request->query('page', 0),
                 $request->query('admin'),
@@ -40,18 +46,20 @@ class AdminLogController extends Controller
         );
     }
 
-    // 6+ can view
     public function warnings(Request $request): JsonResponse
     {
-        if (!$this->canViewLogs($request)) {
-            return response()->json(['error' => 'nope'], 403);
+        $server = $this->resolveServer($request, 6);
+        if (!$server) {
+            return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        $user = $request->user();
+        if (!$this->canViewLogs($request, $server)) {
+            return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
+        }
 
         return response()->json([
             'data' => $this->logService->getIssuedWarnings(
-                $user->server,
+                $server,
                 $request->query('issued_by'),
                 $request->query('issued_to'),
                 $request->query('reason')
@@ -59,18 +67,20 @@ class AdminLogController extends Controller
         ]);
     }
 
-    // 6+ can view
     public function purchases(Request $request): JsonResponse
     {
-        if (!$this->canViewLogs($request)) {
-            return response()->json(['error' => 'nope'], 403);
+        $server = $this->resolveServer($request, 6);
+        if (!$server) {
+            return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        $user = $request->user();
+        if (!$this->canViewLogs($request, $server)) {
+            return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
+        }
 
         return response()->json(
             $this->logService->getPurchases(
-                $user->server,
+                $server,
                 (int) $request->query('page', 0),
                 $request->query('admin'),
                 $request->query('vk'),
@@ -80,20 +90,25 @@ class AdminLogController extends Controller
         );
     }
 
-    // 6+ can confirm purchases pechenki
     public function confirmPurchase(Request $request): JsonResponse
     {
-        if (!$this->canViewLogs($request)) {
-            return response()->json(['error' => 'nope'], 403);
+        $user = $request->user();
+        $server = $this->resolveServer($request, 6);
+        
+        if (!$server) {
+            return response()->json(['error' => 'marisa stole your access'], 403);
+        }
+
+        if (!$this->canViewLogs($request, $server)) {
+            return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
         $request->validate(['admin_name' => 'required|string']);
         
-        $user = $request->user();
-        $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
+        $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
 
         $this->logService->confirmPurchase(
-            $user->server,
+            $server,
             $request->admin_name,
             $myAdmin->ID,
             $user->game_account_name
@@ -103,27 +118,23 @@ class AdminLogController extends Controller
             ActionLogService::ADMIN_PURCHASE_CONFIRM,
             $request,
             targetName: $request->admin_name,
-            targetServer: $user->server,
+            targetServer: $server,
             details: ['confirmed_admin' => $request->admin_name]
         );
 
         return response()->json(['ok' => true]);
     }
 
-    // 7lvls can view
     public function removedAdmins(Request $request): JsonResponse
     {
-        $myLevel = $request->attributes->get('admin_level');
-        
-        if ($myLevel < 7) {
-            return response()->json(['error' => 'need 7lvl blud'], 403);
+        $server = $this->resolveServer($request, 7);
+        if (!$server) {
+            return response()->json(['error' => 'need 7lvl on this server blud'], 403);
         }
-
-        $user = $request->user();
 
         return response()->json([
             'data' => $this->logService->getRemovedAdmins(
-                $user->server,
+                $server,
                 $request->query('removed'),
                 $request->query('removed_by'),
                 $request->query('level') ? (int) $request->query('level') : null,
@@ -132,20 +143,16 @@ class AdminLogController extends Controller
         ]);
     }
 
-    // 8lvl only
     public function gaActions(Request $request): JsonResponse
     {
-        $myLevel = $request->attributes->get('admin_level');
-        
-        if ($myLevel < 8) {
-            return response()->json(['error' => '8lvl only sorry'], 403);
+        $server = $this->resolveServer($request, 8);
+        if (!$server) {
+            return response()->json(['error' => 'eirin says 8lvl only'], 403);
         }
-
-        $user = $request->user();
 
         return response()->json(
             $this->logService->getGAActions(
-                $user->server,
+                $server,
                 (int) $request->query('page', 0),
                 $request->query('ga'),
                 $request->query('target'),
@@ -175,7 +182,7 @@ class AdminLogController extends Controller
         }
 
         $request->validate([
-            'server' => 'required|string|in:one,two,three,four',
+            'server' => 'required|string|in:one,two,three',
             'donate_multiplier' => 'required|integer|min:0|max:2',
             'discounts_enabled' => 'required|boolean',
             'ads_enabled' => 'required|boolean',
@@ -206,24 +213,28 @@ class AdminLogController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    // 6+
-    private function canViewLogs(Request $request): bool
+    private function canViewLogs(Request $request, string $server): bool
     {
-        $myLevel = $request->attributes->get('admin_level');
         $user = $request->user();
-        $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
-        $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
+        $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
+        
+        if (!$myAdmin) return false;
+        
+        $myLevel = $myAdmin->Adm ?? 0;
+        $isGA = ($myAdmin->GA ?? 0) == 1;
 
         return $myLevel > 6 || ($myLevel === 6 && $isGA);
     }
 
-    // 8+
     private function canManageServers(Request $request): bool
     {
-        $myLevel = $request->attributes->get('admin_level');
         $user = $request->user();
         $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
-        $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
+        
+        if (!$myAdmin) return false;
+        
+        $myLevel = $myAdmin->Adm ?? 0;
+        $isGA = ($myAdmin->GA ?? 0) == 1;
 
         return $myLevel === 8 && $isGA;
     }

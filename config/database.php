@@ -123,19 +123,6 @@ return [
             'strict' => false,
         ],
 
-        'gangwar4' => [
-            'driver' => 'mariadb',
-            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
-            'port' => env('GAME_DB_PORT', '3310'),
-            'database' => 'gangwar4',
-            'username' => env('GAME_DB_USERNAME'),
-            'password' => env('GAME_DB_PASSWORD'),
-            'charset' => 'utf8',
-            'collation' => 'utf8_general_ci',
-            'prefix' => '',
-            'strict' => false,
-        ],
-
         // site db (news etc) same creds as game dbs
         'site' => [
             'driver' => 'mariadb',

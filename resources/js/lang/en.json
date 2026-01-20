@@ -79,7 +79,17 @@
       "removed": "Removed Admins",
       "ga_actions": "GA Actions",
       "news": "News",
-      "servers": "Servers"
+      "servers": "Servers",
+      "extended": "Extended Menu",
+      "player_search": "Player Search",
+      "reputation_logs": "Reputation Logs",
+      "nickname_logs": "Nickname Changes",
+      "unban_logs": "Unbans",
+      "permanent_bans": "Permanent Bans",
+      "ip_bans": "IP Bans",
+      "matchmaking": "Matchmaking",
+      "money_logs": "Money Transfers",
+      "accessory_logs": "Accessories"
     },
     "home": {
       "title": "My Info",
@@ -217,6 +227,125 @@
         "already_ga": "already has GA access",
         "not_ga": "does not have GA access",
         "action_not_allowed": "action not allowed"
+      }
+    },
+    "extended": {
+      "title": "Extended Menu",
+      "player_search": {
+        "title": "Player Search",
+        "by_nick": "by nickname",
+        "by_id": "by account ID",
+        "not_found": "player not found"
+      },
+      "player_stats": {
+        "title": "Player Stats",
+        "account_id": "Account ID",
+        "email": "Email",
+        "email_verified": "verified",
+        "registered": "Registered",
+        "last_online": "Last Online",
+        "ip_last": "Last IP",
+        "ip_reg": "Registration IP",
+        "level": "Level",
+        "cash": "Cash",
+        "kills": "Kills",
+        "deaths": "Deaths",
+        "kd": "K/D",
+        "donate": "Donate",
+        "gangwar": "GangWar",
+        "rank": "Rank",
+        "security": "Security"
+      },
+      "reputation": {
+        "title": "Reputation Logs",
+        "from": "from player",
+        "to": "to player",
+        "type": "+/-",
+        "comment": "Comment",
+        "date": "Date",
+        "no_logs": "no reputation logs"
+      },
+      "nicknames": {
+        "title": "Nickname Changes",
+        "account_id": "Account ID",
+        "old_nick": "old nick",
+        "new_nick": "new nick",
+        "approved_by": "Approved By",
+        "date": "Date",
+        "no_logs": "no nickname changes"
+      },
+      "unbans": {
+        "title": "Unban History",
+        "player": "player",
+        "date": "Date",
+        "no_logs": "no unbans... everyone behaves apparently"
+      },
+      "bans": {
+        "title": "Permanent Bans",
+        "player": "player",
+        "reason": "Reason",
+        "admin": "Admin",
+        "date": "Date",
+        "no_bans": "no permanent bans"
+      },
+      "ip_bans": {
+        "title": "Permanent IP Bans",
+        "ip": "IP",
+        "admin": "admin",
+        "admin_ip": "Admin IP",
+        "date": "Date",
+        "no_bans": "no permanent ip bans"
+      },
+      "matchmaking": {
+        "title": "Matchmaking Stats",
+        "player": "player",
+        "elo": "ELO",
+        "cash": "Cash",
+        "kills": "Kills",
+        "deaths": "Deaths",
+        "games": "Games",
+        "wins": "Wins",
+        "mvp": "MVP",
+        "winrate": "Winrate",
+        "no_stats": "no mm stats"
+      },
+      "money_transfers": {
+        "title": "Money Transfer Logs",
+        "from_id": "from ID",
+        "from_name": "from nickname",
+        "to_id": "to ID",
+        "to_name": "to nickname",
+        "amount": "Amount",
+        "date": "Date",
+        "no_logs": "no money transfers"
+      },
+      "accessories": {
+        "title": "Accessory Logs",
+        "account_id": "Account ID",
+        "account_name": "account name",
+        "accessory": "accessory",
+        "ip": "IP",
+        "accessory_name": "Accessory",
+        "action": "Action",
+        "date": "Date",
+        "no_logs": "no accessory logs"
+      },
+      "ranks": {
+        "hakurei_shrine_visitor": "Shrine Visitor",
+        "newbie": "Newbie",
+        "beginner": "Beginner",
+        "amateur": "Amateur",
+        "settled": "Settled",
+        "advanced": "Advanced",
+        "experienced": "Experienced",
+        "master": "Master",
+        "professional": "Professional",
+        "fearless": "Fearless",
+        "invincible": "Invincible",
+        "monster": "Monster",
+        "immortal": "Immortal",
+        "matchless": "Matchless",
+        "legend": "Legend"
       }
     }
   }

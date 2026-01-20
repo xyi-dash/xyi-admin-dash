@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Traits\ResolvesServer;
 use App\Http\Requests\AdminManageRequest;
 use App\Models\ActionLog;
 use App\Services\AdminManagementService;
@@ -12,6 +13,8 @@ use Illuminate\Http\Request;
 
 class AdminManagementController extends Controller
 {
+    use ResolvesServer;
+
     public function __construct(
         private AdminManagementService $mgmtService,
         private GameAccountService $gameService
@@ -20,15 +23,21 @@ class AdminManagementController extends Controller
     public function execute(AdminManageRequest $request): JsonResponse
     {
         $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
-        $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
+        $server = $this->resolveServer($request);
+        
+        if (!$server) {
+            return response()->json(['error' => 'boundary_of_fantasy_and_reality_blocked'], 403);
+        }
+
+        $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
         $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
 
         $targetName = $request->target_name;
         $action = $request->action;
         $reason = $request->reason ?? '';
 
-        $targetAdmin = $this->gameService->getAdminByName($user->server, $targetName);
+        $targetAdmin = $this->gameService->getAdminByName($server, $targetName);
 
         if (!$targetAdmin) {
             return response()->json(['error' => 'admin_not_found'], 404);
@@ -42,49 +51,49 @@ class AdminManagementController extends Controller
 
         $result = match($action) {
             'warn' => $this->mgmtService->warn(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
             'unwarn' => $this->mgmtService->unwarn(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
             'promote' => $this->mgmtService->promote(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $myLevel, $request->ip()
             ),
             'demote' => $this->mgmtService->demote(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $myLevel, $request->ip()
             ),
             'remove' => $this->mgmtService->remove(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $myLevel, $request->ip()
             ),
             'reset_password' => $this->mgmtService->resetPassword(
-                $user->server, $targetName,
+                $server, $targetName,
                 $myAdmin->ID, $user->game_account_name, $myLevel, $request->ip()
             ),
             'confirm' => $this->mgmtService->confirm(
-                $user->server, $targetName,
+                $server, $targetName,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
             'give_ga' => $this->mgmtService->giveGA(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
             'remove_ga' => $this->mgmtService->removeGA(
-                $user->server, $targetName, $reason,
+                $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
-            default => ['success' => false, 'error' => 'unknown_action'], // miko doesnt know this spell!!
+            default => ['success' => false, 'error' => 'spell_card_rules_violation'],
         };
 
         if (!$result['success']) {
             return response()->json(['error' => $result['error']], 400);
         }
 
-        $updatedAdmin = $this->gameService->getAdminByName($user->server, $targetName);
+        $updatedAdmin = $this->gameService->getAdminByName($server, $targetName);
 
         return response()->json([
             'success' => true,
@@ -94,17 +103,16 @@ class AdminManagementController extends Controller
 
     public function history(Request $request, string $adminName): JsonResponse
     {
-        $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
-
-        if ($myLevel < 7) {
-            return response()->json(['error' => 'need 7+ for history'], 403);
+        $server = $this->resolveServer($request, 7);
+        
+        if (!$server) {
+            return response()->json(['error' => 'need 7+ for time travel'], 403);
         }
 
-        $logs = ActionLog::where(function ($q) use ($adminName, $user) {
-            $q->where('actor_name', $adminName)->where('actor_server', $user->server);
-        })->orWhere(function ($q) use ($adminName, $user) {
-            $q->where('target_name', $adminName)->where('target_server', $user->server);
+        $logs = ActionLog::where(function ($q) use ($adminName, $server) {
+            $q->where('actor_name', $adminName)->where('actor_server', $server);
+        })->orWhere(function ($q) use ($adminName, $server) {
+            $q->where('target_name', $adminName)->where('target_server', $server);
         })
         ->orderByDesc('created_at')
         ->limit(100)
@@ -125,14 +133,20 @@ class AdminManagementController extends Controller
     public function availableActions(Request $request, string $adminName): JsonResponse
     {
         $user = $request->user();
-        $myLevel = $request->attributes->get('admin_level');
-        $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
+        $server = $this->resolveServer($request);
+        
+        if (!$server) {
+            return response()->json(['error' => 'sakuya stopped time and blocked you'], 403);
+        }
+
+        $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
         $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
 
-        $targetAdmin = $this->gameService->getAdminByName($user->server, $adminName);
+        $targetAdmin = $this->gameService->getAdminByName($server, $adminName);
 
         if (!$targetAdmin) {
-            return response()->json(['error' => 'admin_not_found'], 404);
+            return response()->json(['error' => 'admin_spirited_away'], 404);
         }
 
         $actions = $this->mgmtService->getAvailableActions($myLevel, $isGA, $targetAdmin->Adm);

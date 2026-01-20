@@ -10,7 +10,6 @@ class AdminManagementService
         'one' => 'gangwar',
         'two' => 'gangwar2',
         'three' => 'gangwar3',
-        'four' => 'gangwar4',
     ];
 
     public function __construct(

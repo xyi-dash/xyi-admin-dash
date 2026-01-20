@@ -98,7 +98,6 @@ class ActionLogResource extends Resource
                         'one' => '01',
                         'two' => '02',
                         'three' => '03',
-                        'four' => '04',
                     ]),
                 Tables\Filters\Filter::make('person_search')
                     ->form([

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AdminLogController;
 use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\AdminManagementController;
+use App\Http\Controllers\Api\PlayerLogController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -65,4 +66,23 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::post('/news', [NewsController::class, 'store']);
     Route::put('/news/{id}', [NewsController::class, 'update']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+
+    // 7+ extended menu (the apindex stuff)
+    Route::get('/extended/servers', [PlayerLogController::class, 'availableServers']);
+    
+    Route::prefix('players')->group(function () {
+        Route::get('/search', [PlayerLogController::class, 'searchPlayer']);
+        Route::get('/{accountId}', [PlayerLogController::class, 'getPlayerStats'])->where('accountId', '[0-9]+');
+    });
+
+    Route::prefix('extended')->group(function () {
+        Route::get('/reputation', [PlayerLogController::class, 'reputationLogs']);
+        Route::get('/nicknames', [PlayerLogController::class, 'nicknameLogs']);
+        Route::get('/unbans', [PlayerLogController::class, 'unbanLogs']);
+        Route::get('/bans', [PlayerLogController::class, 'permanentBans']);
+        Route::get('/ip-bans', [PlayerLogController::class, 'permanentIPBans']);
+        Route::get('/matchmaking', [PlayerLogController::class, 'matchmakingStats']);
+        Route::get('/money-transfers', [PlayerLogController::class, 'moneyTransferLogs']);
+        Route::get('/accessories', [PlayerLogController::class, 'accessoryLogs']);
+    });
 });

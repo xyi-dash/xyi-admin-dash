@@ -33,7 +33,6 @@ class ControlPanelUserResource extends Resource
                         'one' => '01',
                         'two' => '02',
                         'three' => '03',
-                        'four' => '04',
                     ])
                     ->required()
                     ->default('one'),
@@ -55,7 +54,7 @@ class ControlPanelUserResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('server')
-                    ->options(['one' => '01', 'two' => '02', 'three' => '03', 'four' => '04']),
+                    ->options(['one' => '01', 'two' => '02', 'three' => '03']),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->visible(fn () => self::canManage()),
