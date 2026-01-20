@@ -46,6 +46,22 @@
     "login": "Enter admin panel",
     "back": "Back"
   },
+    "player": {
+      "nickname": "Nick name",
+      "mail": "Email",
+      "date_registered": "Date registered",
+      "reputation": "Reputation",
+      "stat": "Statistics",
+      "kills": "Kills",
+      "deaths": "Deaths",
+      "kd_ratio": "K/D",
+      "security": "Security",
+      "additional": "Additional",
+      "donat": "Donate",
+      "balance": "Balance",
+      "all": "Total",
+      "premium": "Premium"
+    },
   "dashboard": {
     "admin_panel": "admin panel",
     "logout": "logout"

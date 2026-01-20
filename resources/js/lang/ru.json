@@ -46,8 +46,24 @@
     "login": "Войти в админ-панель",
     "back": "Назад"
   },
+  "player": {
+    "nickname": "Игровой никнейм",
+    "mail": "Электронная почта",
+    "date_registered": "Дата регистрации",
+    "reputation": "Репутация",
+    "stat": "Статистика",
+    "kills": "Убийств",
+    "deaths": "Смертей",
+    "kd_ratio": "K/D",
+    "security": "Безопасность",
+    "additional": "Дополнительно",
+    "donat": "Донат",
+    "balance": "Баланс",
+    "all": "Всего",
+    "premium": "Премиум"
+  },
   "dashboard": {
-    "admin_panel": "админ-панель",
+    "admin_panel": "Админ-панель",
     "logout": "выйти"
   },
   "admin": {
