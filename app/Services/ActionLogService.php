@@ -10,6 +10,7 @@ class ActionLogService
     public const LOGIN = 'login';
     public const LOGOUT = 'logout';
     public const ADMIN_AUTH = 'admin_auth';
+    public const ADMIN_PANEL_ACCESS = 'admin_panel_access';
     public const CP_LOGIN = 'cp_login';
 
     public const ADMIN_PROMOTE = 'admin_promote';
@@ -100,6 +101,11 @@ class ActionLogService
         return $this->log(self::CP_LOGIN, $accountId, $accountName, $server, ip: $ip);
     }
 
+    public function logAdminPanelAccess(int $accountId, string $accountName, string $server, string $ip): ActionLog
+    {
+        return $this->log(self::ADMIN_PANEL_ACCESS, $accountId, $accountName, $server, ip: $ip);
+    }
+
     public static function getActionTypes(): array
     {
         // would approve this mapping
@@ -107,6 +113,7 @@ class ActionLogService
             self::LOGIN => 'login',
             self::LOGOUT => 'logout',
             self::ADMIN_AUTH => 'admin auth',
+            self::ADMIN_PANEL_ACCESS => 'admin panel access',
             self::CP_LOGIN => 'cp login',
             self::ADMIN_PROMOTE => 'promote',
             self::ADMIN_DEMOTE => 'demote',

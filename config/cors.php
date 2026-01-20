@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://monser-dm.nl',
+        'https://admin.monser-dm.nl',
+        'https://dashboard.monser-dm.nl',
+    ],
 
     'allowed_origins_patterns' => [],
 

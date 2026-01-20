@@ -160,6 +160,21 @@ class GameAccountService
             ->first();
     }
 
+    public function getAdminWithAccount(string $server, string $nickname): ?object
+    {
+        $connection = $this->getConnection($server);
+        if (!$connection) {
+            return null;
+        }
+
+        return DB::connection($connection)
+            ->table('a27dmins as adm')
+            ->leftJoin('a27ccount as acc', 'adm.Name', '=', 'acc.Name')
+            ->whereRaw('BINARY adm.Name = ?', [$nickname])
+            ->select('adm.*', 'acc.IpReg', 'acc.IpLog')
+            ->first();
+    }
+
     private function formatAdminPlaytime(int $seconds): string
     {
         $hours = intval($seconds / 3600);

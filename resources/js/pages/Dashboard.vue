@@ -205,8 +205,18 @@ export default {
         this.loading = false
       }
     },
-    goToAdmin() {
-      this.$router.push('/admin/login')
+    async goToAdmin() {
+      try {
+        const response = await axios.post('/api/admin/prepare-redirect')
+        const token = response.data.token
+        window.location.href = `https://admin.monser-dm.nl?token=${token}`
+      } catch (err) {
+        if (err.response?.status === 403) {
+          alert(err.response.data?.message || 'You are not an admin')
+        } else {
+          alert('Failed to prepare admin redirect')
+        }
+      }
     },
     logout() {
       localStorage.removeItem('token')

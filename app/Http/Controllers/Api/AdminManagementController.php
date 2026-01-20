@@ -93,11 +93,11 @@ class AdminManagementController extends Controller
             return response()->json(['error' => $result['error']], 400);
         }
 
-        $updatedAdmin = $this->gameService->getAdminByName($server, $targetName);
+        $updatedAdmin = $this->gameService->getAdminWithAccount($server, $targetName);
 
         return response()->json([
             'success' => true,
-            'admin' => $updatedAdmin ? $this->formatAdmin($updatedAdmin) : null,
+            'admin' => $updatedAdmin ? $this->formatAdmin($updatedAdmin, $server) : null,
         ]);
     }
 
@@ -133,18 +133,21 @@ class AdminManagementController extends Controller
     public function availableActions(Request $request, string $adminName): JsonResponse
     {
         $user = $request->user();
-        $server = $this->resolveServer($request);
+        $server = $request->input('server') ?: $user->server;
         
-        if (!$server) {
+        if (!in_array($server, ['one', 'two', 'three'])) {
             return response()->json(['error' => 'sakuya stopped time and blocked you'], 403);
         }
 
-        $myLevel = $this->getAdminLevelOnServer($request, $server);
         $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
-        $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
+        if (!$myAdmin) {
+            return response()->json(['error' => 'not_admin_on_server'], 403);
+        }
 
-        $targetAdmin = $this->gameService->getAdminByName($server, $adminName);
+        $myLevel = $myAdmin->Adm ?? 0;
+        $isGA = ($myAdmin->GA ?? 0) == 1;
 
+        $targetAdmin = $this->gameService->getAdminWithAccount($server, $adminName);
         if (!$targetAdmin) {
             return response()->json(['error' => 'admin_spirited_away'], 404);
         }
@@ -153,13 +156,13 @@ class AdminManagementController extends Controller
 
         return response()->json([
             'actions' => $actions,
-            'admin' => $this->formatAdmin($targetAdmin),
+            'admin' => $this->formatAdmin($targetAdmin, $server),
         ]);
     }
 
-    private function formatAdmin(object $admin): array
+    private function formatAdmin(object $admin, string $server): array
     {
-        return [
+        $data = [
             'id' => $admin->ID,
             'name' => $admin->Name,
             'level' => $admin->Adm,
@@ -168,6 +171,37 @@ class AdminManagementController extends Controller
             'needs_confirm' => ($admin->admgive ?? 0) == 1,
             'appointed_by' => $admin->Kem ?? null,
             'appointed_date' => $admin->Date ?? null,
+            'last_online' => $admin->online ?? null,
+            'is_online' => ($admin->online2 ?? 0) == 1,
+            'ip_reg' => $admin->IpReg ?? null,
+            'ip_last' => $admin->IpLog ?? null,
+            'playtime' => [
+                'today' => $this->formatTime($admin->Segodnya ?? 0),
+                'yesterday' => $this->formatTime($admin->Vchera ?? 0),
+                'day_before' => $this->formatTime($admin->Pozavchera ?? 0),
+                'week' => $this->formatTime($admin->NOnline ?? 0),
+            ],
         ];
+
+        if (($admin->Adm ?? 0) < 5) {
+            $requirements = $this->mgmtService->getLevelRequirements($admin->Adm, $server);
+            $data['stats'] = [
+                'hours_played' => intval(($admin->OTime ?? 0) / 3600),
+                'hours_required' => $requirements['hours'],
+                'punishments' => $admin->ONakaz ?? 0,
+                'punishments_required' => $requirements['punishments'],
+                'reports' => $admin->OOtvet ?? 0,
+                'reports_required' => $requirements['reports'],
+            ];
+        }
+
+        return $data;
+    }
+
+    private function formatTime(int $seconds): string
+    {
+        $h = intval($seconds / 3600);
+        $m = intval(($seconds % 3600) / 60);
+        return sprintf('%02d:%02d', $h, $m);
     }
 }

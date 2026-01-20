@@ -16,9 +16,10 @@ Route::prefix('auth')->group(function () {
     Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 });
 
+Route::post('/admin/exchange-token', [AuthController::class, 'exchangeToken']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/account/profile', [AccountController::class, 'profile']);
-    
     Route::get('/logs', [LogController::class, 'index']);
     Route::get('/logs/types', [LogController::class, 'types']);
     Route::get('/logs/person/{personId}/{server}', [LogController::class, 'byPerson']);
@@ -27,7 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
         $user = $request->user();
         $adminSession = app(\App\Services\AdminSessionService::class);
         
-        // no unlocked servers = no cp for you
         if (!$adminSession->hasAnyUnlocked($user)) {
             return response()->json(['error' => 'unlock a server first'], 403);
         }
@@ -35,49 +35,42 @@ Route::middleware('auth:sanctum')->group(function () {
         $token = encrypt($user->id . '|' . $user->server . '|' . time());
         return response()->json(['ok' => true, 'token' => base64_encode($token)]);
     });
+    
+    Route::post('/admin/prepare-redirect', [AuthController::class, 'prepareAdminRedirect']);
 });
 
-// routes that don't require unlocked server (before admin password)
+// pre-unlock: you know you're an admin but you can't prove it
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/auth', [AdminController::class, 'auth']);
     Route::get('/session/status', [AdminController::class, 'sessionStatus']);
 });
 
-// routes that require unlocked server (after admin password)
+// post-unlock
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])->group(function () {
     Route::get('/me', [AdminController::class, 'me']);
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
 
-    // 6+ admin management
     Route::post('/manage', [AdminManagementController::class, 'execute']);
     Route::get('/manage/{adminName}/actions', [AdminManagementController::class, 'availableActions']);
     Route::get('/manage/{adminName}/history', [AdminManagementController::class, 'history']);
 
-    // 6+ logs
     Route::get('/logs/actions', [AdminLogController::class, 'adminActions']);
     Route::get('/logs/warnings', [AdminLogController::class, 'warnings']);
     Route::get('/logs/purchases', [AdminLogController::class, 'purchases']);
     Route::post('/logs/purchases/confirm', [AdminLogController::class, 'confirmPurchase']);
-    
-    // 7+ logs
     Route::get('/logs/removed', [AdminLogController::class, 'removedAdmins']);
-    
-    // 8lvl logs
     Route::get('/logs/ga-actions', [AdminLogController::class, 'gaActions']);
     
-    // 8+ server management
     Route::get('/servers', [AdminLogController::class, 'serverSettings']);
     Route::post('/servers', [AdminLogController::class, 'updateServerSettings']);
     
-    // 8+ news management
     Route::get('/news', [NewsController::class, 'index']);
     Route::get('/news/{id}', [NewsController::class, 'show']);
     Route::post('/news', [NewsController::class, 'store']);
     Route::put('/news/{id}', [NewsController::class, 'update']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
 
-    // 7+ extended menu (the apindex stuff)
     Route::get('/extended/servers', [PlayerLogController::class, 'availableServers']);
     
     Route::prefix('players')->group(function () {

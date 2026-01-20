@@ -404,6 +404,35 @@ class AdminManagementService
         return $actions;
     }
 
+    public function getLevelRequirements(int $level, string $server): array
+    {
+        $reqs = match($level) {
+            1 => match($server) {
+                'two' => ['hours' => 14, 'punishments' => 300, 'reports' => 500],
+                'three' => ['hours' => 14, 'punishments' => 250, 'reports' => 450],
+                default => ['hours' => 14, 'punishments' => 200, 'reports' => 400],
+            },
+            2 => match($server) {
+                'two' => ['hours' => 28, 'punishments' => 500, 'reports' => 700],
+                'three' => ['hours' => 28, 'punishments' => 450, 'reports' => 650],
+                default => ['hours' => 28, 'punishments' => 400, 'reports' => 600],
+            },
+            3 => match($server) {
+                'two' => ['hours' => 42, 'punishments' => 800, 'reports' => 1200],
+                'three' => ['hours' => 42, 'punishments' => 700, 'reports' => 1100],
+                default => ['hours' => 42, 'punishments' => 600, 'reports' => 1000],
+            },
+            4 => match($server) {
+                'two' => ['hours' => 56, 'punishments' => 1200, 'reports' => 2000],
+                'three' => ['hours' => 56, 'punishments' => 1100, 'reports' => 1900],
+                default => ['hours' => 56, 'punishments' => 1000, 'reports' => 1800],
+            },
+            default => ['hours' => 0, 'punishments' => 0, 'reports' => 0],
+        };
+
+        return $reqs;
+    }
+
     private function getAdmin(string $conn, string $name): ?object
     {
         return DB::connection($conn)
