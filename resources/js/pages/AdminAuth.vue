@@ -3,6 +3,10 @@
     <h1>{{ $t('admin_auth.title') }}</h1>
     <p>{{ accountName }}</p>
     
+    <div v-if="targetServer" class="server-notice">
+      {{ $t('admin_auth.unlocking_server') }}: <strong>{{ serverName }}</strong>
+    </div>
+    
     <div v-if="error" class="error">{{ error }}</div>
     
     <form @submit.prevent="submit">
@@ -24,6 +28,7 @@
 
 <script>
 import axios from 'axios'
+import { updateUnlockedServers } from '../router'
 
 export default {
   name: 'AdminAuth',
@@ -31,7 +36,8 @@ export default {
     return {
       password: '',
       loading: false,
-      error: null
+      error: null,
+      targetServer: null
     }
   },
   computed: {
@@ -42,8 +48,15 @@ export default {
           return JSON.parse(acc).name
         } catch (e) {}
       }
-      return '???'
+      return 'reimu'
+    },
+    serverName() {
+      const names = { one: 'Server 01', two: 'Server 02', three: 'Server 03' }
+      return names[this.targetServer] || this.targetServer
     }
+  },
+  mounted() {
+    this.targetServer = this.$route.query.server || null
   },
   methods: {
     async submit() {
@@ -51,17 +64,22 @@ export default {
       this.loading = true
       
       try {
-        await axios.post('/api/admin/auth', {
-          password: this.password
-        })
+        const payload = { password: this.password }
+        if (this.targetServer) {
+          payload.server = this.targetServer
+        }
         
-        localStorage.setItem('admin_session', 'true')
-        this.$router.push('/admin')
+        const res = await axios.post('/api/admin/auth', payload)
+        
+        updateUnlockedServers(res.data.unlocked_servers)
+        
+        const redirect = this.targetServer ? '/admin?server=' + this.targetServer : '/admin'
+        this.$router.push(redirect)
       } catch (err) {
         if (err.response?.status === 401) {
-          this.error = 'wrong password'
+          this.error = 'wrong spell card'
         } else if (err.response?.status === 403) {
-          this.error = this.$t('errors.not_admin')
+          this.error = err.response.data?.message || this.$t('errors.not_admin')
         } else {
           this.error = this.$t('errors.failed_load')
         }
@@ -119,5 +137,12 @@ button:hover {
 .error {
   color: #ef4444;
   margin-bottom: 10px;
+}
+.server-notice {
+  background: #1a1a2e;
+  border: 1px solid #444;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
 }
 </style>

@@ -18,9 +18,10 @@
             <option value="en">EN</option>
             <option value="ru">RU</option>
           </select>
+          <button v-if="canAccessCP" class="cp-btn" @click="goToCP">CP</button>
         </div>
       </div>
-      <p>{{ myAdmin.name }} | {{ $t('admin.level') }} {{ myAdmin.level }}{{ myAdmin.is_ga ? '+' : '' }}</p>
+      <p v-if="myAdmin">{{ myAdmin.name }} | {{ $t('admin.level') }} {{ myAdmin.level }}{{ myAdmin.is_ga ? '+' : '' }}</p>
       
       <nav>
         <button @click="switchPage('home')" :class="{ active: currentPage === 'home' }">{{ $t('admin.nav.home') }}</button>
@@ -54,7 +55,7 @@
       </nav>
 
       <!-- home -->
-      <div v-if="currentPage === 'home'" class="page">
+      <div v-if="currentPage === 'home' && myAdmin" class="page">
         <h2>{{ $t('admin.home.title') }}</h2>
         <table>
           <tr><td>{{ $t('admin.home.level') }}:</td><td>{{ myAdmin.level }}</td></tr>
@@ -86,8 +87,8 @@
 
         <template v-if="canBuy">
           <h3>{{ $t('admin.home.shop') }}</h3>
-          <p v-if="myAdmin.level < 5">{{ $t('admin.home.promotion') }}: {{ $t('admin.home.available') }}</p>
-          <p>{{ $t('admin.home.remove_warning') }}: {{ myAdmin.warnings > 0 ? $t('admin.home.available') : $t('admin.home.no_warns') }}</p>
+          <p v-if="myAdmin?.level < 5">{{ $t('admin.home.promotion') }}: {{ $t('admin.home.available') }}</p>
+          <p>{{ $t('admin.home.remove_warning') }}: {{ myAdmin?.warnings > 0 ? $t('admin.home.available') : $t('admin.home.no_warns') }}</p>
           <p><i>{{ $t('admin.home.payment_not_ready') }}</i></p>
         </template>
       </div>
@@ -727,6 +728,7 @@
 <script>
 import axios from 'axios'
 import { setLocale, getLocale } from '../i18n'
+import { isServerUnlocked, clearAdminSession, updateUnlockedServers } from '../router'
 
 export default {
   name: 'AdminPanel',
@@ -787,7 +789,9 @@ export default {
         matchmaking: { player: '' },
         money: { from_name: '', to_name: '' },
         accessories: { account_name: '', accessory: '' }
-      }
+      },
+      hasCPAccess: false,
+      pendingServer: null
     }
   },
   computed: {
@@ -811,12 +815,17 @@ export default {
       if (!this.myAdmin) return false
       return this.myAdmin.level <= 5
     },
+    canAccessCP() {
+      return this.hasCPAccess
+    },
     availableLevels() {
       if (!this.adminList?.admins) return []
       return [...new Set(this.adminList.admins.map(a => a.level))].sort((a, b) => b - a)
     }
   },
   mounted() {
+    this.pendingServer = this.$route.query.server || null
+    this.syncSessionStatus()
     this.loadData()
     this.initHashRouting()
   },
@@ -824,6 +833,16 @@ export default {
     window.removeEventListener('hashchange', this.onHashChange)
   },
   methods: {
+    async syncSessionStatus() {
+      try {
+        const res = await axios.get('/api/admin/session/status')
+        updateUnlockedServers(res.data.unlocked_servers)
+        this.hasCPAccess = res.data.can_access_cp || false
+      } catch (e) {
+        console.warn('session status went to gensokyo')
+      }
+    },
+    
     changeLocale() {
       setLocale(this.locale)
     },
@@ -848,11 +867,13 @@ export default {
     updateHash(page) {
       const newHash = page === 'home' ? '' : `#${page}`
       if (window.location.hash !== newHash && window.location.hash !== `#${page}`) {
+        const serverQuery = this.extCurrentServer ? `?server=${this.extCurrentServer}` : ''
+        const basePath = window.location.pathname + serverQuery
         const isMajorNav = !this.currentPage.startsWith('ext-') || !page.startsWith('ext-')
         if (isMajorNav) {
-          history.pushState(null, '', newHash || window.location.pathname)
+          history.pushState(null, '', basePath + newHash)
         } else {
-          history.replaceState(null, '', newHash || window.location.pathname)
+          history.replaceState(null, '', basePath + newHash)
         }
       }
     },
@@ -870,6 +891,11 @@ export default {
         this.adminList = listRes.data
         if (this.myAdmin.level >= 7 && !this.extServers.length) this.loadExtServers()
       } catch (err) {
+        if (err.response?.data?.error === 'server_locked') {
+          const server = err.response.data.server || this.extCurrentServer
+          this.$router.push('/admin/login' + (server ? '?server=' + server : ''))
+          return
+        }
         this.error = err.response?.status === 403 ? this.$t('errors.no_access') : 
                      err.response?.status === 404 ? this.$t('errors.not_admin') : this.$t('errors.failed_load')
       } finally {
@@ -1096,8 +1122,17 @@ export default {
     },
     
     goBack() {
-      localStorage.removeItem('admin_session')
+      clearAdminSession()
       this.$router.push('/dashboard')
+    },
+    
+    async goToCP() {
+      try {
+        const res = await axios.post('/api/cp/prepare')
+        window.open('/cp?t=' + encodeURIComponent(res.data.token), '_blank')
+      } catch (e) {
+        console.warn('cp prepare failed. reimu denies entry.')
+      }
     },
     
     async openManage(adminName) {
@@ -1158,14 +1193,21 @@ export default {
       try {
         const res = await axios.get('/api/admin/extended/servers')
         this.extServers = res.data.servers || []
-        this.extCurrentServer = res.data.current
+        this.extCurrentServer = this.pendingServer || res.data.current
+        this.pendingServer = null
       } catch (e) {
         console.warn('ext servers crossed the hakurei barrier')
       }
     },
     
     onServerChange() {
-      // nuke everything, reality shifts to another server
+      if (!isServerUnlocked(this.extCurrentServer)) {
+        this.$router.push('/admin/login?server=' + this.extCurrentServer)
+        return
+      }
+      
+      this.$router.replace({ query: { server: this.extCurrentServer } })
+      
       this.adminList = null
       this.myAdmin = null
       this.actionsData = {}
@@ -1186,7 +1228,6 @@ export default {
         money: [],
         accessories: []
       }
-      // reload data for current server
       this.reloadCurrentData()
     },
     
@@ -1447,4 +1488,6 @@ h2, h3 { margin-top: 20px; }
 .header-controls { display: flex; gap: 10px; align-items: center; }
 .server-switch { padding: 6px 12px; background: #333; color: #fff; border: 1px solid #555; }
 .server-label { color: #888; font-size: 14px; }
+.cp-btn { padding: 6px 12px; background: #4a3; color: #fff; border: 1px solid #5b4; cursor: pointer; font-weight: bold; }
+.cp-btn:hover { background: #5b4; }
 </style>

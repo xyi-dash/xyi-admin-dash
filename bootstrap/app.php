@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'admin.unlocked' => \App\Http\Middleware\RequiresUnlockedServer::class,
         ]);
         // also why am i doing this
         $middleware->api(prepend: [

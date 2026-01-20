@@ -17,9 +17,6 @@
         </svg>
       </button>
 
-      <button v-if="profile?.has_cp_access" class="btn btn--cp" @click="goToCP" title="Control Panel">
-        CP
-      </button>
 
       <button class="btn btn--logout" @click="logout" title="Выход">
         <svg viewBox="0 0 24 24">
@@ -30,7 +27,9 @@
   </div>
 </div>
 
-<!-- account stats after login -->
+<div v-if="loading" class="loading">{{ $t('common.loading') }}</div>
+<div v-else-if="error" class="error">{{ error }}</div>
+<template v-else-if="profile?.account">
       <div class="dash-card">
         <div class="dash-card__header">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -168,9 +167,11 @@
         </div>
       </div>
 </template>
+</template>
 
 <script>
 import axios from 'axios'
+import { clearAdminSession } from '../router'
 
 export default {
   name: 'Dashboard',
@@ -207,18 +208,10 @@ export default {
     goToAdmin() {
       this.$router.push('/admin/login')
     },
-    async goToCP() {
-      try {
-        const res = await axios.post('/api/cp/prepare')
-        window.location.href = '/cp?t=' + encodeURIComponent(res.data.token)
-      } catch (e) {
-        // reimu shrugs
-      }
-    },
     logout() {
       localStorage.removeItem('token')
       localStorage.removeItem('account')
-      localStorage.removeItem('admin_session')
+      clearAdminSession()
       this.$router.push('/login')
     }
   }

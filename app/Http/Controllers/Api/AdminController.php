@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Traits\ResolvesServer;
+use App\Models\ControlPanelUser;
+use App\Services\AdminSessionService;
 use App\Services\GameAccountService;
 use App\Services\ActionLogService;
 use Illuminate\Http\JsonResponse;
@@ -15,33 +17,84 @@ class AdminController extends Controller
 
     public function __construct(
         private GameAccountService $gameAccountService,
-        private ActionLogService $actionLogService
+        private ActionLogService $actionLogService,
+        private AdminSessionService $adminSessionService
     ) {}
 
     public function auth(Request $request): JsonResponse
     {
-        $request->validate(['password' => 'required|string']);
+        $request->validate([
+            'password' => 'required|string',
+            'server' => 'nullable|string|in:one,two,three',
+        ]);
         
         $user = $request->user();
+        $server = $request->input('server', $user->server);
+
+        $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
         
+        if (!$admin || ($admin->Adm ?? 0) < 1) {
+            return response()->json([
+                'error' => 'not_admin',
+                'message' => 'you have no power here, gandalf the grey',
+            ], 403);
+        }
+
         $isValid = $this->gameAccountService->verifyAdminPassword(
-            $user->server,
+            $server,
             $user->game_account_name,
             $request->password
         );
 
         if (!$isValid) {
-            return response()->json(['error' => 'Invalid admin password'], 401);
+            return response()->json([
+                'error' => 'invalid_password',
+                'message' => 'wrong spell card',
+            ], 401);
         }
+
+        $this->adminSessionService->unlock($user, $server, $request->ip());
 
         $this->actionLogService->logAdminAuth(
             $user->game_account_id,
             $user->game_account_name,
-            $user->server,
+            $server,
             $request->ip()
         );
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'server' => $server,
+            'admin_level' => $admin->Adm,
+            'unlocked_servers' => $this->adminSessionService->getUnlockedServers($user),
+        ]);
+    }
+
+    public function sessionStatus(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        $unlockedServers = $this->adminSessionService->getUnlockedServers($user);
+        
+        $adminOnServers = [];
+        foreach (['one', 'two', 'three'] as $server) {
+            $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
+            if ($admin && ($admin->Adm ?? 0) >= 1) {
+                $adminOnServers[] = [
+                    'server' => $server,
+                    'level' => $admin->Adm,
+                    'is_ga' => ($admin->GA ?? 0) == 1,
+                    'unlocked' => collect($unlockedServers)->contains('server', $server),
+                ];
+            }
+        }
+
+        return response()->json([
+            'unlocked_servers' => $unlockedServers,
+            'admin_on_servers' => $adminOnServers,
+            'can_access_cp' => ControlPanelUser::hasAccess($user->game_account_name, $user->server)
+                && $this->adminSessionService->hasAnyUnlocked($user),
+        ]);
     }
 
     public function index(Request $request): JsonResponse
@@ -158,4 +211,3 @@ class AdminController extends Controller
         return sprintf('%02d:%02d', $hours, $mins);
     }
 }
-

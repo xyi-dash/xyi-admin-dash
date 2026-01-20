@@ -44,7 +44,8 @@
     "password": "Admin password",
     "password_placeholder": "Enter admin password",
     "login": "Enter admin panel",
-    "back": "Back"
+    "back": "Back",
+    "unlocking_server": "Unlocking server"
   },
     "player": {
       "nickname": "Nick name",

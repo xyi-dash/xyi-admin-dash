@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\ActionLogService;
+use App\Services\AdminSessionService;
 use App\Services\GameAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,8 @@ class AuthController extends Controller
 {
     public function __construct(
         private GameAccountService $gameAccountService,
-        private ActionLogService $actionLog
+        private ActionLogService $actionLog,
+        private AdminSessionService $adminSession
     ) {}
 
     public function login(LoginRequest $request): JsonResponse
@@ -29,7 +31,7 @@ class AuthController extends Controller
         if (!$account) {
             return response()->json([
                 'message' => 'Invalid credentials',
-                'errors' => ['nickname' => ['Account not found or password incorrect']]
+                'errors' => ['nickname' => ['reimu checked the shrine records. you are not welcome.']]
             ], 422);
         }
 
@@ -56,6 +58,8 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
+        $this->adminSession->lockAll($user);
+
         $this->actionLog->logLogout(
             $user->game_account_id,
             $user->game_account_name,
@@ -65,7 +69,7 @@ class AuthController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['message' => 'Sayonara!']);
     }
 
     public function user(Request $request): JsonResponse

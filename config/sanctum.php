@@ -47,7 +47,9 @@ return [
     |
     */
 
-    'expiration' => 60,
+    // null = no hard expiration, we rely on session lifetime + admin_sessions table
+    // reimu doesnt believe in arbitrary death timers
+    'expiration' => null,
 
     /*
     |--------------------------------------------------------------------------

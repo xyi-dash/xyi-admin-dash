@@ -48,16 +48,41 @@ const router = createRouter({
   routes
 })
 
+const hasUnlockedServers = () => {
+  try {
+    const servers = JSON.parse(localStorage.getItem('unlocked_servers') || '[]')
+    return servers.length > 0
+  } catch {
+    return false
+  }
+}
+
+export const isServerUnlocked = (server) => {
+  try {
+    const servers = JSON.parse(localStorage.getItem('unlocked_servers') || '[]')
+    return servers.some(s => s.server === server)
+  } catch {
+    return false
+  }
+}
+
+export const updateUnlockedServers = (servers) => {
+  localStorage.setItem('unlocked_servers', JSON.stringify(servers))
+}
+
+export const clearAdminSession = () => {
+  localStorage.removeItem('unlocked_servers')
+}
+
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  const adminSession = localStorage.getItem('admin_session')
   
   if (to.meta.requiresAuth && !token) {
     next('/login')
     return
   }
   
-  if (to.meta.requiresAdminSession && !adminSession) {
+  if (to.meta.requiresAdminSession && !hasUnlockedServers()) {
     next('/admin/login')
     return
   }
@@ -66,4 +91,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

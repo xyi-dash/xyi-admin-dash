@@ -25,16 +25,26 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('/cp/prepare', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
+        $adminSession = app(\App\Services\AdminSessionService::class);
+        
+        // no unlocked servers = no cp for you
+        if (!$adminSession->hasAnyUnlocked($user)) {
+            return response()->json(['error' => 'unlock a server first'], 403);
+        }
+        
         $token = encrypt($user->id . '|' . $user->server . '|' . time());
         return response()->json(['ok' => true, 'token' => base64_encode($token)]);
     });
 });
 
-Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+// routes that don't require unlocked server (before admin password)
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/auth', [AdminController::class, 'auth']);
+    Route::get('/session/status', [AdminController::class, 'sessionStatus']);
 });
 
-Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+// routes that require unlocked server (after admin password)
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])->group(function () {
     Route::get('/me', [AdminController::class, 'me']);
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
