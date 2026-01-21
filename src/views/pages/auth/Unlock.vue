@@ -15,7 +15,7 @@ const error = ref('')
 const targetServer = computed(() => route.query.server || authStore.currentServer || authStore.user?.server)
 
 const serverLabel = computed(() => {
-    const labels = { one: 'Server One', two: 'Server Two', three: 'Server Three' }
+    const labels = { one: 'Server: 01', two: 'Server: 02', three: 'Server: 03' }
     return labels[targetServer.value] || targetServer.value
 })
 

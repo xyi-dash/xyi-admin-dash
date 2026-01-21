@@ -129,8 +129,8 @@ function goBack() {
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
                         <div class="text-muted-color text-sm">Level</div>
-                        <div class="font-semibold">{{ admin.level }}{{ admin.is_ga ? '+' : '' }}</div>
-                    </div>
+                            <div class="font-semibold">{{ admin.level }}{{ admin.is_ga ? '+' : '' }}</div>
+                        </div>
                     <div>
                         <div class="text-muted-color text-sm">Warnings</div>
                         <div class="font-semibold" :class="{ 'text-red-500': admin.warnings >= 2 }">{{ admin.warnings }}/3</div>
@@ -209,46 +209,46 @@ function goBack() {
                         </div>
                     </div>
                 </template>
-
+            
                 <Divider />
-
-                <h6 class="mb-3">Actions</h6>
-                <div v-if="actions.length" class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-2">
-                        <Select 
-                            v-model="selectedAction" 
-                            :options="actions"
-                            placeholder="Select an action"
-                            class="w-full"
-                        >
-                            <template #value="{ value }">
-                                {{ value ? actionLabels[value] || value : 'Select an action' }}
-                            </template>
-                            <template #option="{ option }">
-                                {{ actionLabels[option] || option }}
-                            </template>
-                        </Select>
-                    </div>
                     
-                    <div v-if="selectedAction && actionsNeedingReason.includes(selectedAction)" class="flex flex-col gap-2">
-                        <InputText 
-                            v-model="reason" 
+                <h6 class="mb-3">Actions</h6>
+                    <div v-if="actions.length" class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-2">
+                            <Select 
+                                v-model="selectedAction" 
+                                :options="actions"
+                                placeholder="Select an action"
+                                class="w-full"
+                            >
+                                <template #value="{ value }">
+                                    {{ value ? actionLabels[value] || value : 'Select an action' }}
+                                </template>
+                                <template #option="{ option }">
+                                    {{ actionLabels[option] || option }}
+                                </template>
+                            </Select>
+                        </div>
+                        
+                        <div v-if="selectedAction && actionsNeedingReason.includes(selectedAction)" class="flex flex-col gap-2">
+                            <InputText 
+                                v-model="reason" 
                             placeholder="Reason"
-                            class="w-full"
+                                class="w-full"
+                            />
+                        </div>
+                        
+                        <Button 
+                            label="Execute" 
+                            :loading="executing"
+                            :disabled="!selectedAction"
+                            @click="executeAction"
                         />
                     </div>
                     
-                    <Button 
-                        label="Execute" 
-                        :loading="executing"
-                        :disabled="!selectedAction"
-                        @click="executeAction"
-                    />
-                </div>
-                
-                <div v-else class="text-center py-4">
-                    <i class="pi pi-lock text-2xl text-muted-color mb-2"></i>
-                    <p class="text-muted-color">No actions available</p>
+                    <div v-else class="text-center py-4">
+                        <i class="pi pi-lock text-2xl text-muted-color mb-2"></i>
+                        <p class="text-muted-color">No actions available</p>
                 </div>
             </div>
         </div>

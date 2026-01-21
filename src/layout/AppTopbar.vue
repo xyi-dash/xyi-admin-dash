@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useLayout } from '@/layout/composables/layout'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
@@ -11,11 +11,13 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 const serverMenu = ref()
+const serverLabels = { one: '01', two: '02', three: '03' }
 const serverItems = ref([
-    { label: 'Server One', value: 'one' },
-    { label: 'Server Two', value: 'two' },
-    { label: 'Server Three', value: 'three' }
+    { label: 'Server: 01', value: 'one' },
+    { label: 'Server: 02', value: 'two' },
+    { label: 'Server: 03', value: 'three' }
 ])
+const currentServerLabel = computed(() => authStore.currentServer ? `Server: ${serverLabels[authStore.currentServer]}` : 'Select')
 
 function toggleServerMenu(event) {
     serverMenu.value.toggle(event)
@@ -57,7 +59,7 @@ async function goToControlPanel() {
         <div class="layout-topbar-actions">
             <div class="flex items-center gap-2">
                 <Button 
-                    :label="authStore.currentServer ? authStore.currentServer.charAt(0).toUpperCase() + authStore.currentServer.slice(1) : 'Select'" 
+                    :label="currentServerLabel" 
                     icon="pi pi-server"
                     text
                     @click="toggleServerMenu"

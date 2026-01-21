@@ -16,9 +16,9 @@ const donateMultiplierOptions = [
 ]
 
 const serverLabels = {
-    one: 'Server One',
-    two: 'Server Two', 
-    three: 'Server Three'
+    one: 'Server: 01',
+    two: 'Server: 02', 
+    three: 'Server: 03'
 }
 
 onMounted(async () => {
@@ -69,8 +69,8 @@ async function saveServer(serverName) {
 <template>
     <div class="flex flex-col gap-4">
         <div class="card">
-            <div class="flex items-center gap-3">
-                <i class="pi pi-cog text-primary text-2xl"></i>
+            <div class="flex items-start gap-3">
+                <i class="pi pi-cog text-primary text-2xl mt-1"></i>
                 <div>
                     <h2 class="text-xl font-semibold m-0">Server Settings</h2>
                     <p class="text-muted-color m-0 mt-1">Configure donate multipliers, discounts and ads for each server</p>
@@ -79,14 +79,11 @@ async function saveServer(serverName) {
         </div>
         
         <ProgressSpinner v-if="loading" class="flex justify-center py-8" />
-        <div v-else-if="servers" class="flex flex-col lg:flex-row gap-4">
+        <div v-else-if="servers" class="flex flex-col lg:flex-row lg:items-start gap-4">
             <div v-for="(settings, serverName) in servers" :key="serverName" class="card flex-1">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <i class="pi pi-server text-primary"></i>
-                        <h6 class="m-0 font-semibold text-lg">{{ serverLabels[serverName] || serverName }}</h6>
-                    </div>
-                    <Tag severity="info" size="small">{{ serverName }}</Tag>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="pi pi-server text-primary"></i>
+                    <h6 class="m-0 font-semibold text-lg">{{ serverLabels[serverName] || serverName }}</h6>
                 </div>
                 
                 <div v-if="settings" class="flex flex-col gap-4">
