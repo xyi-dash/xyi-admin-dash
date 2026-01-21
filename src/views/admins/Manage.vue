@@ -26,7 +26,11 @@ const actionLabels = {
     give_ga: 'Give GA',
     remove_ga: 'Remove GA',
     confirm: 'Confirm Admin',
-    reset_password: 'Reset Password'
+    reset_password: 'Reset Password',
+    mark_support: 'Mark as Support',
+    remove_support: 'Remove Support',
+    mark_youtuber: 'Mark as YouTuber',
+    remove_youtuber: 'Remove YouTuber'
 }
 
 // these actions need reasons. unlike my decisions to work in frontend. those need therapy.
@@ -124,6 +128,8 @@ function goBack() {
                         :class="admin.is_online ? 'bg-green-500' : 'bg-red-400'"
                         :title="admin.is_online ? 'Online' : 'Offline'"
                     ></span>
+                    <Tag v-if="admin.is_support" severity="info" size="small">Support</Tag>
+                    <Tag v-if="admin.is_youtuber" severity="warn" size="small">YouTuber</Tag>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">

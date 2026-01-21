@@ -2,14 +2,44 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from 'primevue/usetoast'
 import api from '@/service/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const loading = ref(true)
 const adminList = ref(null)
 const expandedLevels = ref({})
+
+const addDialog = ref(false)
+const addLoading = ref(false)
+const newAdmin = ref({
+    nickname: '',
+    level: 1,
+    reason: ''
+})
+
+const canAddAdmin = computed(() => {
+    if (!authStore.admin) return false
+    const level = authStore.admin.level || 0
+    const isGA = authStore.admin.is_ga || false
+    return level >= 7 || (level === 6 && isGA)
+})
+
+const maxAssignableLevel = computed(() => {
+    if (!authStore.admin) return 5
+    return authStore.admin.level >= 7 ? 6 : 5
+})
+
+const levelOptions = computed(() => {
+    const max = maxAssignableLevel.value
+    return Array.from({ length: max }, (_, i) => ({
+        label: `Level ${i + 1}`,
+        value: i + 1
+    }))
+})
 
 onMounted(async () => {
     await loadAdmins()
@@ -26,7 +56,7 @@ async function loadAdmins() {
             expandedLevels.value[level] = true
         })
     } catch (error) {
-        console.warn('admin list went somewhere. probably.')
+        // it happens
     } finally {
         loading.value = false
     }
@@ -42,12 +72,50 @@ function getAdminsByLevel(level) {
     return adminList.value.admins.filter(a => a.level === level)
 }
 
+const canViewDetails = computed(() => adminList.value?.can_view_details ?? false)
+
 function openAdmin(admin) {
+    if (!canViewDetails.value) return
     router.push({ name: 'admin-manage', params: { name: admin.name } })
 }
 
 function toggleLevel(level) {
     expandedLevels.value[level] = !expandedLevels.value[level]
+}
+
+function openAddDialog() {
+    newAdmin.value = { nickname: '', level: 1, reason: '' }
+    addDialog.value = true
+}
+
+async function submitNewAdmin() {
+    if (!newAdmin.value.nickname.trim()) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Nickname required', life: 3000 })
+        return
+    }
+    if (!newAdmin.value.reason.trim()) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Reason required', life: 3000 })
+        return
+    }
+
+    addLoading.value = true
+    try {
+        const serverParam = authStore.currentServer ? `?server=${authStore.currentServer}` : ''
+        await api.post(`/admin/manage/add${serverParam}`, {
+            nickname: newAdmin.value.nickname,
+            level: newAdmin.value.level,
+            reason: newAdmin.value.reason
+        })
+        
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Admin added successfully', life: 3000 })
+        addDialog.value = false
+        await loadAdmins()
+    } catch (error) {
+        const msg = error.response?.data?.error || 'failed to add admin'
+        toast.add({ severity: 'error', summary: 'Error', detail: msg, life: 5000 })
+    } finally {
+        addLoading.value = false
+    }
 }
 </script>
 
@@ -55,9 +123,18 @@ function toggleLevel(level) {
     <div class="card">
         <div class="flex justify-between items-center mb-4">
             <h5 class="m-0">Admin List</h5>
-            <div v-if="adminList" class="flex gap-4">
-                <Tag severity="info">Total: {{ adminList.total }}</Tag>
-                <Tag severity="success">Online: {{ adminList.online }}</Tag>
+            <div class="flex gap-4 items-center">
+                <Button 
+                    v-if="canAddAdmin"
+                    label="Add Admin"
+                    icon="pi pi-plus"
+                    size="small"
+                    @click="openAddDialog"
+                />
+                <template v-if="adminList">
+                    <Tag severity="info">Total: {{ adminList.total }}</Tag>
+                    <Tag severity="success">Online: {{ adminList.online }}</Tag>
+                </template>
             </div>
         </div>
         
@@ -82,12 +159,18 @@ function toggleLevel(level) {
                 >
                     <Column field="name" header="Name">
                         <template #body="{ data }">
-                            <Button 
-                                :label="data.name" 
-                                link 
-                                class="p-0"
-                                @click="openAdmin(data)"
-                            />
+                            <div class="flex items-center gap-2">
+                                <Button 
+                                    v-if="canViewDetails"
+                                    :label="data.name" 
+                                    link 
+                                    class="p-0"
+                                    @click="openAdmin(data)"
+                                />
+                                <span v-else>{{ data.name }}</span>
+                                <Tag v-if="data.is_support" severity="info" size="small">SUP</Tag>
+                                <Tag v-if="data.is_youtuber" severity="warn" size="small">YT</Tag>
+                            </div>
                         </template>
                     </Column>
                     <Column header="GA">
@@ -128,5 +211,33 @@ function toggleLevel(level) {
             <p class="text-muted-color">Failed to load admin list</p>
         </div>
     </div>
+
+    <Dialog v-model:visible="addDialog" header="Add New Admin" modal :style="{ width: '400px' }">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="nickname">Player Nickname</label>
+                <InputText id="nickname" v-model="newAdmin.nickname" placeholder="exact nickname" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="level">Level</label>
+                <Select 
+                    id="level"
+                    v-model="newAdmin.level" 
+                    :options="levelOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select level"
+                />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="reason">Reason</label>
+                <Textarea id="reason" v-model="newAdmin.reason" rows="3" placeholder="why is this person becoming admin" />
+            </div>
+        </div>
+        <template #footer>
+            <Button label="Cancel" text @click="addDialog = false" />
+            <Button label="Add Admin" :loading="addLoading" @click="submitNewAdmin" />
+        </template>
+    </Dialog>
 </template>
 
