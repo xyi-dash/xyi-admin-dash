@@ -42,7 +42,6 @@ class PlayerLogService
                     ];
                 }
             } catch (\Exception $e) {
-                // db might be down, skip
             }
         }
 
@@ -83,7 +82,6 @@ class PlayerLogService
             $query->where('ID', $accountId);
         }
 
-        // no filters = no results, we're not dumping the whole db
         if (!$nickname && !$accountId) {
             return [];
         }
@@ -171,7 +169,6 @@ class PlayerLogService
             ->limit($limit)
             ->get()
             ->map(function ($row) use ($banList) {
-                // (old db stores in utc+0, we need utc+3)
                 $date = $row->Date ?? null;
 
                 return [
@@ -181,7 +178,7 @@ class PlayerLogService
                     'to' => $row->B,
                     'to_is_banned' => isset($banList[$row->B]),
                     'type' => $row->Repa, // + or -
-                    'comment' => $row->Comment ?: 'no comment left. mysterious.',
+                    'comment' => $row->Comment ?: null,
                     'date' => $date,
                 ];
             })
@@ -279,7 +276,7 @@ class PlayerLogService
                 'admin_ip' => $row->IPa ?? null,
                 'name' => $row->Name,
                 'player_ip' => $row->IPp ?? null,
-                'reason' => $row->Reason ?? 'reimu said so',
+                'reason' => $row->Reason ?? null,
                 'date' => $row->Date ?? null,
             ])
             ->toArray();
@@ -358,7 +355,6 @@ class PlayerLogService
 
     private function getBanList(string $connection): array
     {
-        // cache would be nice here but whatever
         $bans = DB::connection($connection)
             ->table('banlist')
             ->pluck('Name')
@@ -449,9 +445,44 @@ class PlayerLogService
             ->toArray();
     }
 
+    public function updateBanReason(string $server, int $banId, string $reason): bool
+    {
+        $connection = $this->conn($server);
+        if (!$connection) return false;
+
+        $affected = DB::connection($connection)
+            ->table('banlist')
+            ->where('ID', $banId)
+            ->where('Type', 4)
+            ->update(['Reason' => $reason]);
+
+        return $affected > 0;
+    }
+
+    public function getBanById(string $server, int $banId): ?array
+    {
+        $connection = $this->conn($server);
+        if (!$connection) return null;
+
+        $ban = DB::connection($connection)
+            ->table('banlist')
+            ->where('ID', $banId)
+            ->where('Type', 4)
+            ->first();
+
+        if (!$ban) return null;
+
+        return [
+            'id' => $ban->ID,
+            'name' => $ban->Name,
+            'reason' => $ban->Reason,
+        ];
+    }
+
     private function calculateRank(int $kills): string
     {
-        // blame the original dev for this ladder
+        // 100k kills for "legend". at 1 kill per second that's 27 hours of pure murder.
+        // some people need different hobbies. or maybe this IS the hobby. respect.
         return match (true) {
             $kills >= 100000 => 'legend',
             $kills >= 80000 => 'matchless',
@@ -467,7 +498,7 @@ class PlayerLogService
             $kills >= 1000 => 'amateur',
             $kills >= 500 => 'beginner',
             $kills >= 200 => 'newbie',
-            default => 'hakurei_shrine_visitor',
+            default => 'newborn',
         };
     }
 }

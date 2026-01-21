@@ -6,8 +6,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * the bridge between our world and the game databases
+ * three servers, three connections, infinite suffering.
+ * 
+ * why is the table called a27ccount? because someone in 2015 thought
+ * "lets add random numbers to prevent sql injection". it didn't.
+ * but now we're stuck with it forever. thanks yall are wonderful people!
+ */
 class GameAccountService
 {
+    // the holy trinity
     private const SERVER_CONNECTIONS = [
         'one' => 'gangwar',
         'two' => 'gangwar2',
@@ -22,6 +31,7 @@ class GameAccountService
         }
 
         // yeah it's bad but that's what the game uses :skull:
+        // md5 in big 2026. i know. i KNOW. don't blame me bro
         $passwordHash = md5($password);
 
         $account = DB::connection($connection)
@@ -90,7 +100,6 @@ class GameAccountService
             return false;
         }
 
-        // idk this is shit bro
         $hashed = strtoupper(hash('sha256', $password . $admin->Salt));
         
         return $admin->Password === $hashed;
@@ -107,8 +116,10 @@ class GameAccountService
 
         if ($viewerLevel === 6 && $viewerIsGA) {
             $query->where('Adm', '<=', 6)->where('GA', 0);
-        } else {
+        } elseif ($viewerLevel >= 7) {
             $query->where('Adm', '<', $viewerLevel);
+        } else {
+            $query->where('Adm', '<=', 6);
         }
 
         return $query
@@ -122,6 +133,8 @@ class GameAccountService
                 'is_ga' => ($admin->GA ?? 0) == 1,
                 'warnings' => $admin->Preds ?? 0,
                 'is_online' => ($admin->online2 ?? 0) == 1,
+                'is_support' => ($admin->is_support ?? 0) == 1,
+                'is_youtuber' => ($admin->is_media ?? 0) == 1,
                 'reputation' => [
                     'up' => $admin->rep_up ?? 0,
                     'down' => $admin->rep_down ?? 0,
@@ -132,6 +145,11 @@ class GameAccountService
                 'playtime_week' => $this->formatAdminPlaytime($admin->NOnline ?? 0),
             ])
             ->toArray();
+    }
+
+    public function canViewAdminDetails(int $viewerLevel, bool $viewerIsGA): bool
+    {
+        return $viewerLevel >= 7 || ($viewerLevel === 6 && $viewerIsGA);
     }
 
     public function getAdminById(string $server, int $adminId): ?object
@@ -197,8 +215,6 @@ class GameAccountService
         $user->update(['game_account_name' => $gameAccount->Name]);
 
         $user->tokens()->delete();
-
-        // also establish session for filament cp
         Auth::login($user);
 
         return $user->createToken('auth-token')->plainTextToken;

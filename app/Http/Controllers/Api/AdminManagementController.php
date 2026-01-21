@@ -86,6 +86,22 @@ class AdminManagementController extends Controller
                 $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
             ),
+            'mark_support' => $this->mgmtService->markAsSupport(
+                $server, $targetName, $reason,
+                $myAdmin->ID, $user->game_account_name, $request->ip()
+            ),
+            'remove_support' => $this->mgmtService->removeSupport(
+                $server, $targetName, $reason,
+                $myAdmin->ID, $user->game_account_name, $request->ip()
+            ),
+            'mark_youtuber' => $this->mgmtService->markAsYouTuber(
+                $server, $targetName, $reason,
+                $myAdmin->ID, $user->game_account_name, $request->ip()
+            ),
+            'remove_youtuber' => $this->mgmtService->removeYouTuber(
+                $server, $targetName, $reason,
+                $myAdmin->ID, $user->game_account_name, $request->ip()
+            ),
             default => ['success' => false, 'error' => 'spell_card_rules_violation'],
         };
 
@@ -98,6 +114,57 @@ class AdminManagementController extends Controller
         return response()->json([
             'success' => true,
             'admin' => $updatedAdmin ? $this->formatAdmin($updatedAdmin, $server) : null,
+        ]);
+    }
+
+    public function addAdmin(Request $request): JsonResponse
+    {
+        $request->validate([
+            'nickname' => 'required|string|max:24',
+            'level' => 'required|integer|min:1|max:6',
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $user = $request->user();
+        $server = $this->resolveServer($request);
+        
+        if (!$server) {
+            return response()->json(['error' => 'boundary_of_fantasy_and_reality_blocked'], 403);
+        }
+
+        $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
+        if (!$myAdmin) {
+            return response()->json(['error' => 'not_admin_on_server'], 403);
+        }
+
+        $myLevel = $myAdmin->Adm ?? 0;
+        $isGA = ($myAdmin->GA ?? 0) == 1;
+
+        if ($myLevel < 7 && !($myLevel === 6 && $isGA)) {
+            return response()->json(['error' => 'marisa_stole_your_permission'], 403);
+        }
+
+        $result = $this->mgmtService->addAdmin(
+            $server,
+            $request->nickname,
+            $request->level,
+            $request->reason,
+            $myAdmin->ID,
+            $user->game_account_name,
+            $myLevel,
+            $isGA,
+            $request->ip()
+        );
+
+        if (!$result['success']) {
+            return response()->json(['error' => $result['error']], 400);
+        }
+
+        $newAdmin = $this->gameService->getAdminWithAccount($server, $request->nickname);
+
+        return response()->json([
+            'success' => true,
+            'admin' => $newAdmin ? $this->formatAdmin($newAdmin, $server) : null,
         ]);
     }
 
@@ -167,6 +234,8 @@ class AdminManagementController extends Controller
             'name' => $admin->Name,
             'level' => $admin->Adm,
             'is_ga' => ($admin->GA ?? 0) == 1,
+            'is_support' => ($admin->is_support ?? 0) == 1,
+            'is_youtuber' => ($admin->is_media ?? 0) == 1,
             'warnings' => $admin->Preds ?? 0,
             'needs_confirm' => ($admin->admgive ?? 0) == 1,
             'appointed_by' => $admin->Kem ?? null,

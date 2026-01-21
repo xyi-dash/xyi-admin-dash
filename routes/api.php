@@ -39,19 +39,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/prepare-redirect', [AuthController::class, 'prepareAdminRedirect']);
 });
 
-// pre-unlock: you know you're an admin but you can't prove it
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/auth', [AdminController::class, 'auth']);
     Route::get('/session/status', [AdminController::class, 'sessionStatus']);
 });
 
-// post-unlock
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])->group(function () {
     Route::get('/me', [AdminController::class, 'me']);
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
 
     Route::post('/manage', [AdminManagementController::class, 'execute']);
+    Route::post('/manage/add', [AdminManagementController::class, 'addAdmin']);
     Route::get('/manage/{adminName}/actions', [AdminManagementController::class, 'availableActions']);
     Route::get('/manage/{adminName}/history', [AdminManagementController::class, 'history']);
 
@@ -83,6 +82,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])-
         Route::get('/nicknames', [PlayerLogController::class, 'nicknameLogs']);
         Route::get('/unbans', [PlayerLogController::class, 'unbanLogs']);
         Route::get('/bans', [PlayerLogController::class, 'permanentBans']);
+        Route::patch('/bans/{banId}/reason', [PlayerLogController::class, 'updateBanReason']);
         Route::get('/ip-bans', [PlayerLogController::class, 'permanentIPBans']);
         Route::get('/matchmaking', [PlayerLogController::class, 'matchmakingStats']);
         Route::get('/money-transfers', [PlayerLogController::class, 'moneyTransferLogs']);

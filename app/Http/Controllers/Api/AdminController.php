@@ -111,10 +111,12 @@ class AdminController extends Controller
         $isGA = $myAdmin && ($myAdmin->GA ?? 0) == 1;
 
         $admins = $this->gameAccountService->getAdminList($server, $myLevel, $isGA);
+        $canViewDetails = $this->gameAccountService->canViewAdminDetails($myLevel, $isGA);
 
         return response()->json([
             'admins' => $admins,
             'my_level' => $myLevel,
+            'can_view_details' => $canViewDetails,
             'total' => count($admins),
             'online' => collect($admins)->where('is_online', true)->count(),
         ]);
@@ -126,7 +128,7 @@ class AdminController extends Controller
         $server = $this->resolveServer($request);
         
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
+            return response()->json(['error' => 'ran_yakumo_is_guarding_this_server'], 403);
         }
 
         $myLevel = $this->getAdminLevelOnServer($request, $server);
@@ -151,13 +153,13 @@ class AdminController extends Controller
         $server = $this->resolveServer($request);
         
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
+            return response()->json(['error' => 'server_not_unlocked'], 403);
         }
 
         $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
 
         if (!$admin) {
-            return response()->json(['error' => 'you are not an admin on this server lil blud'], 404);
+            return response()->json(['error' => 'not_admin_here'], 404);
         }
 
         return response()->json([
@@ -172,6 +174,8 @@ class AdminController extends Controller
             'name' => $admin->Name,
             'level' => $admin->Adm,
             'is_ga' => ($admin->GA ?? 0) == 1,
+            'is_support' => ($admin->is_support ?? 0) == 1,
+            'is_youtuber' => ($admin->is_media ?? 0) == 1,
             'warnings' => $admin->Preds ?? 0,
             'appointed_by' => $admin->Kem ?? null,
             'appointed_date' => $admin->Date ?? null,

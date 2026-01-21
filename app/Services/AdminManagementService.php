@@ -4,6 +4,13 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 
+/**
+ * where admin dreams come to die and get resurrected as database rows
+ * every method here is a small funeral for someones career or ego
+ * 
+ * if you're reading this and thinking "why is this so long" - because
+ * managing humans is complicated and i hate it. go ask yukari.
+ */
 class AdminManagementService
 {
     private const SERVER_CONNECTIONS = [
@@ -33,7 +40,7 @@ class AdminManagementService
         }
 
         if ($target->Preds >= 3) {
-            return ['success' => false, 'error' => 'max_warnings'];
+            return ['success' => false, 'error' => 'three_strikes_youre_already_out'];
         }
 
         $newWarns = $target->Preds + 1;
@@ -155,7 +162,7 @@ class AdminManagementService
         }
 
         if ($target->Adm < 2) {
-            return ['success' => false, 'error' => 'already_lowest'];
+            return ['success' => false, 'error' => 'cant_go_lower_than_rock_bottom'];
         }
 
         $newLevel = $target->Adm - 1;
@@ -372,11 +379,234 @@ class AdminManagementService
         return ['success' => true];
     }
 
+    public function markAsSupport(
+        string $server,
+        string $targetName,
+        string $reason,
+        int $actorId,
+        string $actorName,
+        string $actorIp
+    ): array {
+        $conn = $this->conn($server);
+        $target = $this->getAdmin($conn, $targetName);
+
+        if (!$target) {
+            return ['success' => false, 'error' => 'admin_not_found'];
+        }
+
+        if (($target->is_support ?? 0) == 1) {
+            return ['success' => false, 'error' => 'already_support'];
+        }
+
+        DB::connection($conn)->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$targetName])
+            ->update(['is_support' => 1]);
+
+        $this->logToGameDb($conn, $actorId, $targetName, $target->IP ?? '', $actorName, $actorIp, 13, 0, $reason);
+
+        $this->actionLog->log(
+            ActionLogService::ADMIN_MARK_SUPPORT,
+            $actorId, $actorName, $server,
+            $target->idAccount ?? $target->ID, $targetName, $server,
+            ['reason' => $reason],
+            $actorIp
+        );
+
+        return ['success' => true];
+    }
+
+    public function removeSupport(
+        string $server,
+        string $targetName,
+        string $reason,
+        int $actorId,
+        string $actorName,
+        string $actorIp
+    ): array {
+        $conn = $this->conn($server);
+        $target = $this->getAdmin($conn, $targetName);
+
+        if (!$target) {
+            return ['success' => false, 'error' => 'admin_not_found'];
+        }
+
+        if (($target->is_support ?? 0) == 0) {
+            return ['success' => false, 'error' => 'not_support'];
+        }
+
+        DB::connection($conn)->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$targetName])
+            ->update(['is_support' => 0]);
+
+        // auth.monser.ru couldn't do this. we are superior! marginally.
+        $this->logToGameDb($conn, $actorId, $targetName, $target->IP ?? '', $actorName, $actorIp, 15, 0, $reason);
+
+        $this->actionLog->log(
+            ActionLogService::ADMIN_REMOVE_SUPPORT,
+            $actorId, $actorName, $server,
+            $target->idAccount ?? $target->ID, $targetName, $server,
+            ['reason' => $reason],
+            $actorIp
+        );
+
+        return ['success' => true];
+    }
+
+    public function markAsYouTuber(
+        string $server,
+        string $targetName,
+        string $reason,
+        int $actorId,
+        string $actorName,
+        string $actorIp
+    ): array {
+        $conn = $this->conn($server);
+        $target = $this->getAdmin($conn, $targetName);
+
+        if (!$target) {
+            return ['success' => false, 'error' => 'admin_not_found'];
+        }
+
+        if (($target->is_media ?? 0) == 1) {
+            return ['success' => false, 'error' => 'already_youtuber'];
+        }
+
+        DB::connection($conn)->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$targetName])
+            ->update(['is_media' => 1]);
+
+        $this->logToGameDb($conn, $actorId, $targetName, $target->IP ?? '', $actorName, $actorIp, 14, 0, $reason);
+
+        $this->actionLog->log(
+            ActionLogService::ADMIN_MARK_YOUTUBER,
+            $actorId, $actorName, $server,
+            $target->idAccount ?? $target->ID, $targetName, $server,
+            ['reason' => $reason],
+            $actorIp
+        );
+
+        return ['success' => true];
+    }
+
+    public function removeYouTuber(
+        string $server,
+        string $targetName,
+        string $reason,
+        int $actorId,
+        string $actorName,
+        string $actorIp
+    ): array {
+        $conn = $this->conn($server);
+        $target = $this->getAdmin($conn, $targetName);
+
+        if (!$target) {
+            return ['success' => false, 'error' => 'admin_not_found'];
+        }
+
+        if (($target->is_media ?? 0) == 0) {
+            return ['success' => false, 'error' => 'not_youtuber'];
+        }
+
+        DB::connection($conn)->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$targetName])
+            ->update(['is_media' => 0]);
+
+        $this->logToGameDb($conn, $actorId, $targetName, $target->IP ?? '', $actorName, $actorIp, 16, 0, $reason);
+
+        $this->actionLog->log(
+            ActionLogService::ADMIN_REMOVE_YOUTUBER,
+            $actorId, $actorName, $server,
+            $target->idAccount ?? $target->ID, $targetName, $server,
+            ['reason' => $reason],
+            $actorIp
+        );
+
+        return ['success' => true];
+    }
+
+    public function addAdmin(
+        string $server,
+        string $targetName,
+        int $level,
+        string $reason,
+        int $actorId,
+        string $actorName,
+        int $actorLevel,
+        bool $actorIsGA,
+        string $actorIp
+    ): array {
+        $conn = $this->conn($server);
+        if (!$conn) {
+            return ['success' => false, 'error' => 'invalid_server'];
+        }
+
+        if ($actorLevel < 7 && !($actorLevel === 6 && $actorIsGA)) {
+            return ['success' => false, 'error' => 'insufficient_level'];
+        }
+
+        $maxLevel = match(true) {
+            $actorLevel >= 7 => 6,
+            $actorLevel === 6 || $actorIsGA => 5,
+            default => 0,
+        };
+
+        if ($level < 1 || $level > $maxLevel) {
+            return ['success' => false, 'error' => 'invalid_level'];
+        }
+
+        $account = DB::connection($conn)
+            ->table('a27ccount')
+            ->whereRaw('BINARY Name = ?', [$targetName])
+            ->first(['ID', 'Name', 'IpLog']);
+
+        if (!$account) {
+            return ['success' => false, 'error' => 'player_not_found'];
+        }
+
+        $existingAdmin = $this->getAdmin($conn, $targetName);
+        if ($existingAdmin) {
+            return ['success' => false, 'error' => 'already_admin'];
+        }
+
+        $datep = date('d.m.Y');
+
+        DB::connection($conn)->table('a27dmins')->insert([
+            'idAccount' => $account->ID,
+            'Name' => $account->Name,
+            'Adm' => $level,
+            'Kem' => $actorName,
+            'Date' => $datep,
+            'IP' => 'None',
+            'admgive' => 0,
+        ]);
+
+        $this->logToGameDb(
+            $conn,
+            $actorId,
+            $targetName,
+            $account->IpLog ?? '',
+            $actorName,
+            $actorIp,
+            6,
+            $level,
+            $reason ?: ' '
+        );
+
+        $this->actionLog->log(
+            ActionLogService::ADMIN_APPOINT,
+            $actorId, $actorName, $server,
+            $account->ID, $targetName, $server,
+            ['level' => $level, 'reason' => $reason],
+            $actorIp
+        );
+
+        return ['success' => true, 'level' => $level];
+    }
+
     public function getAvailableActions(int $actorLevel, bool $actorIsGA, int $targetLevel): array
     {
         $actions = [];
 
-        // hakurei barrier
         $canManage = $actorLevel > $targetLevel || ($actorLevel === 6 && $actorIsGA && $targetLevel < 6);
 
         if (!$canManage) {
@@ -388,6 +618,10 @@ class AdminManagementService
             $actions[] = 'unwarn';
             $actions[] = 'reset_password';
             $actions[] = 'confirm';
+            $actions[] = 'mark_support';
+            $actions[] = 'remove_support';
+            $actions[] = 'mark_youtuber';
+            $actions[] = 'remove_youtuber';
         }
 
         if ($actorLevel >= 7) {
@@ -441,6 +675,10 @@ class AdminManagementService
             ->first();
     }
 
+    /**
+     * shove it into logsadmin2 so arkxa bot can pick it up
+     * and spam someones dms about it. truly, peak automation.
+     */
     private function logToGameDb(
         string $conn,
         int $actorId,
@@ -461,7 +699,7 @@ class AdminManagementService
             'type' => $type,
             'kolvo' => $amount,
             'reason' => $reason,
-            'date' => now(),
+            'date' => now('Europe/Moscow'),
         ]);
     }
 

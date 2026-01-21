@@ -12,7 +12,6 @@ class AdminLogService
         'three' => 'gangwar3',
     ];
 
-    // logsadmin2 types
     public const TYPE_WARN = 1;
     public const TYPE_UNWARN = 2;
     public const TYPE_PROMOTE = 3;
@@ -24,6 +23,7 @@ class AdminLogService
     public const TYPE_RESET_PASSWORD = 9;
     public const TYPE_CONFIRM = 10;
 
+    // people actually pay money for these this is wild
     public const BUY_ADMIN = 1;
     public const BUY_PROMOTE = 2;
     public const BUY_UNWARN = 3;
@@ -205,7 +205,6 @@ class AdminLogService
 
         $query = DB::connection($connection)->table('logsadmin2');
 
-        // skip internal garbage
         $query->whereNotIn('type', [7, 11, 12]);
 
         $startDate = now()->subDays($page)->startOfDay();
@@ -289,7 +288,6 @@ class AdminLogService
         return $result;
     }
 
-    // pechenka bought something, 6+ confirms it
     public function confirmPurchase(string $server, string $adminName, int $confirmerId, string $confirmerName): bool
     {
         $connection = $this->conn($server);
@@ -321,7 +319,7 @@ class AdminLogService
                 'type' => self::TYPE_BUY_CONFIRM,
                 'kolvo' => 0,
                 'reason' => ' ',
-                'date' => now(),
+                'date' => now('Europe/Moscow'),
             ]);
 
         return true;
@@ -333,7 +331,7 @@ class AdminLogService
             self::BUY_ADMIN => 'buy_admin',
             self::BUY_PROMOTE => 'promotion',
             self::BUY_UNWARN => 'remove_warning',
-            default => 'wtf',
+            default => 'unknown_transaction_type_what_the_wang',
         };
     }
 

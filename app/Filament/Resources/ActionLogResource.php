@@ -43,8 +43,8 @@ class ActionLogResource extends Resource
                     ->color(fn (string $state): string => match($state) {
                         'login', 'admin_auth', 'cp_login' => 'success',
                         'logout' => 'gray',
-                        'news_create', 'admin_appoint' => 'info',
-                        'news_delete', 'admin_remove', 'cp_user_remove' => 'danger',
+                        'news_create', 'admin_appoint', 'admin_mark_support', 'admin_mark_youtuber' => 'info',
+                        'news_delete', 'admin_remove', 'cp_user_remove', 'admin_remove_support', 'admin_remove_youtuber' => 'danger',
                         'admin_warn' => 'warning',
                         default => 'primary',
                     }),
@@ -162,6 +162,7 @@ class ActionLogResource extends Resource
         ];
     }
 
+    // logs are sacred. no touchy.
     public static function canCreate(): bool { return false; }
     public static function canEdit($record): bool { return false; }
     public static function canDelete($record): bool { return false; }

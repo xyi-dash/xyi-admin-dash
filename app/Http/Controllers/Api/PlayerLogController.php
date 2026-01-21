@@ -15,13 +15,10 @@ class PlayerLogController extends Controller
         private GameAccountService $gameService
     ) {}
 
-    /**
-     * get servers where current user has 7+ access
-     */
     public function availableServers(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $user = $request->user();
@@ -35,7 +32,7 @@ class PlayerLogController extends Controller
     public function searchPlayer(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -45,12 +42,12 @@ class PlayerLogController extends Controller
         ]);
 
         if (!$request->nickname && !$request->account_id) {
-            return response()->json(['error' => 'give me something to work with'], 400);
+            return response()->json(['error' => 'give_me_something_to_work_with'], 400);
         }
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -65,7 +62,7 @@ class PlayerLogController extends Controller
     public function getPlayerStats(Request $request, int $accountId): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -74,13 +71,12 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         $stats = $this->logService->getPlayerStats($server, $accountId);
-
         if (!$stats) {
-            return response()->json(['error' => 'player vanished into gensokyo'], 404);
+            return response()->json(['error' => 'player_not_found'], 404);
         }
 
         return response()->json(['data' => $stats]);
@@ -89,7 +85,7 @@ class PlayerLogController extends Controller
     public function reputationLogs(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -101,7 +97,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -117,7 +113,7 @@ class PlayerLogController extends Controller
     public function nicknameLogs(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -130,7 +126,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -147,7 +143,7 @@ class PlayerLogController extends Controller
     public function unbanLogs(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -158,7 +154,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -173,7 +169,7 @@ class PlayerLogController extends Controller
     public function permanentBans(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -185,7 +181,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -201,7 +197,7 @@ class PlayerLogController extends Controller
     public function permanentIPBans(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -213,7 +209,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -229,7 +225,7 @@ class PlayerLogController extends Controller
     public function matchmakingStats(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -240,7 +236,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -255,7 +251,7 @@ class PlayerLogController extends Controller
     public function moneyTransferLogs(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -269,7 +265,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -287,7 +283,7 @@ class PlayerLogController extends Controller
     public function accessoryLogs(Request $request): JsonResponse
     {
         if (!$this->canAccess($request)) {
-            return response()->json(['error' => 'reimu says 7+ only'], 403);
+            return response()->json(['error' => 'level_7_required'], 403);
         }
 
         $request->validate([
@@ -300,7 +296,7 @@ class PlayerLogController extends Controller
 
         $server = $this->resolveServer($request);
         if (!$server) {
-            return response()->json(['error' => 'hakurei barrier denies entry'], 403);
+            return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         return response()->json([
@@ -314,6 +310,43 @@ class PlayerLogController extends Controller
         ]);
     }
 
+    public function updateBanReason(Request $request, int $banId): JsonResponse
+    {
+        if (!$this->canAccess($request)) {
+            return response()->json(['error' => 'level_7_required'], 403);
+        }
+
+        $request->validate([
+            'reason' => 'required|string|max:255',
+            'server' => 'nullable|string|in:one,two,three',
+        ]);
+
+        $server = $this->resolveServer($request);
+        if (!$server) {
+            return response()->json(['error' => 'server_access_denied'], 403);
+        }
+
+        $ban = $this->logService->getBanById($server, $banId);
+        if (!$ban) {
+            return response()->json(['error' => 'ban_evaporated_into_thin_air'], 404);
+        }
+
+        $updated = $this->logService->updateBanReason($server, $banId, $request->reason);
+        if (!$updated) {
+            return response()->json(['error' => 'database_said_no'], 500);
+        }
+
+        return response()->json([
+            'message' => 'ban reason updated',
+            'data' => [
+                'id' => $banId,
+                'name' => $ban['name'],
+                'reason' => $request->reason,
+            ]
+        ]);
+    }
+
+    // 14 methods and they all start with the same check. i am a professional
     private function canAccess(Request $request): bool
     {
         return $request->attributes->get('admin_level') >= 7;

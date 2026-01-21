@@ -24,6 +24,10 @@ class ActionLogService
     public const ADMIN_CONFIRM = 'admin_confirm';
     public const ADMIN_RESET_PASSWORD = 'admin_reset_password';
     public const ADMIN_PURCHASE_CONFIRM = 'admin_purchase_confirm';
+    public const ADMIN_MARK_SUPPORT = 'admin_mark_support';
+    public const ADMIN_REMOVE_SUPPORT = 'admin_remove_support';
+    public const ADMIN_MARK_YOUTUBER = 'admin_mark_youtuber';
+    public const ADMIN_REMOVE_YOUTUBER = 'admin_remove_youtuber';
 
     public const NEWS_CREATE = 'news_create';
     public const NEWS_UPDATE = 'news_update';
@@ -108,7 +112,6 @@ class ActionLogService
 
     public static function getActionTypes(): array
     {
-        // would approve this mapping
         return [
             self::LOGIN => 'login',
             self::LOGOUT => 'logout',
@@ -126,6 +129,10 @@ class ActionLogService
             self::ADMIN_CONFIRM => 'confirm',
             self::ADMIN_RESET_PASSWORD => 'reset password',
             self::ADMIN_PURCHASE_CONFIRM => 'purchase confirm',
+            self::ADMIN_MARK_SUPPORT => 'mark support',
+            self::ADMIN_REMOVE_SUPPORT => 'remove support',
+            self::ADMIN_MARK_YOUTUBER => 'mark youtuber',
+            self::ADMIN_REMOVE_YOUTUBER => 'remove youtuber',
             self::NEWS_CREATE => 'news create',
             self::NEWS_UPDATE => 'news update',
             self::NEWS_DELETE => 'news delete',
