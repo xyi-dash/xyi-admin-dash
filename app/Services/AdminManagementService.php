@@ -618,16 +618,16 @@ class AdminManagementService
             $actions[] = 'unwarn';
             $actions[] = 'reset_password';
             $actions[] = 'confirm';
-            $actions[] = 'mark_support';
-            $actions[] = 'remove_support';
-            $actions[] = 'mark_youtuber';
-            $actions[] = 'remove_youtuber';
         }
 
         if ($actorLevel >= 7) {
             $actions[] = 'promote';
             $actions[] = 'demote';
             $actions[] = 'remove';
+            $actions[] = 'mark_support';
+            $actions[] = 'remove_support';
+            $actions[] = 'mark_youtuber';
+            $actions[] = 'remove_youtuber';
         }
 
         if ($actorLevel >= 8) {
