@@ -8,11 +8,13 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\ControlPanelAuth;
 
@@ -20,7 +22,6 @@ class ControlPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        // default to russian because that's what we do here
         app()->setLocale(session('locale', 'ru'));
         
         return $panel
@@ -37,6 +38,10 @@ class ControlPanelProvider extends PanelProvider
             ->pages([Pages\Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn () => Blade::render('@livewire(\'language-switcher\')')
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
