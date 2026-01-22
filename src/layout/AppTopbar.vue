@@ -59,7 +59,7 @@ async function goToControlPanel() {
     try {
         const { data } = await api.post('/cp/prepare')
         if (data.token) {
-            window.open(`https://monser-dm.nl/cp?t=${encodeURIComponent(data.token)}`, '_blank')
+            window.open(`https://dashboard.monser-dm.nl/cp?t=${encodeURIComponent(data.token)}`, '_blank')
         }
     } catch (err) {
         console.warn('cp access denied:', err.response?.data?.error || err.message)

@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const DASHBOARD_URL = 'https://monser-dm.nl'
+const DASHBOARD_URL = 'https://dashboard.monser-dm.nl'
 
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: 'https://dashboard.monser-dm.nl/api',
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',

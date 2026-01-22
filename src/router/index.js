@@ -1,7 +1,7 @@
 import AppLayout from '@/layout/AppLayout.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { redirectToDashboard } from '@/service/api'
+import { useAuthStore } from '@/stores/auth'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
     history: createWebHistory(),
