@@ -38,4 +38,14 @@ return [
         'system' => 'Система',
         'users' => 'Пользователи',
     ],
+    
+    'stats' => [
+        'total_online' => 'Всего онлайн',
+        'all_servers' => 'Все серверы',
+        'server_one' => 'Сервер 1',
+        'server_two' => 'Сервер 2',
+        'server_three' => 'Сервер 3',
+        'online_admins' => 'Онлайн / Всего',
+        'unavailable' => 'Недоступен',
+    ],
 ];

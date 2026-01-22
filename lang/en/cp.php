@@ -38,4 +38,14 @@ return [
         'system' => 'System',
         'users' => 'Users',
     ],
+    
+    'stats' => [
+        'total_online' => 'Total Online',
+        'all_servers' => 'All servers',
+        'server_one' => 'Server 1',
+        'server_two' => 'Server 2',
+        'server_three' => 'Server 3',
+        'online_admins' => 'Online / Total',
+        'unavailable' => 'Unavailable',
+    ],
 ];
