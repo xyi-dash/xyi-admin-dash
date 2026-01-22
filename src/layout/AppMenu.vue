@@ -1,67 +1,69 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import AppMenuItem from './AppMenuItem.vue'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 // this menu structure is held together by hopes, dreams, and one very long computed property
 // if you're reading this at 3am debugging why a menu item isnt showing up - my condolences
 const model = computed(() => {
     const items = [{
-        label: 'Home',
+        label: t('nav.home'),
         items: [
-            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Admin List', icon: 'pi pi-fw pi-users', to: '/admins' }
+            { label: t('nav.dashboard'), icon: 'pi pi-fw pi-home', to: '/' },
+            { label: t('nav.admin_list'), icon: 'pi pi-fw pi-users', to: '/admins' }
         ]
     }]
     
     if (authStore.canViewLogs) {
         items.push({
-            label: 'Logs',
+            label: t('nav.logs'),
             items: [
-                { label: 'Actions', icon: 'pi pi-fw pi-list', to: '/logs/actions' },
-                { label: 'Warnings', icon: 'pi pi-fw pi-exclamation-triangle', to: '/logs/warnings' },
-                { label: 'Purchases', icon: 'pi pi-fw pi-shopping-cart', to: '/logs/purchases' }
+                { label: t('nav.actions'), icon: 'pi pi-fw pi-list', to: '/logs/actions' },
+                { label: t('nav.warnings'), icon: 'pi pi-fw pi-exclamation-triangle', to: '/logs/warnings' },
+                { label: t('nav.purchases'), icon: 'pi pi-fw pi-shopping-cart', to: '/logs/purchases' }
             ]
         })
     }
     
     if (authStore.canViewRemoved) {
-        const logsSection = items.find(i => i.label === 'Logs')
+        const logsSection = items.find(i => i.label === t('nav.logs'))
         if (logsSection) {
-            logsSection.items.push({ label: 'Removed Admins', icon: 'pi pi-fw pi-user-minus', to: '/logs/removed' })
+            logsSection.items.push({ label: t('nav.removed'), icon: 'pi pi-fw pi-user-minus', to: '/logs/removed' })
         }
         
         items.push({
-            label: 'Extended',
+            label: t('nav.extended'),
             items: [
-                { label: 'Player Search', icon: 'pi pi-fw pi-search', to: '/extended/players' },
-                { label: 'Reputation', icon: 'pi pi-fw pi-star', to: '/extended/reputation' },
-                { label: 'Nicknames', icon: 'pi pi-fw pi-id-card', to: '/extended/nicknames' },
-                { label: 'Unbans', icon: 'pi pi-fw pi-check-circle', to: '/extended/unbans' },
-                { label: 'Permanent Bans', icon: 'pi pi-fw pi-ban', to: '/extended/bans' },
-                { label: 'IP Bans', icon: 'pi pi-fw pi-globe', to: '/extended/ip-bans' },
-                { label: 'Matchmaking', icon: 'pi pi-fw pi-chart-bar', to: '/extended/matchmaking' },
-                { label: 'Money Transfers', icon: 'pi pi-fw pi-dollar', to: '/extended/money' },
-                { label: 'Accessories', icon: 'pi pi-fw pi-box', to: '/extended/accessories' }
+                { label: t('nav.player_search'), icon: 'pi pi-fw pi-search', to: '/extended/players' },
+                { label: t('nav.reputation'), icon: 'pi pi-fw pi-star', to: '/extended/reputation' },
+                { label: t('nav.nicknames'), icon: 'pi pi-fw pi-id-card', to: '/extended/nicknames' },
+                { label: t('nav.unbans'), icon: 'pi pi-fw pi-check-circle', to: '/extended/unbans' },
+                { label: t('nav.bans'), icon: 'pi pi-fw pi-ban', to: '/extended/bans' },
+                { label: t('nav.ip_bans'), icon: 'pi pi-fw pi-globe', to: '/extended/ip-bans' },
+                { label: t('nav.matchmaking'), icon: 'pi pi-fw pi-chart-bar', to: '/extended/matchmaking' },
+                { label: t('nav.money'), icon: 'pi pi-fw pi-dollar', to: '/extended/money' },
+                { label: t('nav.accessories'), icon: 'pi pi-fw pi-box', to: '/extended/accessories' }
             ]
         })
     }
     
     if (authStore.canViewGAActions) {
-        const logsSection = items.find(i => i.label === 'Logs')
+        const logsSection = items.find(i => i.label === t('nav.logs'))
         if (logsSection) {
-            logsSection.items.push({ label: 'GA Actions', icon: 'pi pi-fw pi-shield', to: '/logs/ga-actions' })
+            logsSection.items.push({ label: t('nav.ga_actions'), icon: 'pi pi-fw pi-shield', to: '/logs/ga-actions' })
         }
     }
     
     if (authStore.canManageServers) {
         items.push({
-            label: 'Management',
+            label: t('nav.management'),
             items: [
-                { label: 'News', icon: 'pi pi-fw pi-megaphone', to: '/manage/news' },
-                { label: 'Servers', icon: 'pi pi-fw pi-server', to: '/manage/servers' }
+                { label: t('nav.news'), icon: 'pi pi-fw pi-megaphone', to: '/manage/news' },
+                { label: t('nav.servers'), icon: 'pi pi-fw pi-server', to: '/manage/servers' }
             ]
         })
     }

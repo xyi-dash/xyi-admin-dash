@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import api from '@/service/api'
+import { useAuthStore } from '@/stores/auth'
+import { onMounted, ref } from 'vue'
 
 const authStore = useAuthStore()
 
@@ -43,24 +43,24 @@ function search() {
 
 <template>
     <div class="card">
-        <h5>Removed Admins Log</h5>
+        <h5>{{ $t('logs.removed.title') }}</h5>
         
         <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.removed" placeholder="Removed admin" class="w-40" />
-            <InputText v-model="filters.removed_by" placeholder="Removed by" class="w-40" />
-            <InputText v-model="filters.level" placeholder="Level" type="number" class="w-24" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <InputText v-model="filters.removed" :placeholder="$t('logs.removed.removed_placeholder')" class="w-40" />
+            <InputText v-model="filters.removed_by" :placeholder="$t('logs.removed.removed_by_placeholder')" class="w-40" />
+            <InputText v-model="filters.level" :placeholder="$t('logs.removed.level_placeholder')" type="number" class="w-24" />
+            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
         </div>
         
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="target" header="Removed" />
-            <Column field="admin" header="Removed By" />
-            <Column field="level" header="Level" />
-            <Column field="reason" header="Reason" />
-            <Column field="date" header="Date" />
+            <Column field="target" :header="$t('logs.removed.removed')" />
+            <Column field="admin" :header="$t('logs.removed.removed_by')" />
+            <Column field="level" :header="$t('logs.removed.level')" />
+            <Column field="reason" :header="$t('logs.removed.reason')" />
+            <Column field="date" :header="$t('logs.removed.date')" />
             
             <template #empty>
-                <div class="text-center py-4 text-muted-color">No removed admins found</div>
+                <div class="text-center py-4 text-muted-color">{{ $t('logs.removed.no_removed') }}</div>
             </template>
         </DataTable>
     </div>

@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { redirectToDashboard } from '@/service/api'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
@@ -14,14 +16,8 @@ const error = ref('')
 
 const targetServer = computed(() => route.query.server || authStore.currentServer || authStore.user?.server)
 
-const serverLabel = computed(() => {
-    const labels = { one: 'Server: 01', two: 'Server: 02', three: 'Server: 03' }
-    return labels[targetServer.value] || targetServer.value
-})
-
-const isAdditionalServer = computed(() => {
-    return route.query.server && route.query.server !== authStore.currentServer
-})
+const serverLabel = computed(() => t(`servers.server_labels.${targetServer.value}`))
+const isAdditionalServer = computed(() => authStore.hasUnlockedServers)
 
 onMounted(() => {
     if (authStore.hasUnlockedServers && !route.query.server) router.push('/')
@@ -29,7 +25,7 @@ onMounted(() => {
 
 async function handleUnlock() {
     if (!password.value) {
-        error.value = 'enter your admin password'
+        error.value = t('auth.unlock.enter_password')
         return
     }
     
@@ -44,7 +40,7 @@ async function handleUnlock() {
         if (isAdditionalServer.value) authStore.switchServer(targetServer.value)
         router.push('/')
     } else {
-        error.value = result.message || 'invalid password'
+        error.value = result.message || t('auth.unlock.invalid_password')
     }
 }
 
@@ -64,15 +60,15 @@ function goBack() {
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
-                            {{ isAdditionalServer ? 'Unlock Server' : 'Admin Panel' }}
+                            {{ $t('auth.unlock.title') }}
                         </div>
                         <span class="text-muted-color font-medium">
-                            {{ isAdditionalServer ? `Enter admin password for ${serverLabel}` : 'Enter your admin password to continue' }}
+                            {{ $t('auth.unlock.subtitle') }}
                         </span>
                     </div>
 
                     <div v-if="authStore.user" class="mb-6 text-center">
-                        <span class="text-surface-600 dark:text-surface-400">Logged in as </span>
+                        <span class="text-surface-600 dark:text-surface-400">{{ $t('auth.unlock.logged_as') }} </span>
                         <span class="text-primary font-semibold">{{ authStore.user.name }}</span>
                         <div v-if="targetServer" class="mt-2">
                             <Tag severity="info">{{ serverLabel }}</Tag>
@@ -80,11 +76,11 @@ function goBack() {
                     </div>
 
                     <div>
-                        <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Admin Password</label>
+                        <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ $t('auth.unlock.password') }}</label>
                         <Password 
                             id="password" 
                             v-model="password" 
-                            placeholder="your admin password"
+                            :placeholder="$t('auth.unlock.password_placeholder')"
                             :toggleMask="true" 
                             class="w-full mb-4" 
                             inputClass="w-full"
@@ -95,14 +91,14 @@ function goBack() {
                         <Message v-if="error" severity="error" class="mb-4">{{ error }}</Message>
 
                         <Button 
-                            label="Unlock" 
+                            :label="$t('auth.unlock.login')" 
                             class="w-full" 
                             :loading="loading"
                             @click="handleUnlock"
                         />
                         
                         <Button 
-                            :label="authStore.hasUnlockedServers ? 'Cancel' : 'Back to Dashboard'" 
+                            :label="authStore.hasUnlockedServers ? $t('auth.unlock.cancel') : $t('auth.unlock.back_dashboard')" 
                             class="w-full mt-4" 
                             severity="secondary"
                             text

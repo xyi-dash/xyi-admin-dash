@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
 import api from '@/service/api'
 
+const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
@@ -36,7 +38,7 @@ const maxAssignableLevel = computed(() => {
 const levelOptions = computed(() => {
     const max = maxAssignableLevel.value
     return Array.from({ length: max }, (_, i) => ({
-        label: `Level ${i + 1}`,
+        label: `${t('common.level')} ${i + 1}`,
         value: i + 1
     }))
 })
@@ -90,11 +92,11 @@ function openAddDialog() {
 
 async function submitNewAdmin() {
     if (!newAdmin.value.nickname.trim()) {
-        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Nickname required', life: 3000 })
+        toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('admins.add_dialog.nickname_required'), life: 3000 })
         return
     }
     if (!newAdmin.value.reason.trim()) {
-        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Reason required', life: 3000 })
+        toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('admins.add_dialog.reason_required'), life: 3000 })
         return
     }
 
@@ -107,12 +109,12 @@ async function submitNewAdmin() {
             reason: newAdmin.value.reason
         })
         
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Admin added successfully', life: 3000 })
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('admins.add_dialog.success'), life: 3000 })
         addDialog.value = false
         await loadAdmins()
     } catch (error) {
-        const msg = error.response?.data?.error || 'failed to add admin'
-        toast.add({ severity: 'error', summary: 'Error', detail: msg, life: 5000 })
+        const msg = error.response?.data?.error || t('admins.add_dialog.failed')
+        toast.add({ severity: 'error', summary: t('common.error'), detail: msg, life: 5000 })
     } finally {
         addLoading.value = false
     }
@@ -122,18 +124,18 @@ async function submitNewAdmin() {
 <template>
     <div class="card">
         <div class="flex justify-between items-center mb-4">
-            <h5 class="m-0">Admin List</h5>
+            <h5 class="m-0">{{ $t('admins.title') }}</h5>
             <div class="flex gap-4 items-center">
                 <Button 
                     v-if="canAddAdmin"
-                    label="Add Admin"
+                    :label="$t('admins.add_admin')"
                     icon="pi pi-plus"
                     size="small"
                     @click="openAddDialog"
                 />
                 <template v-if="adminList">
-                    <Tag severity="info">Total: {{ adminList.total }}</Tag>
-                    <Tag severity="success">Online: {{ adminList.online }}</Tag>
+                    <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>
+                    <Tag severity="success">{{ $t('common.online') }}: {{ adminList.online }}</Tag>
                 </template>
             </div>
         </div>
@@ -147,7 +149,7 @@ async function submitNewAdmin() {
                     @click="toggleLevel(level)"
                 >
                     <i :class="['pi', expandedLevels[level] ? 'pi-chevron-down' : 'pi-chevron-right']"></i>
-                    <span class="font-semibold">Level {{ level }}</span>
+                    <span class="font-semibold">{{ $t('common.level') }} {{ level }}</span>
                     <Tag size="small">{{ getAdminsByLevel(level).length }}</Tag>
                 </div>
                 
@@ -157,7 +159,7 @@ async function submitNewAdmin() {
                     stripedRows
                     class="p-datatable-sm"
                 >
-                    <Column field="name" header="Name">
+                    <Column field="name" :header="$t('common.name')">
                         <template #body="{ data }">
                             <div class="flex items-center gap-2">
                                 <Button 
@@ -173,32 +175,32 @@ async function submitNewAdmin() {
                             </div>
                         </template>
                     </Column>
-                    <Column header="GA">
+                    <Column :header="$t('admins.ga')">
                         <template #body="{ data }">
                             <Tag v-if="data.is_ga" severity="success" size="small">GA</Tag>
                             <span v-else class="text-muted-color">-</span>
                         </template>
                     </Column>
-                    <Column field="warnings" header="Warns">
+                    <Column field="warnings" :header="$t('admins.warns')">
                         <template #body="{ data }">
                             <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">
                                 {{ data.warnings }}/3
                             </span>
                         </template>
                     </Column>
-                    <Column header="Reputation">
+                    <Column :header="$t('admins.rep')">
                         <template #body="{ data }">
                             <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
                             /
                             <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
                         </template>
                     </Column>
-                    <Column field="playtime_3days" header="3 Days" />
-                    <Column field="playtime_week" header="Week" />
-                    <Column header="Status">
+                    <Column field="playtime_3days" :header="$t('admins.three_days')" />
+                    <Column field="playtime_week" :header="$t('admins.week')" />
+                    <Column :header="$t('common.status')">
                         <template #body="{ data }">
                             <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
-                                {{ data.is_online ? 'Online' : 'Offline' }}
+                                {{ data.is_online ? $t('common.online') : $t('common.offline') }}
                             </Tag>
                         </template>
                     </Column>
@@ -208,35 +210,35 @@ async function submitNewAdmin() {
         
         <div v-else class="text-center py-8">
             <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
-            <p class="text-muted-color">Failed to load admin list</p>
+            <p class="text-muted-color">{{ $t('admins.failed_load') }}</p>
         </div>
     </div>
 
-    <Dialog v-model:visible="addDialog" header="Add New Admin" modal :style="{ width: '400px' }">
+    <Dialog v-model:visible="addDialog" :header="$t('admins.add_dialog.title')" modal :style="{ width: '400px' }">
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
-                <label for="nickname">Player Nickname</label>
-                <InputText id="nickname" v-model="newAdmin.nickname" placeholder="exact nickname" />
+                <label for="nickname">{{ $t('admins.add_dialog.nickname') }}</label>
+                <InputText id="nickname" v-model="newAdmin.nickname" :placeholder="$t('admins.add_dialog.nickname_placeholder')" />
             </div>
             <div class="flex flex-col gap-2">
-                <label for="level">Level</label>
+                <label for="level">{{ $t('admins.add_dialog.level') }}</label>
                 <Select 
                     id="level"
                     v-model="newAdmin.level" 
                     :options="levelOptions"
                     optionLabel="label"
                     optionValue="value"
-                    placeholder="Select level"
+                    :placeholder="$t('admins.add_dialog.select_level')"
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <label for="reason">Reason</label>
-                <Textarea id="reason" v-model="newAdmin.reason" rows="3" placeholder="why is this person becoming admin" />
+                <label for="reason">{{ $t('admins.add_dialog.reason') }}</label>
+                <Textarea id="reason" v-model="newAdmin.reason" rows="3" :placeholder="$t('admins.add_dialog.reason_placeholder')" />
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" text @click="addDialog = false" />
-            <Button label="Add Admin" :loading="addLoading" @click="submitNewAdmin" />
+            <Button :label="$t('common.cancel')" text @click="addDialog = false" />
+            <Button :label="$t('admins.add_admin')" :loading="addLoading" @click="submitNewAdmin" />
         </template>
     </Dialog>
 </template>

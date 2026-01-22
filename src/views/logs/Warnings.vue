@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import api from '@/service/api'
+import { useAuthStore } from '@/stores/auth'
+import { onMounted, ref } from 'vue'
 
 const authStore = useAuthStore()
 
@@ -44,23 +44,23 @@ function search() {
 
 <template>
     <div class="card">
-        <h5>Admin Warnings Log</h5>
+        <h5>{{ $t('logs.warnings.title') }}</h5>
         
         <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.issued_by" placeholder="Issued by" class="w-40" />
-            <InputText v-model="filters.issued_to" placeholder="Issued to" class="w-40" />
-            <InputText v-model="filters.reason" placeholder="Reason" class="w-40" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <InputText v-model="filters.issued_by" :placeholder="$t('logs.warnings.issued_by_placeholder')" class="w-40" />
+            <InputText v-model="filters.issued_to" :placeholder="$t('logs.warnings.issued_to_placeholder')" class="w-40" />
+            <InputText v-model="filters.reason" :placeholder="$t('logs.warnings.reason_placeholder')" class="w-40" />
+            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
         </div>
         
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" header="Issued By" />
-            <Column field="target" header="Issued To" />
-            <Column field="reason" header="Reason" />
-            <Column field="date" header="Date" />
+            <Column field="admin" :header="$t('logs.warnings.issued_by')" />
+            <Column field="target" :header="$t('logs.warnings.issued_to')" />
+            <Column field="reason" :header="$t('logs.warnings.reason')" />
+            <Column field="date" :header="$t('logs.warnings.date')" />
             
             <template #empty>
-                <div class="text-center py-4 text-muted-color">No warnings found</div>
+                <div class="text-center py-4 text-muted-color">{{ $t('logs.warnings.no_warnings') }}</div>
             </template>
         </DataTable>
     </div>

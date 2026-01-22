@@ -1,23 +1,46 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useLayout } from '@/layout/composables/layout'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { setLocale, getLocale } from '@/i18n'
 import AppConfigurator from './AppConfigurator.vue'
 import api from '@/service/api'
 
+const { t, locale } = useI18n()
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
 const authStore = useAuthStore()
 const router = useRouter()
 
+const currentLocale = ref(getLocale())
+const langMenu = ref()
+
+const languageOptions = [
+    { label: 'Русский', value: 'ru', code: 'RU' },
+    { label: 'English', value: 'en', code: 'US' }
+]
+
+function toggleLangMenu(event) {
+    langMenu.value.toggle(event)
+}
+
+function changeLocale(lang) {
+    setLocale(lang)
+    currentLocale.value = lang
+    langMenu.value.hide()
+}
+
 const serverMenu = ref()
 const serverLabels = { one: '01', two: '02', three: '03' }
-const serverItems = ref([
-    { label: 'Server: 01', value: 'one' },
-    { label: 'Server: 02', value: 'two' },
-    { label: 'Server: 03', value: 'three' }
+
+const serverItems = computed(() => [
+    { label: t('servers.server_labels.one'), value: 'one' },
+    { label: t('servers.server_labels.two'), value: 'two' },
+    { label: t('servers.server_labels.three'), value: 'three' }
 ])
-const currentServerLabel = computed(() => authStore.currentServer ? `Server: ${serverLabels[authStore.currentServer]}` : 'Select')
+
+const currentServerLabel = computed(() => authStore.currentServer ? t(`servers.server_labels.${authStore.currentServer}`) : t('common.none'))
 
 function toggleServerMenu(event) {
     serverMenu.value.toggle(event)
@@ -89,6 +112,21 @@ async function goToControlPanel() {
                 >
                     <i class="pi pi-cog"></i>
                 </button>
+                <button type="button" class="layout-topbar-action" @click="toggleLangMenu">
+                    <i class="pi pi-globe"></i>
+                </button>
+                <Menu ref="langMenu" :model="languageOptions" popup>
+                    <template #item="{ item }">
+                        <div 
+                            class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800"
+                            @click="changeLocale(item.value)"
+                        >
+                            <span class="font-mono text-xs bg-surface-200 dark:bg-surface-700 px-1.5 py-0.5 rounded">{{ item.code }}</span>
+                            <span>{{ item.label }}</span>
+                            <i v-if="item.value === currentLocale" class="pi pi-check text-green-500 ml-auto"></i>
+                        </div>
+                    </template>
+                </Menu>
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>

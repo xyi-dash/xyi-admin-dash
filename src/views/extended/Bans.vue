@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
 import api from '@/service/api'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
 
@@ -61,8 +63,8 @@ async function saveReason() {
         
         toast.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Ban reason updated',
+            summary: t('common.success'),
+            detail: t('extended.bans.reason_updated'),
             life: 3000
         })
         
@@ -71,8 +73,8 @@ async function saveReason() {
     } catch (error) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.response?.data?.message || 'Failed to update reason',
+            summary: t('common.error'),
+            detail: error.response?.data?.message || t('common.failed_save'),
             life: 5000
         })
     } finally {
@@ -83,20 +85,20 @@ async function saveReason() {
 
 <template>
     <div class="card">
-        <h5>Permanent Bans</h5>
+        <h5>{{ $t('extended.bans.title') }}</h5>
         
         <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.player" placeholder="Player name" class="w-40" />
-            <InputText v-model="filters.admin" placeholder="Admin name" class="w-40" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <InputText v-model="filters.player" :placeholder="$t('extended.bans.player_placeholder')" class="w-40" />
+            <InputText v-model="filters.admin" :placeholder="$t('extended.bans.admin_placeholder')" class="w-40" />
+            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
         </div>
         
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" header="Admin" />
-            <Column field="admin_ip" header="Admin IP" />
-            <Column field="name" header="Player" />
-            <Column field="player_ip" header="Player IP" />
-            <Column field="reason" header="Reason">
+            <Column field="admin" :header="$t('extended.bans.admin')" />
+            <Column field="admin_ip" :header="$t('extended.bans.admin_ip')" />
+            <Column field="name" :header="$t('extended.bans.player')" />
+            <Column field="player_ip" :header="$t('extended.bans.player_ip')" />
+            <Column field="reason" :header="$t('extended.bans.reason')">
                 <template #body="{ data }">
                     <div class="flex items-center gap-2">
                         <span class="flex-1">{{ data.reason }}</span>
@@ -106,41 +108,41 @@ async function saveReason() {
                             rounded 
                             size="small"
                             @click="openEditDialog(data)"
-                            v-tooltip.top="'Edit reason'"
+                            v-tooltip.top="$t('common.edit')"
                         />
                     </div>
                 </template>
             </Column>
-            <Column field="date" header="Date" />
+            <Column field="date" :header="$t('extended.bans.date')" />
             
             <template #empty>
-                <div class="text-center py-4 text-muted-color">No permanent bans found</div>
+                <div class="text-center py-4 text-muted-color">{{ $t('extended.bans.no_bans') }}</div>
             </template>
         </DataTable>
         
         <Dialog 
             v-model:visible="editDialog" 
-            header="Edit Ban Reason" 
+            :header="$t('extended.bans.edit_reason')" 
             modal 
             class="w-full max-w-lg"
         >
             <div class="flex flex-col gap-4">
                 <div v-if="editingBan" class="text-muted-color text-sm">
-                    Player: <span class="font-semibold text-color">{{ editingBan.name }}</span>
+                    {{ $t('extended.bans.player') }}: <span class="font-semibold text-color">{{ editingBan.name }}</span>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-semibold">Reason</label>
+                    <label class="font-semibold">{{ $t('extended.bans.reason') }}</label>
                     <Textarea 
                         v-model="editReason" 
                         rows="3" 
                         class="w-full"
-                        placeholder="reason for ban"
+                        :placeholder="$t('extended.bans.reason_placeholder')"
                     />
                 </div>
             </div>
             <template #footer>
-                <Button label="Cancel" text @click="editDialog = false" />
-                <Button label="Save" :loading="saving" @click="saveReason" />
+                <Button :label="$t('common.cancel')" text @click="editDialog = false" />
+                <Button :label="$t('common.save')" :loading="saving" @click="saveReason" />
             </template>
         </Dialog>
     </div>

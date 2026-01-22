@@ -14,15 +14,19 @@ const filters = ref({
     type: ''
 })
 
-const actionTypes = [
-    { label: 'All', value: '' },
-    { label: 'Warn', value: '1' },
-    { label: 'Unwarn', value: '2' },
-    { label: 'Promote', value: '3' },
-    { label: 'Demote', value: '4' },
-    { label: 'Remove', value: '5' },
-    { label: 'Appoint', value: '6' }
-]
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+const { t } = useI18n()
+
+const actionTypes = computed(() => [
+    { label: t('logs.ga_actions.all'), value: '' },
+    { label: t('logs.ga_actions.warn'), value: '1' },
+    { label: t('logs.ga_actions.unwarn'), value: '2' },
+    { label: t('logs.ga_actions.promote'), value: '3' },
+    { label: t('logs.ga_actions.demote'), value: '4' },
+    { label: t('logs.ga_actions.remove'), value: '5' },
+    { label: t('logs.ga_actions.appoint'), value: '6' }
+])
 
 onMounted(async () => {
     await loadData()
@@ -67,30 +71,30 @@ function nextPage() {
 
 <template>
     <div class="card">
-        <h5>GA Actions Log</h5>
+        <h5>{{ $t('logs.ga_actions.title') }}</h5>
         
         <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.ga" placeholder="GA name" class="w-40" />
-            <InputText v-model="filters.target" placeholder="Target" class="w-40" />
-            <Select v-model="filters.type" :options="actionTypes" optionLabel="label" optionValue="value" placeholder="Action type" class="w-40" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <InputText v-model="filters.ga" :placeholder="$t('logs.ga_actions.ga_placeholder')" class="w-40" />
+            <InputText v-model="filters.target" :placeholder="$t('logs.ga_actions.target_placeholder')" class="w-40" />
+            <Select v-model="filters.type" :options="actionTypes" optionLabel="label" optionValue="value" :placeholder="$t('logs.ga_actions.action_type')" class="w-40" />
+            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
         </div>
         
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" header="GA" />
-            <Column field="target" header="Target" />
-            <Column field="type_name" header="Action" />
-            <Column field="amount" header="Amount" />
-            <Column field="reason" header="Reason" />
-            <Column field="date" header="Date" />
+            <Column field="admin" :header="$t('logs.ga_actions.ga')" />
+            <Column field="target" :header="$t('logs.ga_actions.target')" />
+            <Column field="type_name" :header="$t('logs.ga_actions.action')" />
+            <Column field="amount" :header="$t('logs.ga_actions.amount')" />
+            <Column field="reason" :header="$t('logs.ga_actions.reason')" />
+            <Column field="date" :header="$t('logs.ga_actions.date')" />
             
             <template #empty>
-                <div class="text-center py-4 text-muted-color">No GA actions found</div>
+                <div class="text-center py-4 text-muted-color">{{ $t('logs.ga_actions.no_actions') }}</div>
             </template>
         </DataTable>
         
         <div class="flex justify-between items-center mt-4">
-            <span class="text-muted-color">Page {{ page + 1 }}</span>
+            <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
             <div class="flex gap-2">
                 <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />
                 <Button icon="pi pi-chevron-right" text @click="nextPage" />

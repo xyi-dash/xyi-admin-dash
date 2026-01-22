@@ -43,29 +43,29 @@ function viewPlayer(id) {
 
 <template>
     <div class="card">
-        <h5>Player Search</h5>
+        <h5>{{ $t('extended.player_search.title') }}</h5>
         
         <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.nickname" placeholder="Nickname" class="w-48" @keyup.enter="search" />
-            <InputText v-model="filters.account_id" placeholder="Account ID" type="number" class="w-32" @keyup.enter="search" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <InputText v-model="filters.nickname" :placeholder="$t('extended.player_search.nickname')" class="w-48" @keyup.enter="search" />
+            <InputText v-model="filters.account_id" :placeholder="$t('extended.player_search.account_id')" type="number" class="w-32" @keyup.enter="search" />
+            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
         </div>
         
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column header="ID">
+            <Column :header="$t('extended.player_search.id')">
                 <template #body="{ data }">
                     <Button :label="String(data.id)" link class="p-0" @click="viewPlayer(data.id)" />
                 </template>
             </Column>
-            <Column field="name" header="Name" />
-            <Column field="level" header="Level" />
-            <Column field="kills" header="Kills" />
-            <Column field="deaths" header="Deaths" />
-            <Column field="donate_money" header="Donate" />
+            <Column field="name" :header="$t('extended.player_search.name')" />
+            <Column field="level" :header="$t('extended.player_search.level')" />
+            <Column field="kills" :header="$t('extended.player_search.kills')" />
+            <Column field="deaths" :header="$t('extended.player_search.deaths')" />
+            <Column field="donate_money" :header="$t('extended.player_search.donate')" />
             
             <template #empty>
                 <div class="text-center py-4 text-muted-color">
-                    {{ searched ? 'No players found' : 'Enter nickname or account ID to search' }}
+                    {{ searched ? $t('extended.player_search.no_players') : $t('extended.player_search.enter_search') }}
                 </div>
             </template>
         </DataTable>
