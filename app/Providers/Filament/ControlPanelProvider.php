@@ -17,13 +17,12 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\ControlPanelAuth;
+use App\Http\Middleware\SetLocale;
 
 class ControlPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        app()->setLocale(session('locale', 'ru'));
-        
         return $panel
             ->default()
             ->id('cp')
@@ -46,6 +45,7 @@ class ControlPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                SetLocale::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,

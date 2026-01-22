@@ -20,9 +20,9 @@ class LanguageSwitcher extends Component
         }
 
         session(['locale' => $locale]);
-        app()->setLocale($locale);
+        $this->locale = $locale;
 
-        $this->redirect(request()->header('Referer', '/cp'));
+        $this->js('window.location.reload()');
     }
 
     public function render()
