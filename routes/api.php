@@ -11,12 +11,12 @@ use App\Http\Controllers\Api\AdminManagementController;
 use App\Http\Controllers\Api\PlayerLogController;
 
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 });
 
-Route::post('/admin/exchange-token', [AuthController::class, 'exchangeToken']);
+Route::post('/admin/exchange-token', [AuthController::class, 'exchangeToken'])->middleware('throttle:10,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/account/profile', [AccountController::class, 'profile']);
@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::post('/auth', [AdminController::class, 'auth']);
+    Route::post('/auth', [AdminController::class, 'auth'])->middleware('throttle:5,1');
     Route::get('/session/status', [AdminController::class, 'sessionStatus']);
 });
 
