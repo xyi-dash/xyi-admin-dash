@@ -175,12 +175,6 @@ async function submitNewAdmin() {
                             </div>
                         </template>
                     </Column>
-                    <Column :header="$t('admins.ga')">
-                        <template #body="{ data }">
-                            <Tag v-if="data.is_ga" severity="success" size="small">GA</Tag>
-                            <span v-else class="text-muted-color">-</span>
-                        </template>
-                    </Column>
                     <Column field="warnings" :header="$t('admins.warns')">
                         <template #body="{ data }">
                             <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">
