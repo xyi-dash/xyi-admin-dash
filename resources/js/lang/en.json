@@ -10,15 +10,16 @@
     "edit": "edit",
     "create": "create",
     "confirm": "confirm",
-    "yes": "yes",
-    "no": "no",
+    "yes": "Yes",
+    "no": "No",
     "on": "ON",
     "off": "OFF",
     "page": "page",
     "total": "Total",
     "online": "Online",
     "nothing": "nothing here",
-    "not_implemented": "not implemented yet"
+    "not_implemented": "not implemented yet",
+    "account": "Account"
   },
   "errors": {
     "no_access": "no access",

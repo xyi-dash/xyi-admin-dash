@@ -1,6 +1,9 @@
 <template>
   <div class="auth-wrapper">
     <div class="auth-container">
+      <button class="lang-switcher" @click="toggleLocale" :title="currentLocale === 'ru' ? 'Switch to English' : 'Переключить на русский'">
+        {{ currentLocale.toUpperCase() }}
+      </button>
       <div class="header">
         <h1 class="logo">Monser DM</h1>
         <p class="subtitle">{{ $t('auth.title') }}</p>
@@ -59,6 +62,7 @@
 
 <script>
 import axios from 'axios'
+import { setLocale, getLocale } from '../i18n'
 
 export default {
   name: 'Auth',
@@ -71,10 +75,16 @@ export default {
       },
       loading: false,
       error: null,
-      success: null
+      success: null,
+      currentLocale: getLocale()
     }
   },
   methods: {
+    toggleLocale() {
+      const newLocale = this.currentLocale === 'ru' ? 'en' : 'ru'
+      setLocale(newLocale)
+      this.currentLocale = newLocale
+    },
     async submitForm() {
       this.error = null
       this.success = null
@@ -103,6 +113,25 @@ export default {
 </script>
 
 <style scoped>
+.lang-switcher {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lang-switcher:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .error-message {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);

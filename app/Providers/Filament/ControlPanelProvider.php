@@ -20,6 +20,9 @@ class ControlPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // default to russian because that's what we do here
+        app()->setLocale(session('locale', 'ru'));
+        
         return $panel
             ->default()
             ->id('cp')

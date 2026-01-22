@@ -10,6 +10,9 @@
     </div>
 
     <div class="header__actions">
+      <button class="btn btn--lang" @click="toggleLocale" :title="currentLocale === 'ru' ? 'Switch to English' : 'Переключить на русский'">
+        {{ currentLocale.toUpperCase() }}
+      </button>
       <button v-if="profile?.is_admin" class="btn btn--admin" @click="goToAdmin" title="Admin Panel">
         {{ $t('dashboard.admin_panel') }}
         <svg viewBox="0 0 24 24">
@@ -18,7 +21,7 @@
       </button>
 
 
-      <button class="btn btn--logout" @click="logout" title="Выход">
+      <button class="btn btn--logout" @click="logout" :title="$t('dashboard.logout')">
         <svg viewBox="0 0 24 24">
           <path d="M10 17l5-5-5-5v10Zm9-12h-8v2h8v10h-8v2h8c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2Z"/>
         </svg>
@@ -36,7 +39,7 @@
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          <span>Аккаунт</span>
+          <span>{{ $t('common.account') }}</span>
         </div>
         <div class="dash-card__body">
           <div class="dash-row">
@@ -138,11 +141,11 @@
         <div class="dash-card__body">
           <div class="dash-row">
             <span class="dash-row__label">PREMIUM:</span>
-            <span class="dash-row__value dash-row__value--muted">{{ profile.account.donate.has_premium ? 'Да' : 'Нет' }}</span>
+            <span class="dash-row__value dash-row__value--muted">{{ profile.account.donate.has_premium ? $t('common.yes') : $t('common.no') }}</span>
           </div>
           <div class="dash-row">
             <span class="dash-row__label">ModeX2:</span>
-            <span class="dash-row__value dash-row__value--green">Да</span>
+            <span class="dash-row__value dash-row__value--green">{{ $t('common.yes') }}</span>
           </div>
         </div>
       </div>
@@ -161,7 +164,7 @@
             <span class="dash-row__value dash-row__value--gold">{{ profile.account.donate.balance }}</span>
           </div>
           <div class="dash-row">
-            <span class="dash-row__label">Всего:</span>
+            <span class="dash-row__label">{{ $t('common.total') }}:</span>
             <span class="dash-row__value dash-row__value--gold">{{ profile.account.donate.total_donated }}</span>
           </div>
         </div>
@@ -172,6 +175,7 @@
 <script>
 import axios from 'axios'
 import { clearAdminSession } from '../router'
+import { setLocale, getLocale } from '../i18n'
 
 export default {
   name: 'Dashboard',
@@ -180,7 +184,8 @@ export default {
       account: null,
       profile: null,
       loading: true,
-      error: null
+      error: null,
+      currentLocale: getLocale()
     }
   },
   created() {
@@ -223,6 +228,11 @@ export default {
       localStorage.removeItem('account')
       clearAdminSession()
       this.$router.push('/login')
+    },
+    toggleLocale() {
+      const newLocale = this.currentLocale === 'ru' ? 'en' : 'ru'
+      setLocale(newLocale)
+      this.currentLocale = newLocale
     }
   }
 }

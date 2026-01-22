@@ -40,7 +40,8 @@ class AdminLogService
         ?string $admin = null,
         ?string $player = null,
         ?string $cmd = null,
-        ?string $reason = null
+        ?string $reason = null,
+        bool $withKills = false
     ): array {
         $connection = $this->conn($server);
         if (!$connection) return ['data' => [], 'total' => 0];
@@ -61,21 +62,32 @@ class AdminLogService
 
         $total = $query->count();
         
-        $data = $query->orderByDesc('Date')
-            ->limit(50)
-            ->get()
-            ->map(fn($row) => [
-                'id' => $row->ID ?? null,
-                'admin_id' => $row->idadm ?? null,
-                'admin' => $row->Admin,
-                'player' => $row->Player,
-                'cmd' => $row->CMD,
-                'amount' => $row->Amount,
-                'reason' => $row->Reason,
-                'date' => $row->Date,
-                'admin_level' => $row->ALevel ?? null,
-            ])
-            ->toArray();
+        $rows = $query->orderByDesc('Date')->limit(50)->get();
+        
+        $killsMap = [];
+        if ($withKills && $rows->isNotEmpty()) {
+            $playerNames = $rows->pluck('Player')->unique()->filter()->values()->toArray();
+            if (!empty($playerNames)) {
+                $killsMap = DB::connection($connection)
+                    ->table('a27ccount')
+                    ->whereIn('Name', $playerNames)
+                    ->pluck('Kills', 'Name')
+                    ->toArray();
+            }
+        }
+        
+        $data = $rows->map(fn($row) => [
+            'id' => $row->ID ?? null,
+            'admin_id' => $row->idadm ?? null,
+            'admin' => $row->Admin,
+            'player' => $row->Player,
+            'cmd' => $row->CMD,
+            'amount' => $row->Amount,
+            'reason' => $row->Reason,
+            'date' => $row->Date,
+            'admin_level' => $row->ALevel ?? null,
+            'player_kills' => $withKills ? ($killsMap[$row->Player] ?? null) : null,
+        ])->toArray();
 
         return ['data' => $data, 'total' => $total, 'page' => $page];
     }

@@ -16,10 +16,22 @@ class ActionLogResource extends Resource
 {
     protected static ?string $model = ActionLog::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'Logs';
-    protected static ?string $modelLabel = 'Log';
-    protected static ?string $pluralModelLabel = 'Logs';
     protected static ?int $navigationSort = 1;
+    
+    public static function getNavigationLabel(): string
+    {
+        return __('cp.action_logs');
+    }
+    
+    public static function getModelLabel(): string
+    {
+        return __('cp.action_log');
+    }
+    
+    public static function getPluralModelLabel(): string
+    {
+        return __('cp.action_logs');
+    }
 
     public static function form(Form $form): Form
     {
@@ -31,11 +43,11 @@ class ActionLogResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Date')
+                    ->label(__('cp.fields.created_at'))
                     ->dateTime('d.m.Y H:i:s')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('action_type')
-                    ->label('Action')
+                    ->label(__('cp.fields.action'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => 
                         ActionLogService::getActionTypes()[$state] ?? $state
@@ -49,20 +61,20 @@ class ActionLogResource extends Resource
                         default => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('actor_name')
-                    ->label('Actor')
+                    ->label(__('cp.fields.user_name'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('actor_server')
-                    ->label('Server')
+                    ->label(__('cp.fields.server'))
                     ->badge(),
                 Tables\Columns\TextColumn::make('target_name')
-                    ->label('Target')
+                    ->label(__('cp.fields.target_name'))
                     ->searchable()
                     ->placeholder('-'),
                 Tables\Columns\TextColumn::make('ip_address')
-                    ->label('IP')
+                    ->label(__('cp.fields.ip_address'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('details')
-                    ->label('Details')
+                    ->label(__('cp.fields.details'))
                     ->getStateUsing(function ($record) {
                         $state = $record->details;
                         if (!$state || !is_array($state)) return '-';

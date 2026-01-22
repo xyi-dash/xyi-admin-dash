@@ -16,10 +16,22 @@ class ControlPanelUserResource extends Resource
 {
     protected static ?string $model = ControlPanelUser::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationLabel = 'CP Users';
-    protected static ?string $modelLabel = 'CP User';
-    protected static ?string $pluralModelLabel = 'CP Users';
     protected static ?int $navigationSort = 2;
+    
+    public static function getNavigationLabel(): string
+    {
+        return __('cp.control_panel_users');
+    }
+    
+    public static function getModelLabel(): string
+    {
+        return __('cp.control_panel_user');
+    }
+    
+    public static function getPluralModelLabel(): string
+    {
+        return __('cp.control_panel_users');
+    }
 
     public static function form(Form $form): Form
     {

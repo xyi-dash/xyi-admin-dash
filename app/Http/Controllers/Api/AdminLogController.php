@@ -41,7 +41,8 @@ class AdminLogController extends Controller
                 $request->query('admin'),
                 $request->query('player'),
                 $request->query('cmd'),
-                $request->query('reason')
+                $request->query('reason'),
+                $request->boolean('with_kills')
             )
         );
     }
