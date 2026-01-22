@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->use([
+            \Illuminate\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\TrustProxies::class,
+        ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'admin.unlocked' => \App\Http\Middleware\RequiresUnlockedServer::class,
