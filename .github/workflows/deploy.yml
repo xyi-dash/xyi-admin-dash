@@ -101,11 +101,11 @@ jobs:
 
           git pull origin main
 
-          composer install --no-interaction --prefer-dist --optimize-autoloader
+          php8.3 /usr/bin/composer install --no-interaction --prefer-dist --optimize-autoloader
 
-          php artisan migrate --force
+          php8.3 artisan migrate --force
 
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+          php8.3 artisan config:cache
+          php8.3 artisan route:cache
+          php8.3 artisan view:cache
           EOF
