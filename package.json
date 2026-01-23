@@ -1,12 +1,14 @@
 {
-    "name": "sakai-vue",
-    "version": "4.3.0",
+    "name": "monser-admin",
+    "version": "1.0.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "lint": "eslint --fix ."
+        "lint": "eslint --fix .",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
     },
     "dependencies": {
         "@primeuix/themes": "^2.0.0",
