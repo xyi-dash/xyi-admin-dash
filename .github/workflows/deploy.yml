@@ -82,4 +82,8 @@ jobs:
         run: |
           SSH_PORT_VALUE=${SSH_PORT:-22}
 
+          # pull latest code
+          ssh -o StrictHostKeyChecking=no -p "$SSH_PORT_VALUE" "$SSH_USER@$SSH_HOST" "cd $APP_PATH && git pull origin main"
+
+          # upload build
           tar -czf - dist | ssh -o StrictHostKeyChecking=no -p "$SSH_PORT_VALUE" "$SSH_USER@$SSH_HOST" "cd $APP_PATH && rm -rf dist_old && [ -d dist ] && mv dist dist_old; tar -xzf -"
