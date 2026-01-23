@@ -1,7 +1,7 @@
-import AppLayout from '@/layout/AppLayout.vue'
-import { redirectToDashboard } from '@/service/api'
-import { useAuthStore } from '@/stores/auth'
-import { createRouter, createWebHistory } from 'vue-router'
+import AppLayout from '@/layout/AppLayout.vue';
+import { redirectToDashboard } from '@/service/api';
+import { useAuthStore } from '@/stores/auth';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -152,67 +152,66 @@ const router = createRouter({
             component: () => import('@/views/pages/NotFound.vue')
         }
     ]
-})
+});
 
 router.beforeEach(async (to, from, next) => {
-    const authStore = useAuthStore()
-    const urlParams = new URLSearchParams(window.location.search)
-    const token = urlParams.get('token')
-    
+    const authStore = useAuthStore();
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
     if (token && !authStore.initialized && !authStore.isAuthenticated) {
-        window.history.replaceState({}, '', window.location.pathname)
-        const success = await authStore.initFromToken(token)
+        window.history.replaceState({}, '', window.location.pathname);
+        const success = await authStore.initFromToken(token);
         if (!success) {
-            redirectToDashboard()
-            return
+            redirectToDashboard();
+            return;
         }
     }
-    
+
     if (!authStore.initialized && !authStore.loading) {
-        await authStore.initFromStorage()
+        await authStore.initFromStorage();
     }
-    
+
     if (authStore.loading) {
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
             const unwatch = authStore.$subscribe((mutation, state) => {
                 if (!state.loading) {
-                    unwatch()
-                    resolve()
+                    unwatch();
+                    resolve();
                 }
-            })
-        })
+            });
+        });
     }
-    
-    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-        redirectToDashboard()
-        return
-    }
-    
-    if (to.meta.requiresUnlock && !authStore.hasUnlockedServers) {
-        next({ name: 'unlock' })
-        return
-    }
-    
-    if (to.meta.requiresLevel) {
-        const admin = authStore.admin
-        if (!admin) {
-            next({ name: 'access-denied' })
-            return
-        }
-        
-        const requiredLevel = to.meta.requiresLevel
-        const requiresGA = to.meta.requiresGA
-        
-        const hasAccess = admin.level >= requiredLevel || 
-            (requiresGA && admin.level === 6 && admin.is_ga && requiredLevel === 6)
-        
-        if (!hasAccess) {
-            next({ name: 'access-denied' })
-            return
-        }
-    }
-    
-    next()
-})
 
-export default router
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        redirectToDashboard();
+        return;
+    }
+
+    if (to.meta.requiresUnlock && !authStore.hasUnlockedServers) {
+        next({ name: 'unlock' });
+        return;
+    }
+
+    if (to.meta.requiresLevel) {
+        const admin = authStore.admin;
+        if (!admin) {
+            next({ name: 'access-denied' });
+            return;
+        }
+
+        const requiredLevel = to.meta.requiresLevel;
+        const requiresGA = to.meta.requiresGA;
+
+        const hasAccess = admin.level >= requiredLevel || (requiresGA && admin.level === 6 && admin.is_ga && requiredLevel === 6);
+
+        if (!hasAccess) {
+            next({ name: 'access-denied' });
+            return;
+        }
+    }
+
+    next();
+});
+
+export default router;

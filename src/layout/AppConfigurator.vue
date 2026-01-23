@@ -195,24 +195,24 @@ function onPresetChange() {
 
 onMounted(() => {
     if (layoutConfig.primary && layoutConfig.primary !== 'emerald') {
-        const color = primaryColors.value.find(c => c.name === layoutConfig.primary);
+        const color = primaryColors.value.find((c) => c.name === layoutConfig.primary);
         if (color) {
             updatePreset(getPresetExt());
         }
     }
-    
+
     if (layoutConfig.surface) {
-        const surface = surfaces.value.find(s => s.name === layoutConfig.surface);
+        const surface = surfaces.value.find((s) => s.name === layoutConfig.surface);
         if (surface) {
             updateSurfacePalette(surface.palette);
         }
     }
-    
+
     if (layoutConfig.preset && layoutConfig.preset !== 'Aura') {
         preset.value = layoutConfig.preset;
         onPresetChange();
     }
-})
+});
 </script>
 
 <template>

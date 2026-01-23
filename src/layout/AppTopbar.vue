@@ -1,68 +1,67 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useLayout } from '@/layout/composables/layout'
-import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
-import { setLocale, getLocale } from '@/i18n'
-import AppConfigurator from './AppConfigurator.vue'
-import api, { DASHBOARD_URL } from '@/service/api'
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useLayout } from '@/layout/composables/layout';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+import { setLocale, getLocale } from '@/i18n';
+import AppConfigurator from './AppConfigurator.vue';
+import api, { DASHBOARD_URL } from '@/service/api';
 
-const { t, locale } = useI18n()
-const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
-const authStore = useAuthStore()
-const router = useRouter()
+const { t } = useI18n();
+const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+const authStore = useAuthStore();
+const router = useRouter();
 
-const currentLocale = ref(getLocale())
-const langMenu = ref()
+const currentLocale = ref(getLocale());
+const langMenu = ref();
 
 const languageOptions = [
     { label: 'Русский', value: 'ru', code: 'RU' },
     { label: 'English', value: 'en', code: 'US' }
-]
+];
 
 function toggleLangMenu(event) {
-    langMenu.value.toggle(event)
+    langMenu.value.toggle(event);
 }
 
 function changeLocale(lang) {
-    setLocale(lang)
-    currentLocale.value = lang
-    langMenu.value.hide()
+    setLocale(lang);
+    currentLocale.value = lang;
+    langMenu.value.hide();
 }
 
-const serverMenu = ref()
-const serverLabels = { one: '01', two: '02', three: '03' }
+const serverMenu = ref();
 
 const serverItems = computed(() => [
     { label: t('servers.server_labels.one'), value: 'one' },
     { label: t('servers.server_labels.two'), value: 'two' },
     { label: t('servers.server_labels.three'), value: 'three' }
-])
+]);
 
-const currentServerLabel = computed(() => authStore.currentServer ? t(`servers.server_labels.${authStore.currentServer}`) : t('common.none'))
+const currentServerLabel = computed(() => (authStore.currentServer ? t(`servers.server_labels.${authStore.currentServer}`) : t('common.none')));
 
 function toggleServerMenu(event) {
-    serverMenu.value.toggle(event)
+    serverMenu.value.toggle(event);
 }
 
 function switchServer(server) {
     if (authStore.isServerUnlocked(server)) {
-        authStore.switchServer(server)
-        window.location.reload()
+        authStore.switchServer(server);
+        window.location.reload();
     } else {
-        router.push({ name: 'unlock', query: { server } })
+        router.push({ name: 'unlock', query: { server } });
     }
 }
 
 async function goToControlPanel() {
     try {
-        const { data } = await api.post('/cp/prepare')
+        const { data } = await api.post('/cp/prepare');
         if (data.token) {
-            window.open(`${DASHBOARD_URL}/cp?t=${encodeURIComponent(data.token)}`, '_blank')
+            window.open(`${DASHBOARD_URL}/cp?t=${encodeURIComponent(data.token)}`, '_blank');
         }
     } catch (err) {
-        console.warn('cp access denied:', err.response?.data?.error || err.message)
+        console.warn('cp access denied:', err.response?.data?.error || err.message);
     }
 }
 </script>
@@ -81,18 +80,10 @@ async function goToControlPanel() {
 
         <div class="layout-topbar-actions">
             <div class="flex items-center gap-2">
-                <Button 
-                    :label="currentServerLabel" 
-                    icon="pi pi-server"
-                    text
-                    @click="toggleServerMenu"
-                />
+                <Button :label="currentServerLabel" icon="pi pi-server" text @click="toggleServerMenu" />
                 <Menu ref="serverMenu" :model="serverItems" popup>
                     <template #item="{ item }">
-                        <div 
-                            class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800"
-                            @click="switchServer(item.value)"
-                        >
+                        <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="switchServer(item.value)">
                             <i class="pi pi-server"></i>
                             <span>{{ item.label }}</span>
                             <i v-if="item.value === authStore.currentServer" class="pi pi-check text-green-500 ml-auto"></i>
@@ -102,14 +93,9 @@ async function goToControlPanel() {
                     </template>
                 </Menu>
             </div>
-            
+
             <div class="layout-config-menu">
-                <button
-                    type="button"
-                    class="layout-topbar-action"
-                    title="Control Panel (Filament)"
-                    @click="goToControlPanel"
-                >
+                <button type="button" class="layout-topbar-action" title="Control Panel (Filament)" @click="goToControlPanel">
                     <i class="pi pi-cog"></i>
                 </button>
                 <button type="button" class="layout-topbar-action" @click="toggleLangMenu">
@@ -117,10 +103,7 @@ async function goToControlPanel() {
                 </button>
                 <Menu ref="langMenu" :model="languageOptions" popup>
                     <template #item="{ item }">
-                        <div 
-                            class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800"
-                            @click="changeLocale(item.value)"
-                        >
+                        <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="changeLocale(item.value)">
                             <span class="font-mono text-xs bg-surface-200 dark:bg-surface-700 px-1.5 py-0.5 rounded">{{ item.code }}</span>
                             <span>{{ item.label }}</span>
                             <i v-if="item.value === currentLocale" class="pi pi-check text-green-500 ml-auto"></i>

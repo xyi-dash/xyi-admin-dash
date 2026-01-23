@@ -1,54 +1,54 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
-import { redirectToDashboard } from '@/service/api'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores/auth';
+import { redirectToDashboard } from '@/service/api';
 
-const { t } = useI18n()
-const router = useRouter()
-const route = useRoute()
-const authStore = useAuthStore()
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
 
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
+const password = ref('');
+const loading = ref(false);
+const error = ref('');
 
-const targetServer = computed(() => route.query.server || authStore.currentServer || authStore.user?.server)
+const targetServer = computed(() => route.query.server || authStore.currentServer || authStore.user?.server);
 
-const serverLabel = computed(() => t(`servers.server_labels.${targetServer.value}`))
-const isAdditionalServer = computed(() => authStore.hasUnlockedServers)
+const serverLabel = computed(() => t(`servers.server_labels.${targetServer.value}`));
+const isAdditionalServer = computed(() => authStore.hasUnlockedServers);
 
 onMounted(() => {
-    if (authStore.hasUnlockedServers && !route.query.server) router.push('/')
-})
+    if (authStore.hasUnlockedServers && !route.query.server) router.push('/');
+});
 
 async function handleUnlock() {
     if (!password.value) {
-        error.value = t('auth.unlock.enter_password')
-        return
+        error.value = t('auth.unlock.enter_password');
+        return;
     }
-    
-    loading.value = true
-    error.value = ''
-    
-    const result = await authStore.unlockServer(password.value, targetServer.value)
-    
-    loading.value = false
-    
+
+    loading.value = true;
+    error.value = '';
+
+    const result = await authStore.unlockServer(password.value, targetServer.value);
+
+    loading.value = false;
+
     if (result.success) {
-        if (isAdditionalServer.value) authStore.switchServer(targetServer.value)
-        router.push('/')
+        if (isAdditionalServer.value) authStore.switchServer(targetServer.value);
+        router.push('/');
     } else {
-        error.value = result.message || t('auth.unlock.invalid_password')
+        error.value = result.message || t('auth.unlock.invalid_password');
     }
 }
 
 function goBack() {
     if (authStore.hasUnlockedServers) {
-        router.push('/')
+        router.push('/');
     } else {
-        redirectToDashboard()
+        redirectToDashboard();
     }
 }
 </script>
@@ -77,33 +77,13 @@ function goBack() {
 
                     <div>
                         <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ $t('auth.unlock.password') }}</label>
-                        <Password 
-                            id="password" 
-                            v-model="password" 
-                            :placeholder="$t('auth.unlock.password_placeholder')"
-                            :toggleMask="true" 
-                            class="w-full mb-4" 
-                            inputClass="w-full"
-                            :feedback="false"
-                            @keyup.enter="handleUnlock"
-                        />
+                        <Password id="password" v-model="password" :placeholder="$t('auth.unlock.password_placeholder')" :toggleMask="true" class="w-full mb-4" inputClass="w-full" :feedback="false" @keyup.enter="handleUnlock" />
 
                         <Message v-if="error" severity="error" class="mb-4">{{ error }}</Message>
 
-                        <Button 
-                            :label="$t('auth.unlock.login')" 
-                            class="w-full" 
-                            :loading="loading"
-                            @click="handleUnlock"
-                        />
-                        
-                        <Button 
-                            :label="authStore.hasUnlockedServers ? $t('auth.unlock.cancel') : $t('auth.unlock.back_dashboard')" 
-                            class="w-full mt-4" 
-                            severity="secondary"
-                            text
-                            @click="goBack"
-                        />
+                        <Button :label="$t('auth.unlock.login')" class="w-full" :loading="loading" @click="handleUnlock" />
+
+                        <Button :label="authStore.hasUnlockedServers ? $t('auth.unlock.cancel') : $t('auth.unlock.back_dashboard')" class="w-full mt-4" severity="secondary" text @click="goBack" />
                     </div>
                 </div>
             </div>

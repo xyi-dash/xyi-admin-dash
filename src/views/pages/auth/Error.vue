@@ -1,5 +1,5 @@
 <script setup>
-import { redirectToDashboard } from '@/service/api'
+import { redirectToDashboard } from '@/service/api';
 </script>
 
 <template>

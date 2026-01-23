@@ -1,41 +1,41 @@
 <script setup>
-import api from '@/service/api'
-import { useAuthStore } from '@/stores/auth'
-import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import api from '@/service/api';
+import { useAuthStore } from '@/stores/auth';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
+const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 
-const loading = ref(true)
-const player = ref(null)
+const loading = ref(true);
+const player = ref(null);
 
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
-const getRankLabel = (rank) => t(`extended.player_stats.ranks.${rank}`)
+const getRankLabel = (rank) => t(`extended.player_stats.ranks.${rank}`);
 
 onMounted(async () => {
-    await loadPlayer()
-})
+    await loadPlayer();
+});
 
 async function loadPlayer() {
-    loading.value = true
+    loading.value = true;
     try {
-        const serverParam = authStore.currentServer ? `?server=${authStore.currentServer}` : ''
-        const response = await api.get(`/admin/players/${route.params.id}${serverParam}`)
-        player.value = response.data.data
+        const serverParam = authStore.currentServer ? `?server=${authStore.currentServer}` : '';
+        const response = await api.get(`/admin/players/${route.params.id}${serverParam}`);
+        player.value = response.data.data;
     } catch (error) {
         // 境界の境目に消えた (vanished into the boundary's edge)
-        console.warn('player stats yeeted themselves')
+        console.warn('player stats yeeted themselves');
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 
 function goBack() {
-    router.push({ name: 'extended-players' })
+    router.push({ name: 'extended-players' });
 }
 </script>
 
@@ -45,9 +45,9 @@ function goBack() {
             <Button icon="pi pi-arrow-left" text rounded @click="goBack" />
             <h5 class="m-0">{{ $t('extended.player_stats.title') }}</h5>
         </div>
-        
+
         <ProgressSpinner v-if="loading" class="flex justify-center" />
-        
+
         <div v-else-if="player" class="grid">
             <div class="col-12 lg:col-6">
                 <div class="card">
@@ -153,11 +153,10 @@ function goBack() {
                 </div>
             </div>
         </div>
-        
+
         <div v-else class="text-center py-8">
             <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
             <p class="text-muted-color">{{ $t('extended.player_stats.player_not_found') }}</p>
         </div>
     </div>
 </template>
-

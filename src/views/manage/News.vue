@@ -1,70 +1,73 @@
 <script setup>
-import api from '@/service/api'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-import { onMounted, ref } from 'vue'
+import api from '@/service/api';
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
+import { onMounted, ref } from 'vue';
 
-const toast = useToast()
-const confirm = useConfirm()
+const { t } = useI18n();
 
-const loading = ref(false)
-const data = ref([])
-const showDialog = ref(false)
-const saving = ref(false)
+const toast = useToast();
+const confirm = useConfirm();
+
+const loading = ref(false);
+const data = ref([]);
+const showDialog = ref(false);
+const saving = ref(false);
 const form = ref({
     id: null,
     title: '',
     message: '',
     message2: ''
-})
+});
 
 onMounted(async () => {
-    await loadData()
-})
+    await loadData();
+});
 
 async function loadData() {
-    loading.value = true
+    loading.value = true;
     try {
-        const response = await api.get('/admin/news')
-        data.value = response.data.news || []
+        const response = await api.get('/admin/news');
+        data.value = response.data.news || [];
     } catch (error) {
-        console.warn('no news is good news. or is it?... wait, actually no, that\'s weird take.')
+        console.warn("no news is good news. or is it?... wait, actually no, that's weird take.");
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 
 function openNew() {
-    form.value = { id: null, title: '', message: '', message2: '' }
-    showDialog.value = true
+    form.value = { id: null, title: '', message: '', message2: '' };
+    showDialog.value = true;
 }
 
 function editNews(item) {
-    form.value = { ...item }
-    showDialog.value = true
+    form.value = { ...item };
+    showDialog.value = true;
 }
 
 async function saveNews() {
     if (!form.value.title) {
-        toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('news.title_required'), life: 3000 })
-        return
+        toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('news.title_required'), life: 3000 });
+        return;
     }
-    
-    saving.value = true
+
+    saving.value = true;
     try {
         if (form.value.id) {
-            await api.put(`/admin/news/${form.value.id}`, form.value)
+            await api.put(`/admin/news/${form.value.id}`, form.value);
         } else {
-            await api.post('/admin/news', form.value)
+            await api.post('/admin/news', form.value);
         }
-        
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('news.saved'), life: 3000 })
-        showDialog.value = false
-        await loadData()
+
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('news.saved'), life: 3000 });
+        showDialog.value = false;
+        await loadData();
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('news.save_failed'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('news.save_failed'), life: 3000 });
     } finally {
-        saving.value = false
+        saving.value = false;
     }
 }
 
@@ -75,16 +78,16 @@ function confirmDelete(item) {
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',
         accept: () => deleteNews(item.id)
-    })
+    });
 }
 
 async function deleteNews(id) {
     try {
-        await api.delete(`/admin/news/${id}`)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('news.deleted'), life: 3000 })
-        await loadData()
+        await api.delete(`/admin/news/${id}`);
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('news.deleted'), life: 3000 });
+        await loadData();
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('news.delete_failed'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('news.delete_failed'), life: 3000 });
     }
 }
 </script>
@@ -95,7 +98,7 @@ async function deleteNews(id) {
             <h5 class="m-0">{{ $t('news.title') }}</h5>
             <Button :label="$t('news.add_news')" icon="pi pi-plus" @click="openNew" />
         </div>
-        
+
         <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
             <Column field="title" :header="$t('news.title_field')" />
             <Column field="author" :header="$t('news.author')" />
@@ -106,12 +109,12 @@ async function deleteNews(id) {
                     <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
                 </template>
             </Column>
-            
+
             <template #empty>
                 <div class="text-center py-4 text-muted-color">{{ $t('news.no_news') }}</div>
             </template>
         </DataTable>
-        
+
         <Dialog v-model:visible="showDialog" :header="form.id ? $t('news.edit_title') : $t('news.add_title')" modal class="w-full max-w-2xl">
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
@@ -132,8 +135,7 @@ async function deleteNews(id) {
                 <Button :label="form.id ? $t('common.save') : $t('common.create')" :loading="saving" @click="saveNews" />
             </template>
         </Dialog>
-        
+
         <ConfirmDialog />
     </div>
 </template>
-

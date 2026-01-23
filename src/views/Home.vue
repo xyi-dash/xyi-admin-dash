@@ -1,28 +1,28 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
-import api from '@/service/api'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores/auth';
+import api from '@/service/api';
 
-const { t } = useI18n()
-const authStore = useAuthStore()
-const admin = ref(null)
-const loading = ref(true)
+const { t } = useI18n();
+const authStore = useAuthStore();
+const admin = ref(null);
+const loading = ref(true);
 
 onMounted(async () => {
-    await loadAdminData()
-})
+    await loadAdminData();
+});
 
 async function loadAdminData() {
-    loading.value = true
+    loading.value = true;
     try {
-        const serverParam = authStore.currentServer ? `?server=${authStore.currentServer}` : ''
-        const { data } = await api.get(`/admin/me${serverParam}`)
-        admin.value = data.admin
+        const serverParam = authStore.currentServer ? `?server=${authStore.currentServer}` : '';
+        const { data } = await api.get(`/admin/me${serverParam}`);
+        admin.value = data.admin;
     } catch (error) {
-        console.warn('failed to load admin data. the api giveth, the api taketh away.')
+        console.warn('failed to load admin data. the api giveth, the api taketh away.');
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 </script>
@@ -30,7 +30,7 @@ async function loadAdminData() {
 <template>
     <div class="flex flex-col gap-4">
         <ProgressSpinner v-if="loading" class="flex justify-center py-8" />
-        
+
         <template v-else-if="admin">
             <div class="card">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -42,12 +42,8 @@ async function loadAdminData() {
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <Tag :severity="admin.is_confirmed ? 'success' : 'warn'" class="text-lg px-4 py-2">
-                            {{ t('common.level') }} {{ admin.level }}{{ admin.is_ga ? '+' : '' }}
-                        </Tag>
-                        <Tag v-if="admin.warnings > 0" severity="danger" class="text-lg px-4 py-2">
-                            {{ admin.warnings }}/3 {{ t('home.warnings_count') }}
-                        </Tag>
+                        <Tag :severity="admin.is_confirmed ? 'success' : 'warn'" class="text-lg px-4 py-2"> {{ t('common.level') }} {{ admin.level }}{{ admin.is_ga ? '+' : '' }} </Tag>
+                        <Tag v-if="admin.warnings > 0" severity="danger" class="text-lg px-4 py-2"> {{ admin.warnings }}/3 {{ t('home.warnings_count') }} </Tag>
                     </div>
                 </div>
             </div>
@@ -103,7 +99,6 @@ async function loadAdminData() {
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="card">
@@ -137,7 +132,7 @@ async function loadAdminData() {
                 </div>
             </div>
         </template>
-        
+
         <div v-else class="card text-center py-8">
             <i class="pi pi-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
             <h3 class="text-xl font-semibold mb-2">{{ t('common.failed_load') }}</h3>

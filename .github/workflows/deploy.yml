@@ -1,0 +1,94 @@
+name: CI & Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [lint, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to server
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          APP_PATH: ${{ secrets.APP_PATH_FRONTEND }}
+        run: |
+          SSH_PORT_VALUE=${SSH_PORT:-22}
+
+          tar -czf dist.tar.gz dist
+
+          scp -o StrictHostKeyChecking=no -P "$SSH_PORT_VALUE" dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/monser-admin-dist.tar.gz"
+
+          ssh -o StrictHostKeyChecking=no -p "$SSH_PORT_VALUE" "$SSH_USER@$SSH_HOST" << EOF
+          cd $APP_PATH
+
+          rm -rf dist_old
+          if [ -d dist ]; then mv dist dist_old; fi
+
+          tar -xzf /tmp/monser-admin-dist.tar.gz -C .
+          rm /tmp/monser-admin-dist.tar.gz
+          EOF
