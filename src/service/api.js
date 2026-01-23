@@ -1,7 +1,13 @@
 import axios from 'axios';
 
-const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:8000';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const isDev = import.meta.env.DEV;
+
+const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || (isDev ? 'http://localhost:8000' : null);
+const API_URL = import.meta.env.VITE_API_URL || (isDev ? 'http://localhost:8000/api' : null);
+
+if (!DASHBOARD_URL || !API_URL) {
+    throw new Error('env vars missing: did you forget to set VITE_DASHBOARD_URL and VITE_API_URL? rookie mistake');
+}
 
 const api = axios.create({
     baseURL: API_URL,
