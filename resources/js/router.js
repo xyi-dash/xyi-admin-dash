@@ -42,7 +42,8 @@ const routes = [
     beforeEnter: async (to, from, next) => {
       try {
         const response = await axios.post('/api/admin/prepare-redirect')
-        window.location.href = `https://admin.monser-dm.nl?token=${response.data.token}`
+        const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5173'
+        window.location.href = `${adminUrl}?token=${response.data.token}`
       } catch (err) {
         if (err.response?.status === 403) {
           alert(err.response.data?.message || 'You are not an admin')

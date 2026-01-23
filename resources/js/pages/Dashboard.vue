@@ -214,7 +214,8 @@ export default {
       try {
         const response = await axios.post('/api/admin/prepare-redirect')
         const token = response.data.token
-        window.location.href = `https://admin.monser-dm.nl?token=${token}`
+        const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5173'
+        window.location.href = `${adminUrl}?token=${token}`
       } catch (err) {
         if (err.response?.status === 403) {
           alert(err.response.data?.message || 'You are not an admin')
