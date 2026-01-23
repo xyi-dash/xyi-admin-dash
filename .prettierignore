@@ -1,0 +1,5 @@
+dist
+dist_old
+node_modules
+coverage
+package-lock.json
