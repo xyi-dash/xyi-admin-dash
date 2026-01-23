@@ -86,7 +86,7 @@ return [
         // game server databases
         'gangwar' => [
             'driver' => 'mariadb',
-            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'host' => env('GAME_DB_HOST'),
             'port' => env('GAME_DB_PORT', '3310'),
             'database' => 'gangwar',
             'username' => env('GAME_DB_USERNAME'),
@@ -99,7 +99,7 @@ return [
 
         'gangwar2' => [
             'driver' => 'mariadb',
-            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'host' => env('GAME_DB_HOST'),
             'port' => env('GAME_DB_PORT', '3310'),
             'database' => 'gangwar2',
             'username' => env('GAME_DB_USERNAME'),
@@ -112,7 +112,7 @@ return [
 
         'gangwar3' => [
             'driver' => 'mariadb',
-            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'host' => env('GAME_DB_HOST'),
             'port' => env('GAME_DB_PORT', '3310'),
             'database' => 'gangwar3',
             'username' => env('GAME_DB_USERNAME'),
@@ -126,7 +126,7 @@ return [
         // site db (news etc) same creds as game dbs
         'site' => [
             'driver' => 'mariadb',
-            'host' => env('GAME_DB_HOST', 'mariadb.monser.ru'),
+            'host' => env('GAME_DB_HOST'),
             'port' => env('GAME_DB_PORT', '3310'),
             'database' => 'site',
             'username' => env('GAME_DB_USERNAME'),
