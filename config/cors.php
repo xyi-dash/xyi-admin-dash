@@ -19,12 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter([
-        'https://monser-dm.nl',
-        'https://admin.monser-dm.nl',
-        'https://dashboard.monser-dm.nl',
-        env('CORS_ALLOWED_ORIGIN'),
-    ]),
+    // production: MUST set CORS_ALLOWED_ORIGINS in .env
+    // local: defaults to localhost for convenience
+    'allowed_origins' => array_values(array_filter(explode(',', env(
+        'CORS_ALLOWED_ORIGINS',
+        env('APP_ENV') === 'local' ? 'http://localhost:5173,http://localhost:3000' : ''
+    )))),
 
     'allowed_origins_patterns' => [],
 

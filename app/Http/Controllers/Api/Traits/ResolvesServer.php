@@ -16,7 +16,7 @@ trait ResolvesServer
             return $user->server;
         }
 
-        if (! in_array($requested, ['one', 'two', 'three'])) {
+        if (! in_array($requested, config('servers.available'))) {
             return null;
         }
 

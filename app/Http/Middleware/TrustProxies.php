@@ -10,7 +10,12 @@ class TrustProxies extends Middleware
     /**
      * trust all proxies because we're behind nginx and life is short
      */
-    protected $proxies = '*';
+    protected $proxies;
+
+    public function __construct()
+    {
+        $this->proxies = env('TRUSTED_PROXIES', '*');
+    }
 
     protected $headers =
         Request::HEADER_X_FORWARDED_FOR |

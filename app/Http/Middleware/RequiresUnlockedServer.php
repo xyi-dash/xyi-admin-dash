@@ -23,7 +23,7 @@ class RequiresUnlockedServer
 
         $server = $request->input('server') ?? $user->server;
 
-        if (! in_array($server, ['one', 'two', 'three'])) {
+        if (! in_array($server, config('servers.available'))) {
             return response()->json([
                 'error' => 'server_invalid',
                 'message' => 'that server does not exist in gensokyo',

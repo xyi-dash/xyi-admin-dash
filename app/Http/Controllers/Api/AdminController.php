@@ -77,7 +77,7 @@ class AdminController extends Controller
         $unlockedServers = $this->adminSessionService->getUnlockedServers($user);
 
         $adminOnServers = [];
-        foreach (['one', 'two', 'three'] as $server) {
+        foreach (config('servers.available') as $server) {
             $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
             if ($admin && ($admin->Adm ?? 0) >= 1) {
                 $adminOnServers[] = [
