@@ -47,9 +47,7 @@ return [
     |
     */
 
-    // null = no hard expiration, we rely on session lifetime + admin_sessions table
-    // reimu doesnt believe in arbitrary death timers
-    'expiration' => null,
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 60 * 24 * 7),
 
     /*
     |--------------------------------------------------------------------------
