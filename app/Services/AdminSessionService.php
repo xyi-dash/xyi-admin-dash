@@ -25,12 +25,13 @@ class AdminSessionService
     {
         $session = AdminSession::forUser($user->id)->forServer($server)->first();
 
-        if (!$session) {
+        if (! $session) {
             return false;
         }
 
         if ($session->isExpired(self::SESSION_TTL_MINUTES)) {
             $session->delete();
+
             return false;
         }
 
@@ -48,8 +49,8 @@ class AdminSessionService
     {
         return AdminSession::forUser($user->id)
             ->get()
-            ->reject(fn($s) => $s->isExpired(self::SESSION_TTL_MINUTES))
-            ->map(fn($s) => [
+            ->reject(fn ($s) => $s->isExpired(self::SESSION_TTL_MINUTES))
+            ->map(fn ($s) => [
                 'server' => $s->server,
                 'unlocked_at' => $s->unlocked_at->toIso8601String(),
                 'last_activity' => $s->last_activity_at->toIso8601String(),

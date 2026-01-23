@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Traits\ResolvesServer;
+use App\Http\Controllers\Controller;
 use App\Models\ControlPanelUser;
+use App\Services\ActionLogService;
 use App\Services\AdminSessionService;
 use App\Services\GameAccountService;
-use App\Services\ActionLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,13 +27,13 @@ class AdminController extends Controller
             'password' => 'required|string',
             'server' => 'nullable|string|in:one,two,three',
         ]);
-        
+
         $user = $request->user();
         $server = $request->input('server', $user->server);
 
         $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
-        
-        if (!$admin || ($admin->Adm ?? 0) < 1) {
+
+        if (! $admin || ($admin->Adm ?? 0) < 1) {
             return response()->json([
                 'error' => 'not_admin',
                 'message' => 'you have no power here, gandalf the grey',
@@ -46,7 +46,7 @@ class AdminController extends Controller
             $request->password
         );
 
-        if (!$isValid) {
+        if (! $isValid) {
             return response()->json([
                 'error' => 'invalid_password',
                 'message' => 'wrong spell card',
@@ -73,9 +73,9 @@ class AdminController extends Controller
     public function sessionStatus(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $unlockedServers = $this->adminSessionService->getUnlockedServers($user);
-        
+
         $adminOnServers = [];
         foreach (['one', 'two', 'three'] as $server) {
             $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
@@ -101,8 +101,8 @@ class AdminController extends Controller
     {
         $user = $request->user();
         $server = $this->resolveServer($request);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'hakurei barrier sealed this server'], 403);
         }
 
@@ -126,15 +126,15 @@ class AdminController extends Controller
     {
         $user = $request->user();
         $server = $this->resolveServer($request);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'ran_yakumo_is_guarding_this_server'], 403);
         }
 
         $myLevel = $this->getAdminLevelOnServer($request, $server);
         $admin = $this->gameAccountService->getAdminById($server, $adminId);
 
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['error' => 'admin vanished into the gap'], 404);
         }
 
@@ -151,14 +151,14 @@ class AdminController extends Controller
     {
         $user = $request->user();
         $server = $this->resolveServer($request);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'server_not_unlocked'], 403);
         }
 
         $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
 
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['error' => 'not_admin_here'], 404);
         }
 
@@ -212,6 +212,7 @@ class AdminController extends Controller
     {
         $hours = intval($seconds / 3600);
         $mins = intval(($seconds % 3600) / 60);
+
         return sprintf('%02d:%02d', $hours, $mins);
     }
 }

@@ -16,21 +16,21 @@ class RequiresUnlockedServer
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['error' => 'I am dick and wang! And who are you??'], 401);
         }
 
         $server = $request->input('server') ?? $user->server;
 
-        if (!in_array($server, ['one', 'two', 'three'])) {
+        if (! in_array($server, ['one', 'two', 'three'])) {
             return response()->json([
                 'error' => 'server_invalid',
                 'message' => 'that server does not exist in gensokyo',
             ], 400);
         }
 
-        if (!$this->adminSession->isUnlocked($user, $server)) {
+        if (! $this->adminSession->isUnlocked($user, $server)) {
             return response()->json([
                 'error' => 'server_locked',
                 'server' => $server,

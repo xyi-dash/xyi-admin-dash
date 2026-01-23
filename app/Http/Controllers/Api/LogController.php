@@ -51,4 +51,3 @@ class LogController extends Controller
         return response()->json(ActionLogService::getActionTypes());
     }
 }
-

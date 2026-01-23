@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class ServerStatsWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = -2;
+
     protected static ?string $pollingInterval = '30s';
 
     private const SERVER_CONNECTIONS = [
@@ -37,12 +38,12 @@ class ServerStatsWidget extends StatsOverviewWidget
                 $totalOnline += $online;
                 $totalAdmins += $total;
 
-                $stats[] = Stat::make(__('cp.stats.server_' . $serverName), "{$online} / {$total}")
+                $stats[] = Stat::make(__('cp.stats.server_'.$serverName), "{$online} / {$total}")
                     ->description(__('cp.stats.online_admins'))
                     ->descriptionIcon('heroicon-m-user-group')
                     ->color($online > 0 ? 'success' : 'gray');
             } catch (\Throwable) {
-                $stats[] = Stat::make(__('cp.stats.server_' . $serverName), '-')
+                $stats[] = Stat::make(__('cp.stats.server_'.$serverName), '-')
                     ->description(__('cp.stats.unavailable'))
                     ->color('danger');
             }

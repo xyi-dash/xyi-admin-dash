@@ -17,7 +17,7 @@ class PlayerLogController extends Controller
 
     public function availableServers(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -31,7 +31,7 @@ class PlayerLogController extends Controller
 
     public function searchPlayer(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -41,12 +41,12 @@ class PlayerLogController extends Controller
             'server' => 'nullable|string|in:one,two,three',
         ]);
 
-        if (!$request->nickname && !$request->account_id) {
+        if (! $request->nickname && ! $request->account_id) {
             return response()->json(['error' => 'give_me_something_to_work_with'], 400);
         }
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -55,13 +55,13 @@ class PlayerLogController extends Controller
                 $server,
                 $request->nickname,
                 $request->account_id
-            )
+            ),
         ]);
     }
 
     public function getPlayerStats(Request $request, int $accountId): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -70,12 +70,12 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         $stats = $this->logService->getPlayerStats($server, $accountId);
-        if (!$stats) {
+        if (! $stats) {
             return response()->json(['error' => 'player_not_found'], 404);
         }
 
@@ -84,7 +84,7 @@ class PlayerLogController extends Controller
 
     public function reputationLogs(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -96,7 +96,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -106,13 +106,13 @@ class PlayerLogController extends Controller
                 $request->from,
                 $request->to,
                 (int) $request->input('limit', 100)
-            )
+            ),
         ]);
     }
 
     public function nicknameLogs(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -125,7 +125,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -136,13 +136,13 @@ class PlayerLogController extends Controller
                 $request->old_nick,
                 $request->new_nick,
                 (int) $request->input('limit', 100)
-            )
+            ),
         ]);
     }
 
     public function unbanLogs(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -153,7 +153,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -162,13 +162,13 @@ class PlayerLogController extends Controller
                 $server,
                 $request->player,
                 (int) $request->input('limit', 50)
-            )
+            ),
         ]);
     }
 
     public function permanentBans(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -180,7 +180,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -190,13 +190,13 @@ class PlayerLogController extends Controller
                 $request->player,
                 $request->admin,
                 (int) $request->input('limit', 50)
-            )
+            ),
         ]);
     }
 
     public function permanentIPBans(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -208,7 +208,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -218,13 +218,13 @@ class PlayerLogController extends Controller
                 $request->ip,
                 $request->admin,
                 (int) $request->input('limit', 50)
-            )
+            ),
         ]);
     }
 
     public function matchmakingStats(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -235,7 +235,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -244,13 +244,13 @@ class PlayerLogController extends Controller
                 $server,
                 $request->player,
                 (int) $request->input('limit', 100)
-            )
+            ),
         ]);
     }
 
     public function moneyTransferLogs(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -264,7 +264,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -276,13 +276,13 @@ class PlayerLogController extends Controller
                 $request->to_id,
                 $request->to_name,
                 (int) $request->input('limit', 100)
-            )
+            ),
         ]);
     }
 
     public function accessoryLogs(Request $request): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -295,7 +295,7 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
@@ -306,13 +306,13 @@ class PlayerLogController extends Controller
                 $request->account_name,
                 $request->accessory,
                 (int) $request->input('limit', 100)
-            )
+            ),
         ]);
     }
 
     public function updateBanReason(Request $request, int $banId): JsonResponse
     {
-        if (!$this->canAccess($request)) {
+        if (! $this->canAccess($request)) {
             return response()->json(['error' => 'level_7_required'], 403);
         }
 
@@ -322,17 +322,17 @@ class PlayerLogController extends Controller
         ]);
 
         $server = $this->resolveServer($request);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
         $ban = $this->logService->getBanById($server, $banId);
-        if (!$ban) {
+        if (! $ban) {
             return response()->json(['error' => 'ban_evaporated_into_thin_air'], 404);
         }
 
         $updated = $this->logService->updateBanReason($server, $banId, $request->reason);
-        if (!$updated) {
+        if (! $updated) {
             return response()->json(['error' => 'database_said_no'], 500);
         }
 
@@ -342,7 +342,7 @@ class PlayerLogController extends Controller
                 'id' => $banId,
                 'name' => $ban['name'],
                 'reason' => $request->reason,
-            ]
+            ],
         ]);
     }
 
@@ -357,7 +357,9 @@ class PlayerLogController extends Controller
         $user = $request->user();
         $requested = $request->input('server');
 
-        if (!$requested) return $user->server;
+        if (! $requested) {
+            return $user->server;
+        }
 
         return $this->logService->hasAccessToServer($user->game_account_name, $requested)
             ? $requested

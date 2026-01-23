@@ -31,10 +31,10 @@ class AuthController extends Controller
             $validated['password']
         );
 
-        if (!$account) {
+        if (! $account) {
             return response()->json([
                 'message' => 'Invalid credentials',
-                'errors' => ['nickname' => ['reimu checked the shrine records. you are not welcome.']]
+                'errors' => ['nickname' => ['reimu checked the shrine records. you are not welcome.']],
             ], 422);
         }
 
@@ -53,7 +53,7 @@ class AuthController extends Controller
                 'id' => $account->ID,
                 'name' => $account->Name,
                 'server' => $validated['server'],
-            ]
+            ],
         ]);
     }
 
@@ -84,25 +84,25 @@ class AuthController extends Controller
                 'id' => $user->game_account_id,
                 'name' => $user->game_account_name,
                 'server' => $user->server,
-            ]
+            ],
         ]);
     }
 
     public function prepareAdminRedirect(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $adminLevel = $this->gameAccountService->getAdminLevel($user->server, $user->game_account_name);
-        
+
         if ($adminLevel < 1) {
             return response()->json([
                 'error' => 'not_admin',
-                'message' => 'reimu says you have no shrine duties here'
+                'message' => 'reimu says you have no shrine duties here',
             ], 403);
         }
 
         $token = Str::random(64);
-        
+
         Cache::put(
             "admin_redirect:{$token}",
             [
@@ -125,19 +125,19 @@ class AuthController extends Controller
         $token = $request->input('token');
         $data = Cache::pull("admin_redirect:{$token}");
 
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'error' => 'invalid_token',
-                'message' => 'this spell card has expired or never existed'
+                'message' => 'this spell card has expired or never existed',
             ], 401);
         }
 
         $user = User::find($data['user_id']);
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'error' => 'user_not_found',
-                'message' => 'the user vanished into gensokyo'
+                'message' => 'the user vanished into gensokyo',
             ], 404);
         }
 
@@ -159,17 +159,17 @@ class AuthController extends Controller
                 'id' => $user->game_account_id,
                 'name' => $user->game_account_name,
                 'server' => $data['server'],
-            ]
+            ],
         ]);
     }
 
     public function prepareCPRedirect(Request $request): JsonResponse
     {
         $user = $request->user();
-        $token = base64_encode(encrypt($user->id . '|' . $user->server . '|' . time()));
-        
+        $token = base64_encode(encrypt($user->id.'|'.$user->server.'|'.time()));
+
         return response()->json([
-            'url' => 'https://monser-dm.nl/cp?t=' . urlencode($token)
+            'url' => 'https://monser-dm.nl/cp?t='.urlencode($token),
         ]);
     }
 }

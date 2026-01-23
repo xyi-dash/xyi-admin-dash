@@ -12,18 +12,18 @@ trait ResolvesServer
         $user = $request->user();
         $requested = $request->input('server');
 
-        if (!$requested) {
+        if (! $requested) {
             return $user->server;
         }
 
-        if (!in_array($requested, ['one', 'two', 'three'])) {
+        if (! in_array($requested, ['one', 'two', 'three'])) {
             return null;
         }
 
         $gameService = app(GameAccountService::class);
         $admin = $gameService->getAdminByName($requested, $user->game_account_name);
 
-        if (!$admin) {
+        if (! $admin) {
             return null; // not admin there
         }
 
@@ -41,7 +41,7 @@ trait ResolvesServer
         $user = $request->user();
         $gameService = app(GameAccountService::class);
         $admin = $gameService->getAdminByName($server, $user->game_account_name);
-        
+
         return $admin ? ($admin->Adm ?? 0) : 0;
     }
 }

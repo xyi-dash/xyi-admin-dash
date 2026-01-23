@@ -16,8 +16,8 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next, ?int $minLevel = 1): Response
     {
         $user = $request->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
@@ -35,4 +35,3 @@ class EnsureUserIsAdmin
         return $next($request);
     }
 }
-

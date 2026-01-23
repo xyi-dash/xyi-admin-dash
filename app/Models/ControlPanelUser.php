@@ -7,12 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class ControlPanelUser extends Model
 {
     protected $fillable = ['nickname', 'server', 'permissions', 'created_by'];
+
     protected $casts = ['permissions' => 'array'];
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->isRoot()) return true;
+        if ($this->isRoot()) {
+            return true;
+        }
         $perms = $this->permissions ?? [];
+
         return in_array($permission, $perms) || in_array('*', $perms);
     }
 

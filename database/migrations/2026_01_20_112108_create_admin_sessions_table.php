@@ -15,7 +15,7 @@ return new class extends Migration
             $table->timestamp('unlocked_at');
             $table->timestamp('last_activity_at');
             $table->string('ip_address', 45)->nullable();
-            
+
             $table->unique(['user_id', 'server']);
             $table->index('last_activity_at');
         });

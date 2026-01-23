@@ -17,13 +17,13 @@ class AccountController extends Controller
     public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         $account = $this->gameAccountService->getFullAccountData(
             $user->server,
             $user->game_account_id
         );
 
-        if (!$account) {
+        if (! $account) {
             return response()->json(['error' => 'Account not found'], 404);
         }
 
@@ -54,7 +54,7 @@ class AccountController extends Controller
             'registered_at' => $account->DateReg ?? null,
             'last_online' => $account->Online ?? null,
             'is_online' => ($account->Online2 ?? 0) == 1,
-            
+
             'stats' => [
                 'kills' => $account->Kills ?? 0,
                 'deaths' => $account->Deaths ?? 0,
@@ -62,20 +62,20 @@ class AccountController extends Controller
                 'playtime_seconds' => $account->Time ?? 0,
                 'playtime_formatted' => $this->formatPlaytime($account->Time ?? 0),
             ],
-            
+
             'gangs' => [
                 'grove' => $account->Grove ?? 0,
                 'ballas' => $account->Ballas ?? 0,
                 'vagos' => $account->Vagos ?? 0,
                 'aztecas' => $account->Aztec ?? 0,
             ],
-            
+
             'donate' => [
                 'balance' => $account->DonateMoney ?? 0,
                 'total_donated' => $account->DonateAll ?? 0,
                 'has_premium' => ($account->Prime ?? 0) >= 1,
             ],
-            
+
             'security' => [
                 'has_2fa' => ($account->TDPass ?? '-') !== '-',
             ],
@@ -119,13 +119,12 @@ class AccountController extends Controller
     private function formatPlaytime(int $seconds): string
     {
         if ($seconds < 3600) {
-            return intval($seconds / 60) . 'м';
+            return intval($seconds / 60).'м';
         }
-        
+
         $hours = intval($seconds / 3600);
         $mins = intval(($seconds % 3600) / 60);
-        
+
         return "{$hours}ч {$mins}м";
     }
 }
-

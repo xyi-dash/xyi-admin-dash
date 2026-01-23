@@ -14,4 +14,3 @@ class ListActionLogs extends ListRecords
         return [];
     }
 }
-

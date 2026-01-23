@@ -8,7 +8,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasApiTokens;
+    use HasApiTokens, HasFactory;
 
     protected $fillable = [
         'game_account_id',

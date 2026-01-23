@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\ActionLogService;
-use App\Services\NewsService;
 use App\Services\GameAccountService;
+use App\Services\NewsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,15 +20,15 @@ class NewsController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            'news' => $this->newsService->getAll()
+            'news' => $this->newsService->getAll(),
         ]);
     }
 
     public function show(int $id): JsonResponse
     {
         $news = $this->newsService->getById($id);
-        
-        if (!$news) {
+
+        if (! $news) {
             return response()->json(['error' => 'not found'], 404);
         }
 
@@ -37,7 +37,7 @@ class NewsController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        if (!$this->canManageNews($request)) {
+        if (! $this->canManageNews($request)) {
             return response()->json(['error' => '8+ only bro'], 403);
         }
 
@@ -48,7 +48,7 @@ class NewsController extends Controller
         ]);
 
         $user = $request->user();
-        
+
         $id = $this->newsService->create(
             $request->title,
             $request->message,
@@ -67,7 +67,7 @@ class NewsController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        if (!$this->canManageNews($request)) {
+        if (! $this->canManageNews($request)) {
             return response()->json(['error' => '8+ only bro'], 403);
         }
 
@@ -95,7 +95,7 @@ class NewsController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
-        if (!$this->canManageNews($request)) {
+        if (! $this->canManageNews($request)) {
             return response()->json(['error' => '8+ only bro'], 403);
         }
 
@@ -120,4 +120,3 @@ class NewsController extends Controller
         return $myLevel === 8 && $isGA;
     }
 }
-

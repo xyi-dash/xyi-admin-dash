@@ -38,8 +38,8 @@ class ActionLog extends Model
     public function scopeByPerson($query, int $personId, string $server)
     {
         return $query->where(function ($q) use ($personId, $server) {
-            $q->where(fn($q) => $q->where('actor_id', $personId)->where('actor_server', $server))
-              ->orWhere(fn($q) => $q->where('target_id', $personId)->where('target_server', $server));
+            $q->where(fn ($q) => $q->where('actor_id', $personId)->where('actor_server', $server))
+                ->orWhere(fn ($q) => $q->where('target_id', $personId)->where('target_server', $server));
         });
     }
 
@@ -48,4 +48,3 @@ class ActionLog extends Model
         return $query->where('action_type', $type);
     }
 }
-

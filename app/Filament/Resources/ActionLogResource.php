@@ -15,19 +15,21 @@ use Illuminate\Database\Eloquent\Builder;
 class ActionLogResource extends Resource
 {
     protected static ?string $model = ActionLog::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?int $navigationSort = 1;
-    
+
     public static function getNavigationLabel(): string
     {
         return __('cp.action_logs');
     }
-    
+
     public static function getModelLabel(): string
     {
         return __('cp.action_log');
     }
-    
+
     public static function getPluralModelLabel(): string
     {
         return __('cp.action_logs');
@@ -49,10 +51,9 @@ class ActionLogResource extends Resource
                 Tables\Columns\TextColumn::make('action_type')
                     ->label(__('cp.fields.action'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => 
-                        ActionLogService::getActionTypes()[$state] ?? $state
+                    ->formatStateUsing(fn (string $state): string => ActionLogService::getActionTypes()[$state] ?? $state
                     )
-                    ->color(fn (string $state): string => match($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'login', 'admin_auth', 'cp_login' => 'success',
                         'logout' => 'gray',
                         'news_create', 'admin_appoint', 'admin_mark_support', 'admin_mark_youtuber' => 'info',
@@ -77,10 +78,12 @@ class ActionLogResource extends Resource
                     ->label(__('cp.fields.details'))
                     ->getStateUsing(function ($record) {
                         $state = $record->details;
-                        if (!$state || !is_array($state)) return '-';
-                        
+                        if (! $state || ! is_array($state)) {
+                            return '-';
+                        }
+
                         $parts = [];
-                        
+
                         if (isset($state['old_warns']) && isset($state['new_warns'])) {
                             $parts[] = "warns: {$state['old_warns']} → {$state['new_warns']}";
                         }
@@ -93,7 +96,7 @@ class ActionLogResource extends Resource
                         if (isset($state['reason']) && trim($state['reason']) !== '') {
                             $parts[] = "\"{$state['reason']}\"";
                         }
-                        
+
                         return $parts ? implode(', ', $parts) : '-';
                     })
                     ->wrap()
@@ -129,16 +132,16 @@ class ActionLogResource extends Resource
                         if (empty($data['nickname'])) {
                             return $query;
                         }
-                        
+
                         $nick = $data['nickname'];
                         $mode = $data['search_mode'] ?? 'both';
-                        
-                        return match($mode) {
+
+                        return match ($mode) {
                             'actor' => $query->where('actor_name', 'like', "%{$nick}%"),
                             'target' => $query->where('target_name', 'like', "%{$nick}%"),
                             default => $query->where(function ($q) use ($nick) {
                                 $q->where('actor_name', 'like', "%{$nick}%")
-                                  ->orWhere('target_name', 'like', "%{$nick}%");
+                                    ->orWhere('target_name', 'like', "%{$nick}%");
                             }),
                         };
                     })
@@ -146,11 +149,12 @@ class ActionLogResource extends Resource
                         if (empty($data['nickname'])) {
                             return null;
                         }
-                        $mode = match($data['search_mode'] ?? 'both') {
+                        $mode = match ($data['search_mode'] ?? 'both') {
                             'actor' => 'actor',
                             'target' => 'target',
                             default => 'any',
                         };
+
                         return "Person: {$data['nickname']} ({$mode})";
                     }),
             ])
@@ -175,7 +179,18 @@ class ActionLogResource extends Resource
     }
 
     // logs are sacred. no touchy.
-    public static function canCreate(): bool { return false; }
-    public static function canEdit($record): bool { return false; }
-    public static function canDelete($record): bool { return false; }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
+    }
 }

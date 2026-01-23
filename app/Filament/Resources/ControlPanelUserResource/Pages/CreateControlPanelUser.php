@@ -15,6 +15,7 @@ class CreateControlPanelUser extends CreateRecord
     {
         $user = Auth::user();
         $data['created_by'] = $user?->game_account_name ?? 'hakurei_shrine';
+
         return $data;
     }
 

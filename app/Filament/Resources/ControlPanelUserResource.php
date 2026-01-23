@@ -15,19 +15,21 @@ use Illuminate\Support\Facades\Auth;
 class ControlPanelUserResource extends Resource
 {
     protected static ?string $model = ControlPanelUser::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?int $navigationSort = 2;
-    
+
     public static function getNavigationLabel(): string
     {
         return __('cp.control_panel_users');
     }
-    
+
     public static function getModelLabel(): string
     {
         return __('cp.control_panel_user');
     }
-    
+
     public static function getPluralModelLabel(): string
     {
         return __('cp.control_panel_users');
@@ -71,7 +73,7 @@ class ControlPanelUserResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()->visible(fn () => self::canManage()),
                 Tables\Actions\DeleteAction::make()
-                    ->visible(fn (ControlPanelUser $record) => self::canManage() && !$record->isRoot())
+                    ->visible(fn (ControlPanelUser $record) => self::canManage() && ! $record->isRoot())
                     ->after(function (ControlPanelUser $record) {
                         $user = Auth::user();
                         if ($user) {
@@ -90,7 +92,10 @@ class ControlPanelUserResource extends Resource
             ->bulkActions([]);
     }
 
-    public static function getRelations(): array { return []; }
+    public static function getRelations(): array
+    {
+        return [];
+    }
 
     public static function getPages(): array
     {
@@ -101,25 +106,37 @@ class ControlPanelUserResource extends Resource
         ];
     }
 
-    public static function canCreate(): bool { return self::canManage(); }
-    
+    public static function canCreate(): bool
+    {
+        return self::canManage();
+    }
+
     public static function canEdit($record): bool
     {
-        if ($record instanceof ControlPanelUser && $record->isRoot()) return false;
+        if ($record instanceof ControlPanelUser && $record->isRoot()) {
+            return false;
+        }
+
         return self::canManage();
     }
 
     public static function canDelete($record): bool
     {
-        if ($record instanceof ControlPanelUser && $record->isRoot()) return false;
+        if ($record instanceof ControlPanelUser && $record->isRoot()) {
+            return false;
+        }
+
         return self::canManage();
     }
 
     private static function canManage(): bool
     {
         $user = Auth::user();
-        if (!$user) return false;
+        if (! $user) {
+            return false;
+        }
         $cpUser = ControlPanelUser::findByNickname($user->game_account_name, $user->server);
+
         return $cpUser && $cpUser->isRoot();
     }
 }

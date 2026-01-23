@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * where admin dreams come to die and get resurrected as database rows
  * every method here is a small funeral for someones career or ego
- * 
+ *
  * if you're reading this and thinking "why is this so long" - because
  * managing humans is complicated and i hate it. go ask yukari.
  */
@@ -35,7 +35,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -73,7 +73,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -112,7 +112,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -153,7 +153,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -196,7 +196,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -235,7 +235,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -270,7 +270,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -318,7 +318,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -354,7 +354,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -390,7 +390,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -426,7 +426,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -463,7 +463,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -499,7 +499,7 @@ class AdminManagementService
         $conn = $this->conn($server);
         $target = $this->getAdmin($conn, $targetName);
 
-        if (!$target) {
+        if (! $target) {
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
@@ -536,15 +536,15 @@ class AdminManagementService
         string $actorIp
     ): array {
         $conn = $this->conn($server);
-        if (!$conn) {
+        if (! $conn) {
             return ['success' => false, 'error' => 'invalid_server'];
         }
 
-        if ($actorLevel < 7 && !($actorLevel === 6 && $actorIsGA)) {
+        if ($actorLevel < 7 && ! ($actorLevel === 6 && $actorIsGA)) {
             return ['success' => false, 'error' => 'insufficient_level'];
         }
 
-        $maxLevel = match(true) {
+        $maxLevel = match (true) {
             $actorLevel >= 7 => 6,
             $actorLevel === 6 || $actorIsGA => 5,
             default => 0,
@@ -559,7 +559,7 @@ class AdminManagementService
             ->whereRaw('BINARY Name = ?', [$targetName])
             ->first(['ID', 'Name', 'IpLog']);
 
-        if (!$account) {
+        if (! $account) {
             return ['success' => false, 'error' => 'player_not_found'];
         }
 
@@ -609,7 +609,7 @@ class AdminManagementService
 
         $canManage = $actorLevel > $targetLevel || ($actorLevel === 6 && $actorIsGA && $targetLevel < 6);
 
-        if (!$canManage) {
+        if (! $canManage) {
             return $actions;
         }
 
@@ -640,23 +640,23 @@ class AdminManagementService
 
     public function getLevelRequirements(int $level, string $server): array
     {
-        $reqs = match($level) {
-            1 => match($server) {
+        $reqs = match ($level) {
+            1 => match ($server) {
                 'two' => ['hours' => 14, 'punishments' => 300, 'reports' => 500],
                 'three' => ['hours' => 14, 'punishments' => 250, 'reports' => 450],
                 default => ['hours' => 14, 'punishments' => 200, 'reports' => 400],
             },
-            2 => match($server) {
+            2 => match ($server) {
                 'two' => ['hours' => 28, 'punishments' => 500, 'reports' => 700],
                 'three' => ['hours' => 28, 'punishments' => 450, 'reports' => 650],
                 default => ['hours' => 28, 'punishments' => 400, 'reports' => 600],
             },
-            3 => match($server) {
+            3 => match ($server) {
                 'two' => ['hours' => 42, 'punishments' => 800, 'reports' => 1200],
                 'three' => ['hours' => 42, 'punishments' => 700, 'reports' => 1100],
                 default => ['hours' => 42, 'punishments' => 600, 'reports' => 1000],
             },
-            4 => match($server) {
+            4 => match ($server) {
                 'two' => ['hours' => 56, 'punishments' => 1200, 'reports' => 2000],
                 'three' => ['hours' => 56, 'punishments' => 1100, 'reports' => 1900],
                 default => ['hours' => 56, 'punishments' => 1000, 'reports' => 1800],

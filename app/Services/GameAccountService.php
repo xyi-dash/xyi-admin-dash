@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * the bridge between our world and the game databases
  * three servers, three connections, infinite suffering.
- * 
+ *
  * why is the table called a27ccount? because someone in 2015 thought
  * "lets add random numbers to prevent sql injection". it didn't.
  * but now we're stuck with it forever. thanks yall are wonderful people!
@@ -26,7 +26,7 @@ class GameAccountService
     public function authenticate(string $server, string $nickname, string $password): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -46,7 +46,7 @@ class GameAccountService
     public function getAccountByName(string $server, string $nickname): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -59,7 +59,7 @@ class GameAccountService
     public function getFullAccountData(string $server, int $accountId): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -72,7 +72,7 @@ class GameAccountService
     public function getAdminLevel(string $server, string $nickname): int
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return 0;
         }
 
@@ -87,7 +87,7 @@ class GameAccountService
     public function verifyAdminPassword(string $server, string $nickname, string $password): bool
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return false;
         }
 
@@ -96,19 +96,19 @@ class GameAccountService
             ->whereRaw('BINARY Name = ?', [$nickname])
             ->first(['Password', 'Salt']);
 
-        if (!$admin || empty($admin->Password) || empty($admin->Salt)) {
+        if (! $admin || empty($admin->Password) || empty($admin->Salt)) {
             return false;
         }
 
-        $hashed = strtoupper(hash('sha256', $password . $admin->Salt));
-        
+        $hashed = strtoupper(hash('sha256', $password.$admin->Salt));
+
         return $admin->Password === $hashed;
     }
 
     public function getAdminList(string $server, int $viewerLevel, bool $viewerIsGA = false): array
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return [];
         }
 
@@ -126,7 +126,7 @@ class GameAccountService
             ->orderByDesc('Adm')
             ->orderBy('Name')
             ->get()
-            ->map(fn($admin) => [
+            ->map(fn ($admin) => [
                 'id' => $admin->ID,
                 'name' => $admin->Name,
                 'level' => $admin->Adm,
@@ -155,7 +155,7 @@ class GameAccountService
     public function getAdminById(string $server, int $adminId): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -168,7 +168,7 @@ class GameAccountService
     public function getAdminByName(string $server, string $nickname): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -181,7 +181,7 @@ class GameAccountService
     public function getAdminWithAccount(string $server, string $nickname): ?object
     {
         $connection = $this->getConnection($server);
-        if (!$connection) {
+        if (! $connection) {
             return null;
         }
 
@@ -197,6 +197,7 @@ class GameAccountService
     {
         $hours = intval($seconds / 3600);
         $mins = intval(($seconds % 3600) / 60);
+
         return sprintf('%02d:%02d', $hours, $mins);
     }
 
@@ -225,4 +226,3 @@ class GameAccountService
         return self::SERVER_CONNECTIONS[$server] ?? null;
     }
 }
-

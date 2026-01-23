@@ -15,7 +15,7 @@ class EditControlPanelUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()->visible(fn () => !$this->record->isRoot()),
+            Actions\DeleteAction::make()->visible(fn () => ! $this->record->isRoot()),
         ];
     }
 

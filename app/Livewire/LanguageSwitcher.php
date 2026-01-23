@@ -15,7 +15,7 @@ class LanguageSwitcher extends Component
 
     public function switchLocale(string $locale): void
     {
-        if (!in_array($locale, ['en', 'ru'])) {
+        if (! in_array($locale, ['en', 'ru'])) {
             return;
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\ControlPanelAuth;
+use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
@@ -16,8 +18,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Http\Middleware\ControlPanelAuth;
-use App\Http\Middleware\SetLocale;
 
 class ControlPanelProvider extends PanelProvider
 {

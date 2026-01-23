@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Traits\ResolvesServer;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminManageRequest;
 use App\Models\ActionLog;
 use App\Services\AdminManagementService;
@@ -24,8 +24,8 @@ class AdminManagementController extends Controller
     {
         $user = $request->user();
         $server = $this->resolveServer($request);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'boundary_of_fantasy_and_reality_blocked'], 403);
         }
 
@@ -39,17 +39,17 @@ class AdminManagementController extends Controller
 
         $targetAdmin = $this->gameService->getAdminByName($server, $targetName);
 
-        if (!$targetAdmin) {
+        if (! $targetAdmin) {
             return response()->json(['error' => 'admin_not_found'], 404);
         }
 
         $availableActions = $this->mgmtService->getAvailableActions($myLevel, $isGA, $targetAdmin->Adm);
 
-        if (!in_array($action, $availableActions)) {
+        if (! in_array($action, $availableActions)) {
             return response()->json(['error' => 'action_not_allowed'], 403);
         }
 
-        $result = match($action) {
+        $result = match ($action) {
             'warn' => $this->mgmtService->warn(
                 $server, $targetName, $reason,
                 $myAdmin->ID, $user->game_account_name, $request->ip()
@@ -105,7 +105,7 @@ class AdminManagementController extends Controller
             default => ['success' => false, 'error' => 'spell_card_rules_violation'],
         };
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['error' => $result['error']], 400);
         }
 
@@ -127,20 +127,20 @@ class AdminManagementController extends Controller
 
         $user = $request->user();
         $server = $this->resolveServer($request);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'boundary_of_fantasy_and_reality_blocked'], 403);
         }
 
         $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
-        if (!$myAdmin) {
+        if (! $myAdmin) {
             return response()->json(['error' => 'not_admin_on_server'], 403);
         }
 
         $myLevel = $myAdmin->Adm ?? 0;
         $isGA = ($myAdmin->GA ?? 0) == 1;
 
-        if ($myLevel < 7 && !($myLevel === 6 && $isGA)) {
+        if ($myLevel < 7 && ! ($myLevel === 6 && $isGA)) {
             return response()->json(['error' => 'marisa_stole_your_permission'], 403);
         }
 
@@ -156,7 +156,7 @@ class AdminManagementController extends Controller
             $request->ip()
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['error' => $result['error']], 400);
         }
 
@@ -171,8 +171,8 @@ class AdminManagementController extends Controller
     public function history(Request $request, string $adminName): JsonResponse
     {
         $server = $this->resolveServer($request, 7);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'need 7+ for time travel'], 403);
         }
 
@@ -181,18 +181,18 @@ class AdminManagementController extends Controller
         })->orWhere(function ($q) use ($adminName, $server) {
             $q->where('target_name', $adminName)->where('target_server', $server);
         })
-        ->orderByDesc('created_at')
-        ->limit(100)
-        ->get()
-        ->map(fn($log) => [
-            'id' => $log->id,
-            'action' => $log->action_type,
-            'actor' => $log->actor_name,
-            'target' => $log->target_name,
-            'details' => $log->details,
-            'ip' => $log->ip_address,
-            'date' => $log->created_at->format('Y-m-d H:i:s'),
-        ]);
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get()
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'action' => $log->action_type,
+                'actor' => $log->actor_name,
+                'target' => $log->target_name,
+                'details' => $log->details,
+                'ip' => $log->ip_address,
+                'date' => $log->created_at->format('Y-m-d H:i:s'),
+            ]);
 
         return response()->json(['logs' => $logs]);
     }
@@ -201,13 +201,13 @@ class AdminManagementController extends Controller
     {
         $user = $request->user();
         $server = $request->input('server') ?: $user->server;
-        
-        if (!in_array($server, ['one', 'two', 'three'])) {
+
+        if (! in_array($server, ['one', 'two', 'three'])) {
             return response()->json(['error' => 'sakuya stopped time and blocked you'], 403);
         }
 
         $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
-        if (!$myAdmin) {
+        if (! $myAdmin) {
             return response()->json(['error' => 'not_admin_on_server'], 403);
         }
 
@@ -215,7 +215,7 @@ class AdminManagementController extends Controller
         $isGA = ($myAdmin->GA ?? 0) == 1;
 
         $targetAdmin = $this->gameService->getAdminWithAccount($server, $adminName);
-        if (!$targetAdmin) {
+        if (! $targetAdmin) {
             return response()->json(['error' => 'admin_spirited_away'], 404);
         }
 
@@ -271,6 +271,7 @@ class AdminManagementController extends Controller
     {
         $h = intval($seconds / 3600);
         $m = intval(($seconds % 3600) / 60);
+
         return sprintf('%02d:%02d', $h, $m);
     }
 }

@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\ActionLogResource\Pages;
 
 use App\Filament\Resources\ActionLogResource;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\Section;
 use App\Services\ActionLogService;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewActionLog extends ViewRecord
 {
@@ -23,10 +23,9 @@ class ViewActionLog extends ViewRecord
                             ->label('Action')
                             ->badge()
                             ->size(TextEntry\TextEntrySize::Large)
-                            ->formatStateUsing(fn (string $state): string => 
-                                strtoupper(ActionLogService::getActionTypes()[$state] ?? $state)
+                            ->formatStateUsing(fn (string $state): string => strtoupper(ActionLogService::getActionTypes()[$state] ?? $state)
                             )
-                            ->color(fn (string $state): string => match($state) {
+                            ->color(fn (string $state): string => match ($state) {
                                 'login', 'admin_auth', 'cp_login' => 'success',
                                 'logout' => 'gray',
                                 'news_create', 'admin_appoint', 'admin_confirm' => 'info',
@@ -60,8 +59,8 @@ class ViewActionLog extends ViewRecord
                 Section::make('Details')
                     ->schema(function ($record) {
                         $details = $record->details;
-                        
-                        if (!$details || !is_array($details)) {
+
+                        if (! $details || ! is_array($details)) {
                             return [
                                 TextEntry::make('no_details')
                                     ->label('')
@@ -69,7 +68,7 @@ class ViewActionLog extends ViewRecord
                                     ->columnSpanFull(),
                             ];
                         }
-                        
+
                         $labels = [
                             'old_warns' => 'Warns before',
                             'new_warns' => 'Warns after',
@@ -83,7 +82,7 @@ class ViewActionLog extends ViewRecord
                             'ads_enabled' => 'Ads',
                             'confirmed_admin' => 'Confirmed admin',
                         ];
-                        
+
                         $entries = [];
                         foreach ($details as $key => $value) {
                             $label = $labels[$key] ?? ucfirst(str_replace('_', ' ', $key));
@@ -94,7 +93,7 @@ class ViewActionLog extends ViewRecord
                                 ->label($label)
                                 ->default((string) $value);
                         }
-                        
+
                         return $entries;
                     })
                     ->columns(3),

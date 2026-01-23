@@ -51,7 +51,9 @@ class PlayerLogService
     public function hasAccessToServer(string $nickname, string $server): bool
     {
         $connection = $this->conn($server);
-        if (!$connection) return false;
+        if (! $connection) {
+            return false;
+        }
 
         try {
             $admin = DB::connection($connection)
@@ -71,7 +73,9 @@ class PlayerLogService
         ?int $accountId = null
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('a27ccount');
 
@@ -82,13 +86,13 @@ class PlayerLogService
             $query->where('ID', $accountId);
         }
 
-        if (!$nickname && !$accountId) {
+        if (! $nickname && ! $accountId) {
             return [];
         }
 
         return $query->limit(20)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID,
                 'name' => $row->Name,
                 'kills' => $row->Kills ?? 0,
@@ -104,14 +108,18 @@ class PlayerLogService
     public function getPlayerStats(string $server, int $accountId): ?array
     {
         $connection = $this->conn($server);
-        if (!$connection) return null;
+        if (! $connection) {
+            return null;
+        }
 
         $player = DB::connection($connection)
             ->table('a27ccount')
             ->where('ID', $accountId)
             ->first();
 
-        if (!$player) return null;
+        if (! $player) {
+            return null;
+        }
 
         return [
             'id' => $player->ID,
@@ -153,7 +161,9 @@ class PlayerLogService
         int $limit = 100
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('reputation');
 
@@ -193,7 +203,9 @@ class PlayerLogService
         int $limit = 100
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('names');
 
@@ -210,7 +222,7 @@ class PlayerLogService
         return $query->orderByDesc('Date')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'account_id' => $row->idacc ?? null,
                 'old_nick' => $row->Do,
@@ -227,7 +239,9 @@ class PlayerLogService
         int $limit = 50
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('unbans');
 
@@ -238,7 +252,7 @@ class PlayerLogService
         return $query->orderByDesc('Date')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'name' => $row->UnBan,
                 'date' => $row->Date,
@@ -253,7 +267,9 @@ class PlayerLogService
         int $limit = 50
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         // banlist Type = 4 is /block
         $query = DB::connection($connection)
@@ -270,7 +286,7 @@ class PlayerLogService
         return $query->orderByDesc('UnBanDate')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'admin' => $row->Admin ?? null,
                 'admin_ip' => $row->IPa ?? null,
@@ -289,7 +305,9 @@ class PlayerLogService
         int $limit = 50
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('ip2banlist');
 
@@ -309,7 +327,7 @@ class PlayerLogService
         return $query->orderByDesc('Date')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'admin' => $row->Admin,
                 'admin_ip' => $row->IPa ?? null,
@@ -325,7 +343,9 @@ class PlayerLogService
         int $limit = 100
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('Matchmaking');
 
@@ -336,7 +356,7 @@ class PlayerLogService
         return $query->orderByDesc('ELO')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'name' => $row->Name,
                 'cash' => $row->Cash ?? 0,
@@ -372,7 +392,9 @@ class PlayerLogService
         int $limit = 100
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('money_log');
 
@@ -394,7 +416,7 @@ class PlayerLogService
         return $query->orderByDesc('ID')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'from_id' => $row->user_id,
                 'from_name' => $row->user_name,
@@ -416,7 +438,9 @@ class PlayerLogService
         int $limit = 100
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)->table('logsAccessories');
 
@@ -433,7 +457,7 @@ class PlayerLogService
         return $query->orderByDesc('actionDate')
             ->limit($limit)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'account_id' => $row->accountID,
                 'account_name' => $row->accountName,
@@ -448,7 +472,9 @@ class PlayerLogService
     public function updateBanReason(string $server, int $banId, string $reason): bool
     {
         $connection = $this->conn($server);
-        if (!$connection) return false;
+        if (! $connection) {
+            return false;
+        }
 
         $affected = DB::connection($connection)
             ->table('banlist')
@@ -462,7 +488,9 @@ class PlayerLogService
     public function getBanById(string $server, int $banId): ?array
     {
         $connection = $this->conn($server);
-        if (!$connection) return null;
+        if (! $connection) {
+            return null;
+        }
 
         $ban = DB::connection($connection)
             ->table('banlist')
@@ -470,7 +498,9 @@ class PlayerLogService
             ->where('Type', 4)
             ->first();
 
-        if (!$ban) return null;
+        if (! $ban) {
+            return null;
+        }
 
         return [
             'id' => $ban->ID,

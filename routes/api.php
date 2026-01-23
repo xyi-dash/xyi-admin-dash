@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminLogController;
+use App\Http\Controllers\Api\AdminManagementController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\NewsController;
-use App\Http\Controllers\Api\AdminManagementController;
 use App\Http\Controllers\Api\PlayerLogController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -23,19 +23,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logs', [LogController::class, 'index']);
     Route::get('/logs/types', [LogController::class, 'types']);
     Route::get('/logs/person/{personId}/{server}', [LogController::class, 'byPerson']);
-    
+
     Route::post('/cp/prepare', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
         $adminSession = app(\App\Services\AdminSessionService::class);
-        
-        if (!$adminSession->hasAnyUnlocked($user)) {
+
+        if (! $adminSession->hasAnyUnlocked($user)) {
             return response()->json(['error' => 'unlock a server first'], 403);
         }
-        
-        $token = encrypt($user->id . '|' . $user->server . '|' . time());
+
+        $token = encrypt($user->id.'|'.$user->server.'|'.time());
+
         return response()->json(['ok' => true, 'token' => base64_encode($token)]);
     });
-    
+
     Route::post('/admin/prepare-redirect', [AuthController::class, 'prepareAdminRedirect']);
 });
 
@@ -60,10 +61,10 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])-
     Route::post('/logs/purchases/confirm', [AdminLogController::class, 'confirmPurchase']);
     Route::get('/logs/removed', [AdminLogController::class, 'removedAdmins']);
     Route::get('/logs/ga-actions', [AdminLogController::class, 'gaActions']);
-    
+
     Route::get('/servers', [AdminLogController::class, 'serverSettings']);
     Route::post('/servers', [AdminLogController::class, 'updateServerSettings']);
-    
+
     Route::get('/news', [NewsController::class, 'index']);
     Route::get('/news/{id}', [NewsController::class, 'show']);
     Route::post('/news', [NewsController::class, 'store']);
@@ -71,7 +72,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])-
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
 
     Route::get('/extended/servers', [PlayerLogController::class, 'availableServers']);
-    
+
     Route::prefix('players')->group(function () {
         Route::get('/search', [PlayerLogController::class, 'searchPlayer']);
         Route::get('/{accountId}', [PlayerLogController::class, 'getPlayerStats'])->where('accountId', '[0-9]+');

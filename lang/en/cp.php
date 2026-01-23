@@ -5,7 +5,7 @@ return [
     'action_log' => 'Action Log',
     'control_panel_users' => 'Control Panel Users',
     'control_panel_user' => 'Control Panel User',
-    
+
     'fields' => [
         'id' => 'ID',
         'user_name' => 'User',
@@ -21,24 +21,24 @@ return [
         'role' => 'Role',
         'password' => 'Password',
     ],
-    
+
     'actions' => [
         'view' => 'View',
         'create' => 'Create',
         'edit' => 'Edit',
         'delete' => 'Delete',
     ],
-    
+
     'roles' => [
         'admin' => 'Admin',
         'moderator' => 'Moderator',
     ],
-    
+
     'navigation' => [
         'system' => 'System',
         'users' => 'Users',
     ],
-    
+
     'stats' => [
         'total_online' => 'Total Online',
         'all_servers' => 'All servers',

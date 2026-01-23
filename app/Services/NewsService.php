@@ -12,7 +12,7 @@ class NewsService
             ->table('news')
             ->orderByDesc('id')
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->id,
                 'title' => $row->title,
                 'date' => $row->date ?? $row->date2 ?? null,
@@ -30,7 +30,9 @@ class NewsService
             ->where('id', $id)
             ->first();
 
-        if (!$row) return null;
+        if (! $row) {
+            return null;
+        }
 
         return [
             'id' => $row->id,
@@ -44,7 +46,7 @@ class NewsService
 
     public function create(string $title, string $message, string $message2, string $author): int
     {
-        $date = 'Дата добавления: ' . now()->format('d.m.Y');
+        $date = 'Дата добавления: '.now()->format('d.m.Y');
         $date2 = now()->format('d.m.Y');
 
         return DB::connection('site')
@@ -79,4 +81,3 @@ class NewsService
             ->delete() > 0;
     }
 }
-

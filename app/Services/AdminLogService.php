@@ -13,19 +13,30 @@ class AdminLogService
     ];
 
     public const TYPE_WARN = 1;
+
     public const TYPE_UNWARN = 2;
+
     public const TYPE_PROMOTE = 3;
+
     public const TYPE_DEMOTE = 4;
+
     public const TYPE_REMOVE = 5;
+
     public const TYPE_APPOINT = 6;
+
     public const TYPE_BUY_CONFIRM = 7;
+
     public const TYPE_CHANGE_PIP = 8;
+
     public const TYPE_RESET_PASSWORD = 9;
+
     public const TYPE_CONFIRM = 10;
 
     // people actually pay money for these this is wild
     public const BUY_ADMIN = 1;
+
     public const BUY_PROMOTE = 2;
+
     public const BUY_UNWARN = 3;
 
     private function conn(string $server): ?string
@@ -44,30 +55,40 @@ class AdminLogService
         bool $withKills = false
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return ['data' => [], 'total' => 0];
+        if (! $connection) {
+            return ['data' => [], 'total' => 0];
+        }
 
         $query = DB::connection($connection)->table('logsadmin');
 
         $startDate = now()->subDays($page)->startOfDay();
         $endDate = now()->subDays($page - 1)->startOfDay();
-        
-        $query->where('Date', '>', $startDate)
-              ->where('Date', '<=', $endDate)
-              ->where('ALevel', '<=', $viewerLevel);
 
-        if ($admin) $query->where('Admin', $admin);
-        if ($player) $query->where('Player', $player);
-        if ($cmd) $query->where('CMD', $cmd);
-        if ($reason) $query->where('Reason', 'like', "%{$reason}%");
+        $query->where('Date', '>', $startDate)
+            ->where('Date', '<=', $endDate)
+            ->where('ALevel', '<=', $viewerLevel);
+
+        if ($admin) {
+            $query->where('Admin', $admin);
+        }
+        if ($player) {
+            $query->where('Player', $player);
+        }
+        if ($cmd) {
+            $query->where('CMD', $cmd);
+        }
+        if ($reason) {
+            $query->where('Reason', 'like', "%{$reason}%");
+        }
 
         $total = $query->count();
-        
+
         $rows = $query->orderByDesc('Date')->limit(50)->get();
-        
+
         $killsMap = [];
         if ($withKills && $rows->isNotEmpty()) {
             $playerNames = $rows->pluck('Player')->unique()->filter()->values()->toArray();
-            if (!empty($playerNames)) {
+            if (! empty($playerNames)) {
                 $killsMap = DB::connection($connection)
                     ->table('a27ccount')
                     ->whereIn('Name', $playerNames)
@@ -75,8 +96,8 @@ class AdminLogService
                     ->toArray();
             }
         }
-        
-        $data = $rows->map(fn($row) => [
+
+        $data = $rows->map(fn ($row) => [
             'id' => $row->ID ?? null,
             'admin_id' => $row->idadm ?? null,
             'admin' => $row->Admin,
@@ -99,20 +120,28 @@ class AdminLogService
         ?string $reason = null
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)
             ->table('logsadmin2')
             ->where('type', self::TYPE_WARN);
 
-        if ($issuedBy) $query->where('admin', $issuedBy);
-        if ($issuedTo) $query->where('name', $issuedTo);
-        if ($reason) $query->where('reason', 'like', "%{$reason}%");
+        if ($issuedBy) {
+            $query->where('admin', $issuedBy);
+        }
+        if ($issuedTo) {
+            $query->where('name', $issuedTo);
+        }
+        if ($reason) {
+            $query->where('reason', 'like', "%{$reason}%");
+        }
 
         return $query->orderByDesc('date')
             ->limit(30)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->id,
                 'admin_id' => $row->idadm ?? null,
                 'admin' => $row->admin,
@@ -131,21 +160,31 @@ class AdminLogService
         ?string $reason = null
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return [];
+        if (! $connection) {
+            return [];
+        }
 
         $query = DB::connection($connection)
             ->table('logsadmin2')
             ->where('type', self::TYPE_REMOVE);
 
-        if ($removedAdmin) $query->where('name', $removedAdmin);
-        if ($removedBy) $query->where('admin', $removedBy);
-        if ($level) $query->where('kolvo', $level);
-        if ($reason) $query->where('reason', 'like', "%{$reason}%");
+        if ($removedAdmin) {
+            $query->where('name', $removedAdmin);
+        }
+        if ($removedBy) {
+            $query->where('admin', $removedBy);
+        }
+        if ($level) {
+            $query->where('kolvo', $level);
+        }
+        if ($reason) {
+            $query->where('reason', 'like', "%{$reason}%");
+        }
 
         return $query->orderByDesc('date')
             ->limit(30)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->id,
                 'admin_id' => $row->idadm ?? null,
                 'admin' => $row->admin,
@@ -166,7 +205,9 @@ class AdminLogService
         ?int $level = null
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return ['data' => [], 'total' => 0];
+        if (! $connection) {
+            return ['data' => [], 'total' => 0];
+        }
 
         $query = DB::connection($connection)
             ->table('b27uy')
@@ -175,20 +216,28 @@ class AdminLogService
 
         $startDate = now()->subDays($page)->startOfDay();
         $endDate = now()->subDays($page - 1)->startOfDay();
-        
+
         $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
 
-        if ($admin) $query->where('NameGame', $admin);
-        if ($vkPage) $query->where('NameSkype', $vkPage);
-        if ($type) $query->where('Type', $type);
-        if ($level) $query->where('Level', $level);
+        if ($admin) {
+            $query->where('NameGame', $admin);
+        }
+        if ($vkPage) {
+            $query->where('NameSkype', $vkPage);
+        }
+        if ($type) {
+            $query->where('Type', $type);
+        }
+        if ($level) {
+            $query->where('Level', $level);
+        }
 
         $total = $query->count();
 
         $data = $query->orderByDesc('Date')
             ->limit(50)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
                 'admin_id' => $row->admacc ?? null,
                 'name' => $row->NameGame,
@@ -213,7 +262,9 @@ class AdminLogService
         ?string $reason = null
     ): array {
         $connection = $this->conn($server);
-        if (!$connection) return ['data' => [], 'total' => 0];
+        if (! $connection) {
+            return ['data' => [], 'total' => 0];
+        }
 
         $query = DB::connection($connection)->table('logsadmin2');
 
@@ -221,20 +272,28 @@ class AdminLogService
 
         $startDate = now()->subDays($page)->startOfDay();
         $endDate = now()->subDays($page - 1)->startOfDay();
-        
+
         $query->where('date', '>', $startDate)->where('date', '<=', $endDate);
 
-        if ($gaAdmin) $query->where('admin', $gaAdmin);
-        if ($target) $query->where('name', $target);
-        if ($actionType) $query->where('type', $actionType);
-        if ($reason) $query->where('reason', 'like', "%{$reason}%");
+        if ($gaAdmin) {
+            $query->where('admin', $gaAdmin);
+        }
+        if ($target) {
+            $query->where('name', $target);
+        }
+        if ($actionType) {
+            $query->where('type', $actionType);
+        }
+        if ($reason) {
+            $query->where('reason', 'like', "%{$reason}%");
+        }
 
         $total = $query->count();
 
         $data = $query->orderByDesc('date')
             ->limit(50)
             ->get()
-            ->map(fn($row) => [
+            ->map(fn ($row) => [
                 'id' => $row->id,
                 'admin_id' => $row->idadm ?? null,
                 'admin' => $row->admin,
@@ -254,10 +313,14 @@ class AdminLogService
     public function getServerSettings(string $server): ?array
     {
         $connection = $this->conn($server);
-        if (!$connection) return null;
+        if (! $connection) {
+            return null;
+        }
 
         $s = DB::connection($connection)->table('s27erver')->first();
-        if (!$s) return null;
+        if (! $s) {
+            return null;
+        }
 
         return [
             'donate_multiplier' => $s->donat ?? 0,
@@ -277,7 +340,9 @@ class AdminLogService
         ?string $adsDescription = null
     ): bool {
         $connection = $this->conn($server);
-        if (!$connection) return false;
+        if (! $connection) {
+            return false;
+        }
 
         return DB::connection($connection)
             ->table('s27erver')
@@ -297,13 +362,16 @@ class AdminLogService
         foreach (array_keys(self::SERVER_CONNECTIONS) as $server) {
             $result[$server] = $this->getServerSettings($server);
         }
+
         return $result;
     }
 
     public function confirmPurchase(string $server, string $adminName, int $confirmerId, string $confirmerName): bool
     {
         $connection = $this->conn($server);
-        if (!$connection) return false;
+        if (! $connection) {
+            return false;
+        }
 
         DB::connection($connection)
             ->table('a27dmins')
@@ -339,7 +407,7 @@ class AdminLogService
 
     private function buyTypeName(int $type): string
     {
-        return match($type) {
+        return match ($type) {
             self::BUY_ADMIN => 'buy_admin',
             self::BUY_PROMOTE => 'promotion',
             self::BUY_UNWARN => 'remove_warning',
@@ -349,7 +417,7 @@ class AdminLogService
 
     private function actionTypeName(int $type): string
     {
-        return match($type) {
+        return match ($type) {
             self::TYPE_WARN => 'warn',
             self::TYPE_UNWARN => 'unwarn',
             self::TYPE_PROMOTE => 'promote',
@@ -364,4 +432,3 @@ class AdminLogService
         };
     }
 }
-

@@ -8,35 +8,57 @@ use Illuminate\Http\Request;
 class ActionLogService
 {
     public const LOGIN = 'login';
+
     public const LOGOUT = 'logout';
+
     public const ADMIN_AUTH = 'admin_auth';
+
     public const ADMIN_PANEL_ACCESS = 'admin_panel_access';
+
     public const CP_LOGIN = 'cp_login';
 
     public const ADMIN_PROMOTE = 'admin_promote';
+
     public const ADMIN_DEMOTE = 'admin_demote';
+
     public const ADMIN_WARN = 'admin_warn';
+
     public const ADMIN_UNWARN = 'admin_unwarn';
+
     public const ADMIN_REMOVE = 'admin_remove';
+
     public const ADMIN_GIVE_GA = 'admin_give_ga';
+
     public const ADMIN_REMOVE_GA = 'admin_remove_ga';
+
     public const ADMIN_APPOINT = 'admin_appoint';
+
     public const ADMIN_CONFIRM = 'admin_confirm';
+
     public const ADMIN_RESET_PASSWORD = 'admin_reset_password';
+
     public const ADMIN_PURCHASE_CONFIRM = 'admin_purchase_confirm';
+
     public const ADMIN_MARK_SUPPORT = 'admin_mark_support';
+
     public const ADMIN_REMOVE_SUPPORT = 'admin_remove_support';
+
     public const ADMIN_MARK_YOUTUBER = 'admin_mark_youtuber';
+
     public const ADMIN_REMOVE_YOUTUBER = 'admin_remove_youtuber';
 
     public const NEWS_CREATE = 'news_create';
+
     public const NEWS_UPDATE = 'news_update';
+
     public const NEWS_DELETE = 'news_delete';
 
     public const SERVER_SETTINGS_UPDATE = 'server_settings_update';
 
     public const CP_USER_ADD = 'cp_user_add';
+
     public const CP_USER_REMOVE = 'cp_user_remove';
+
     public const CP_USER_UPDATE = 'cp_user_update';
 
     public function log(
@@ -72,6 +94,7 @@ class ActionLogService
         ?array $details = null
     ): ActionLog {
         $user = $request->user();
+
         return $this->log(
             $actionType,
             $user->game_account_id,

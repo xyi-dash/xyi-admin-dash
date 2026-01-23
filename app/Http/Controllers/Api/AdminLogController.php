@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Traits\ResolvesServer;
+use App\Http\Controllers\Controller;
 use App\Services\ActionLogService;
 use App\Services\AdminLogService;
 use App\Services\GameAccountService;
@@ -23,11 +23,11 @@ class AdminLogController extends Controller
     public function adminActions(Request $request): JsonResponse
     {
         $server = $this->resolveServer($request, 6);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        if (!$this->canViewLogs($request, $server)) {
+        if (! $this->canViewLogs($request, $server)) {
             return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
@@ -50,11 +50,11 @@ class AdminLogController extends Controller
     public function warnings(Request $request): JsonResponse
     {
         $server = $this->resolveServer($request, 6);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        if (!$this->canViewLogs($request, $server)) {
+        if (! $this->canViewLogs($request, $server)) {
             return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
@@ -64,18 +64,18 @@ class AdminLogController extends Controller
                 $request->query('issued_by'),
                 $request->query('issued_to'),
                 $request->query('reason')
-            )
+            ),
         ]);
     }
 
     public function purchases(Request $request): JsonResponse
     {
         $server = $this->resolveServer($request, 6);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        if (!$this->canViewLogs($request, $server)) {
+        if (! $this->canViewLogs($request, $server)) {
             return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
@@ -95,17 +95,17 @@ class AdminLogController extends Controller
     {
         $user = $request->user();
         $server = $this->resolveServer($request, 6);
-        
-        if (!$server) {
+
+        if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
         }
 
-        if (!$this->canViewLogs($request, $server)) {
+        if (! $this->canViewLogs($request, $server)) {
             return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
         $request->validate(['admin_name' => 'required|string']);
-        
+
         $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
 
         $this->logService->confirmPurchase(
@@ -129,7 +129,7 @@ class AdminLogController extends Controller
     public function removedAdmins(Request $request): JsonResponse
     {
         $server = $this->resolveServer($request, 7);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'need 7lvl on this server blud'], 403);
         }
 
@@ -140,14 +140,14 @@ class AdminLogController extends Controller
                 $request->query('removed_by'),
                 $request->query('level') ? (int) $request->query('level') : null,
                 $request->query('reason')
-            )
+            ),
         ]);
     }
 
     public function gaActions(Request $request): JsonResponse
     {
         $server = $this->resolveServer($request, 8);
-        if (!$server) {
+        if (! $server) {
             return response()->json(['error' => 'eirin says 8lvl only'], 403);
         }
 
@@ -166,19 +166,19 @@ class AdminLogController extends Controller
     // 8+ only
     public function serverSettings(Request $request): JsonResponse
     {
-        if (!$this->canManageServers($request)) {
+        if (! $this->canManageServers($request)) {
             return response()->json(['error' => 'you wish'], 403);
         }
 
         return response()->json([
-            'servers' => $this->logService->getAllServersSettings()
+            'servers' => $this->logService->getAllServersSettings(),
         ]);
     }
 
     // 8+ only
     public function updateServerSettings(Request $request): JsonResponse
     {
-        if (!$this->canManageServers($request)) {
+        if (! $this->canManageServers($request)) {
             return response()->json(['error' => 'you wish'], 403);
         }
 
@@ -218,9 +218,11 @@ class AdminLogController extends Controller
     {
         $user = $request->user();
         $myAdmin = $this->gameService->getAdminByName($server, $user->game_account_name);
-        
-        if (!$myAdmin) return false;
-        
+
+        if (! $myAdmin) {
+            return false;
+        }
+
         $myLevel = $myAdmin->Adm ?? 0;
         $isGA = ($myAdmin->GA ?? 0) == 1;
 
@@ -231,13 +233,14 @@ class AdminLogController extends Controller
     {
         $user = $request->user();
         $myAdmin = $this->gameService->getAdminByName($user->server, $user->game_account_name);
-        
-        if (!$myAdmin) return false;
-        
+
+        if (! $myAdmin) {
+            return false;
+        }
+
         $myLevel = $myAdmin->Adm ?? 0;
         $isGA = ($myAdmin->GA ?? 0) == 1;
 
         return $myLevel === 8 && $isGA;
     }
 }
-
