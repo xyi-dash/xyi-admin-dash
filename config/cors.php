@@ -19,11 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
+    'allowed_origins' => array_filter([
         'https://monser-dm.nl',
         'https://admin.monser-dm.nl',
         'https://dashboard.monser-dm.nl',
-    ],
+        env('CORS_ALLOWED_ORIGIN'),
+    ]),
 
     'allowed_origins_patterns' => [],
 
