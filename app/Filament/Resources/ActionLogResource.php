@@ -133,15 +133,15 @@ class ActionLogResource extends Resource
                             return $query;
                         }
 
-                        $nick = $data['nickname'];
+                        $nick = str_replace(['%', '_'], ['\\%', '\\_'], $data['nickname']);
                         $mode = $data['search_mode'] ?? 'both';
 
                         return match ($mode) {
-                            'actor' => $query->where('actor_name', 'like', "%{$nick}%"),
-                            'target' => $query->where('target_name', 'like', "%{$nick}%"),
+                            'actor' => $query->where('actor_name', 'like', '%'.$nick.'%'),
+                            'target' => $query->where('target_name', 'like', '%'.$nick.'%'),
                             default => $query->where(function ($q) use ($nick) {
-                                $q->where('actor_name', 'like', "%{$nick}%")
-                                    ->orWhere('target_name', 'like', "%{$nick}%");
+                                $q->where('actor_name', 'like', '%'.$nick.'%')
+                                    ->orWhere('target_name', 'like', '%'.$nick.'%');
                             }),
                         };
                     })

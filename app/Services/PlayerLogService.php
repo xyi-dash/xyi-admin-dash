@@ -23,6 +23,15 @@ class PlayerLogService
         return self::SERVER_CONNECTIONS[$server] ?? null;
     }
 
+    private function escapeLike(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return str_replace(['%', '_'], ['\\%', '\\_'], $value);
+    }
+
     public function getAvailableServers(string $nickname): array
     {
         $available = [];
@@ -277,7 +286,7 @@ class PlayerLogService
             ->where('Type', 4);
 
         if ($playerName) {
-            $query->where('Name', 'like', "%{$playerName}%");
+            $query->where('Name', 'like', '%'.$this->escapeLike($playerName).'%');
         }
         if ($adminName) {
             $query->where('Admin', $adminName);
@@ -451,7 +460,7 @@ class PlayerLogService
             $query->where('accountName', $accountName);
         }
         if ($accessoryName) {
-            $query->where('accessoryName', 'like', "%{$accessoryName}%");
+            $query->where('accessoryName', 'like', '%'.$this->escapeLike($accessoryName).'%');
         }
 
         return $query->orderByDesc('actionDate')
