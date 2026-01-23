@@ -169,7 +169,7 @@ class AuthController extends Controller
         $token = base64_encode(encrypt($user->id.'|'.$user->server.'|'.time()));
 
         return response()->json([
-            'url' => 'https://monser-dm.nl/cp?t='.urlencode($token),
+            'url' => config('app.url').'/cp?t='.urlencode($token),
         ]);
     }
 }
