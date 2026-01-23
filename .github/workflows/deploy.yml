@@ -44,6 +44,9 @@ jobs:
       - run: npm ci
 
       - name: Build
+        env:
+          VITE_DASHBOARD_URL: ${{ secrets.VITE_DASHBOARD_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
       - name: Upload build artifact
