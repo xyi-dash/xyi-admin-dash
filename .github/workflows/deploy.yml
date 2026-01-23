@@ -79,16 +79,4 @@ jobs:
         run: |
           SSH_PORT_VALUE=${SSH_PORT:-22}
 
-          tar -czf dist.tar.gz dist
-
-          scp -o StrictHostKeyChecking=no -P "$SSH_PORT_VALUE" dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/monser-admin-dist.tar.gz"
-
-          ssh -o StrictHostKeyChecking=no -p "$SSH_PORT_VALUE" "$SSH_USER@$SSH_HOST" << EOF
-          cd $APP_PATH
-
-          rm -rf dist_old
-          if [ -d dist ]; then mv dist dist_old; fi
-
-          tar -xzf /tmp/monser-admin-dist.tar.gz -C .
-          rm /tmp/monser-admin-dist.tar.gz
-          EOF
+          tar -czf - dist | ssh -o StrictHostKeyChecking=no -p "$SSH_PORT_VALUE" "$SSH_USER@$SSH_HOST" "cd $APP_PATH && rm -rf dist_old && [ -d dist ] && mv dist dist_old; tar -xzf -"
