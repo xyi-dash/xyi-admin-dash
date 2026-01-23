@@ -1,9 +1,10 @@
 import axios from 'axios'
 
-const DASHBOARD_URL = 'https://dashboard.monser-dm.nl'
+const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 const api = axios.create({
-    baseURL: 'https://dashboard.monser-dm.nl/api',
+    baseURL: API_URL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
@@ -37,4 +38,5 @@ export const redirectToDashboard = () => {
     window.location.href = DASHBOARD_URL
 }
 
+export { DASHBOARD_URL }
 export default api

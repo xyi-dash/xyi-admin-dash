@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { setLocale, getLocale } from '@/i18n'
 import AppConfigurator from './AppConfigurator.vue'
-import api from '@/service/api'
+import api, { DASHBOARD_URL } from '@/service/api'
 
 const { t, locale } = useI18n()
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
@@ -59,7 +59,7 @@ async function goToControlPanel() {
     try {
         const { data } = await api.post('/cp/prepare')
         if (data.token) {
-            window.open(`https://dashboard.monser-dm.nl/cp?t=${encodeURIComponent(data.token)}`, '_blank')
+            window.open(`${DASHBOARD_URL}/cp?t=${encodeURIComponent(data.token)}`, '_blank')
         }
     } catch (err) {
         console.warn('cp access denied:', err.response?.data?.error || err.message)
