@@ -44,6 +44,15 @@ class AdminLogService
         return self::SERVER_CONNECTIONS[$server] ?? null;
     }
 
+    private function escapeLike(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return str_replace(['%', '_'], ['\\%', '\\_'], $value);
+    }
+
     public function getAdminActions(
         string $server,
         int $viewerLevel,
@@ -78,7 +87,7 @@ class AdminLogService
             $query->where('CMD', $cmd);
         }
         if ($reason) {
-            $query->where('Reason', 'like', "%{$reason}%");
+            $query->where('Reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
         $total = $query->count();
@@ -135,7 +144,7 @@ class AdminLogService
             $query->where('name', $issuedTo);
         }
         if ($reason) {
-            $query->where('reason', 'like', "%{$reason}%");
+            $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
         return $query->orderByDesc('date')
@@ -178,7 +187,7 @@ class AdminLogService
             $query->where('kolvo', $level);
         }
         if ($reason) {
-            $query->where('reason', 'like', "%{$reason}%");
+            $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
         return $query->orderByDesc('date')
@@ -285,7 +294,7 @@ class AdminLogService
             $query->where('type', $actionType);
         }
         if ($reason) {
-            $query->where('reason', 'like', "%{$reason}%");
+            $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
         $total = $query->count();

@@ -18,7 +18,7 @@ Route::prefix('auth')->group(function () {
 
 Route::post('/admin/exchange-token', [AuthController::class, 'exchangeToken'])->middleware('throttle:10,1');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/account/profile', [AccountController::class, 'profile']);
     Route::get('/logs', [LogController::class, 'index']);
     Route::get('/logs/types', [LogController::class, 'types']);
@@ -35,9 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
         $token = encrypt($user->id.'|'.$user->server.'|'.time());
 
         return response()->json(['ok' => true, 'token' => base64_encode($token)]);
-    });
+    })->middleware('throttle:10,1');
 
-    Route::post('/admin/prepare-redirect', [AuthController::class, 'prepareAdminRedirect']);
+    Route::post('/admin/prepare-redirect', [AuthController::class, 'prepareAdminRedirect'])->middleware('throttle:10,1');
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -50,20 +50,20 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])-
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
 
-    Route::post('/manage', [AdminManagementController::class, 'execute']);
-    Route::post('/manage/add', [AdminManagementController::class, 'addAdmin']);
+    Route::post('/manage', [AdminManagementController::class, 'execute'])->middleware('throttle:30,1');
+    Route::post('/manage/add', [AdminManagementController::class, 'addAdmin'])->middleware('throttle:10,1');
     Route::get('/manage/{adminName}/actions', [AdminManagementController::class, 'availableActions']);
     Route::get('/manage/{adminName}/history', [AdminManagementController::class, 'history']);
 
     Route::get('/logs/actions', [AdminLogController::class, 'adminActions']);
     Route::get('/logs/warnings', [AdminLogController::class, 'warnings']);
     Route::get('/logs/purchases', [AdminLogController::class, 'purchases']);
-    Route::post('/logs/purchases/confirm', [AdminLogController::class, 'confirmPurchase']);
+    Route::post('/logs/purchases/confirm', [AdminLogController::class, 'confirmPurchase'])->middleware('throttle:10,1');
     Route::get('/logs/removed', [AdminLogController::class, 'removedAdmins']);
     Route::get('/logs/ga-actions', [AdminLogController::class, 'gaActions']);
 
     Route::get('/servers', [AdminLogController::class, 'serverSettings']);
-    Route::post('/servers', [AdminLogController::class, 'updateServerSettings']);
+    Route::post('/servers', [AdminLogController::class, 'updateServerSettings'])->middleware('throttle:10,1');
 
     Route::get('/news', [NewsController::class, 'index']);
     Route::get('/news/{id}', [NewsController::class, 'show']);
@@ -74,7 +74,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked'])-
     Route::get('/extended/servers', [PlayerLogController::class, 'availableServers']);
 
     Route::prefix('players')->group(function () {
-        Route::get('/search', [PlayerLogController::class, 'searchPlayer']);
+        Route::get('/search', [PlayerLogController::class, 'searchPlayer'])->middleware('throttle:30,1');
         Route::get('/{accountId}', [PlayerLogController::class, 'getPlayerStats'])->where('accountId', '[0-9]+');
     });
 

@@ -22,6 +22,15 @@ class AdminLogController extends Controller
 
     public function adminActions(Request $request): JsonResponse
     {
+        $request->validate([
+            'page' => 'nullable|integer|min:0|max:365',
+            'admin' => 'nullable|string|max:24',
+            'player' => 'nullable|string|max:24',
+            'cmd' => 'nullable|string|max:50',
+            'reason' => 'nullable|string|max:255',
+            'with_kills' => 'nullable|boolean',
+        ]);
+
         $server = $this->resolveServer($request, 6);
         if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
@@ -49,6 +58,12 @@ class AdminLogController extends Controller
 
     public function warnings(Request $request): JsonResponse
     {
+        $request->validate([
+            'issued_by' => 'nullable|string|max:24',
+            'issued_to' => 'nullable|string|max:24',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
         $server = $this->resolveServer($request, 6);
         if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
@@ -70,6 +85,14 @@ class AdminLogController extends Controller
 
     public function purchases(Request $request): JsonResponse
     {
+        $request->validate([
+            'page' => 'nullable|integer|min:0|max:365',
+            'admin' => 'nullable|string|max:24',
+            'vk' => 'nullable|string|max:100',
+            'type' => 'nullable|integer|min:1|max:10',
+            'level' => 'nullable|integer|min:1|max:8',
+        ]);
+
         $server = $this->resolveServer($request, 6);
         if (! $server) {
             return response()->json(['error' => 'marisa stole your access'], 403);
@@ -128,6 +151,13 @@ class AdminLogController extends Controller
 
     public function removedAdmins(Request $request): JsonResponse
     {
+        $request->validate([
+            'removed' => 'nullable|string|max:24',
+            'removed_by' => 'nullable|string|max:24',
+            'level' => 'nullable|integer|min:1|max:8',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
         $server = $this->resolveServer($request, 7);
         if (! $server) {
             return response()->json(['error' => 'need 7lvl on this server blud'], 403);
@@ -146,6 +176,14 @@ class AdminLogController extends Controller
 
     public function gaActions(Request $request): JsonResponse
     {
+        $request->validate([
+            'page' => 'nullable|integer|min:0|max:365',
+            'ga' => 'nullable|string|max:24',
+            'target' => 'nullable|string|max:24',
+            'type' => 'nullable|integer|min:1|max:20',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
         $server = $this->resolveServer($request, 8);
         if (! $server) {
             return response()->json(['error' => 'eirin says 8lvl only'], 403);
