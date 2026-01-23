@@ -202,7 +202,7 @@ class AdminManagementController extends Controller
         $user = $request->user();
         $server = $request->input('server') ?: $user->server;
 
-        if (! in_array($server, ['one', 'two', 'three'])) {
+        if (! in_array($server, config('servers.available'))) {
             return response()->json(['error' => 'sakuya stopped time and blocked you'], 403);
         }
 

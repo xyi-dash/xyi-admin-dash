@@ -16,13 +16,6 @@ use Illuminate\Support\Facades\DB;
  */
 class GameAccountService
 {
-    // the holy trinity
-    private const SERVER_CONNECTIONS = [
-        'one' => 'gangwar',
-        'two' => 'gangwar2',
-        'three' => 'gangwar3',
-    ];
-
     public function authenticate(string $server, string $nickname, string $password): ?object
     {
         $connection = $this->getConnection($server);
@@ -223,6 +216,6 @@ class GameAccountService
 
     private function getConnection(string $server): ?string
     {
-        return self::SERVER_CONNECTIONS[$server] ?? null;
+        return config('servers.connections.'.$server);
     }
 }
