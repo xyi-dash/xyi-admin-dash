@@ -14,6 +14,7 @@ const toast = useToast();
 const loading = ref(true);
 const adminList = ref(null);
 const expandedLevels = ref({});
+const searchName = ref('');
 
 const addDialog = ref(false);
 const addLoading = ref(false);
@@ -70,7 +71,11 @@ const availableLevels = computed(() => {
 
 function getAdminsByLevel(level) {
     if (!adminList.value?.admins) return [];
-    return adminList.value.admins.filter((a) => a.level === level);
+    return adminList.value.admins.filter((a) => {
+        if (a.level !== level) return false;
+        if (searchName.value && !a.name.toLowerCase().includes(searchName.value.toLowerCase())) return false;
+        return true;
+    });
 }
 
 const canViewDetails = computed(() => adminList.value?.can_view_details ?? false);
@@ -125,6 +130,7 @@ async function submitNewAdmin() {
         <div class="flex justify-between items-center mb-4">
             <h5 class="m-0">{{ $t('admins.title') }}</h5>
             <div class="flex gap-4 items-center">
+                <InputText v-model="searchName" :placeholder="$t('admins.search_placeholder')" class="w-48" />
                 <Button v-if="canAddAdmin" :label="$t('admins.add_admin')" icon="pi pi-plus" size="small" @click="openAddDialog" />
                 <template v-if="adminList">
                     <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>

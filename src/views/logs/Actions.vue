@@ -12,7 +12,8 @@ const showKills = ref(false);
 const filters = ref({
     admin: '',
     player: '',
-    cmd: ''
+    cmd: '',
+    reason: ''
 });
 
 onMounted(async () => {
@@ -26,6 +27,7 @@ async function loadData() {
         if (filters.value.admin) params.append('admin', filters.value.admin);
         if (filters.value.player) params.append('player', filters.value.player);
         if (filters.value.cmd) params.append('cmd', filters.value.cmd);
+        if (filters.value.reason) params.append('reason', filters.value.reason);
         if (showKills.value) params.append('with_kills', '1');
         params.append('page', page.value);
         if (authStore.currentServer) params.append('server', authStore.currentServer);
@@ -70,6 +72,7 @@ function toggleKills() {
             <InputText v-model="filters.admin" :placeholder="$t('logs.actions.admin_placeholder')" class="w-40" />
             <InputText v-model="filters.player" :placeholder="$t('logs.actions.player_placeholder')" class="w-40" />
             <InputText v-model="filters.cmd" :placeholder="$t('logs.actions.command_placeholder')" class="w-40" />
+            <InputText v-model="filters.reason" :placeholder="$t('logs.actions.reason_placeholder')" class="w-40" />
             <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
             <div class="flex items-center gap-2 ml-auto">
                 <label class="text-sm text-muted-color cursor-pointer" @click="toggleKills">{{ $t('logs.actions.show_kills') }}</label>
