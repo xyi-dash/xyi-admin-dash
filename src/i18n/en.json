@@ -33,7 +33,11 @@
     "success": "Success",
     "failed_load": "Failed to load data",
     "failed_save": "Failed to save",
-    "no_data": "Nothing here. The void stares back."
+    "no_data": "Nothing here. The void stares back.",
+    "language": "Language",
+    "theme": "Theme",
+    "logout": "Logout",
+    "control_panel": "Control Panel"
   },
   "nav": {
     "home": "Home",

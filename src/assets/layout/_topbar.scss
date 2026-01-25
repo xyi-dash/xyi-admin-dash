@@ -94,6 +94,11 @@
         display: flex;
         gap: 1rem;
     }
+
+    .layout-desktop-only { display: flex; }
+    .layout-mobile-only { display: none; }
+    .layout-desktop-item { display: flex; }
+    .layout-mobile-item { display: none; }
 }
 
 @media (max-width: 991px) {
@@ -111,6 +116,27 @@
 
         .layout-topbar-menu-button {
             display: inline-flex;
+        }
+
+        .layout-config-menu {
+            display: none;
+        }
+
+        .layout-desktop-only {
+            display: none;
+        }
+
+        .layout-mobile-only {
+            display: flex;
+            align-items: center;
+        }
+
+        .layout-desktop-item {
+            display: none !important;
+        }
+
+        .layout-mobile-item {
+            display: flex;
         }
 
         .layout-topbar-menu {

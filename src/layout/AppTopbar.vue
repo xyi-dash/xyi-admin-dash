@@ -79,37 +79,17 @@ async function goToControlPanel() {
         </div>
 
         <div class="layout-topbar-actions">
-            <div class="flex items-center gap-2">
+            <div class="layout-desktop-only flex items-center gap-2">
                 <Button :label="currentServerLabel" icon="pi pi-server" text @click="toggleServerMenu" />
-                <Menu ref="serverMenu" :model="serverItems" popup>
-                    <template #item="{ item }">
-                        <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="switchServer(item.value)">
-                            <i class="pi pi-server"></i>
-                            <span>{{ item.label }}</span>
-                            <i v-if="item.value === authStore.currentServer" class="pi pi-check text-green-500 ml-auto"></i>
-                            <i v-else-if="authStore.isServerUnlocked(item.value)" class="pi pi-unlock text-green-500 ml-auto"></i>
-                            <i v-else class="pi pi-lock text-muted-color ml-auto"></i>
-                        </div>
-                    </template>
-                </Menu>
             </div>
 
             <div class="layout-config-menu">
-                <button type="button" class="layout-topbar-action" title="Control Panel (Filament)" @click="goToControlPanel">
+                <button v-if="authStore.canAccessCP" type="button" class="layout-topbar-action" @click="goToControlPanel">
                     <i class="pi pi-cog"></i>
                 </button>
                 <button type="button" class="layout-topbar-action" @click="toggleLangMenu">
                     <i class="pi pi-globe"></i>
                 </button>
-                <Menu ref="langMenu" :model="languageOptions" popup>
-                    <template #item="{ item }">
-                        <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="changeLocale(item.value)">
-                            <span class="font-mono text-xs bg-surface-200 dark:bg-surface-700 px-1.5 py-0.5 rounded">{{ item.code }}</span>
-                            <span>{{ item.label }}</span>
-                            <i v-if="item.value === currentLocale" class="pi pi-check text-green-500 ml-auto"></i>
-                        </div>
-                    </template>
-                </Menu>
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
@@ -125,6 +105,11 @@ async function goToControlPanel() {
                 </div>
             </div>
 
+            <div v-if="authStore.user" class="layout-mobile-only flex items-center gap-2">
+                <span class="text-muted-color text-sm">{{ authStore.user.name }}</span>
+                <Tag v-if="authStore.admin" size="small">Lv.{{ authStore.admin.level }}</Tag>
+            </div>
+
             <button
                 class="layout-topbar-menu-button layout-topbar-action"
                 v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'p-anchored-overlay-enter-active', leaveToClass: 'hidden', leaveActiveClass: 'p-anchored-overlay-leave-active', hideOnOutsideClick: true }"
@@ -134,15 +119,53 @@ async function goToControlPanel() {
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <div v-if="authStore.user" class="flex items-center gap-2 px-4">
+                    <button type="button" class="layout-topbar-action layout-mobile-item" @click="toggleServerMenu">
+                        <i class="pi pi-server"></i>
+                        <span>{{ currentServerLabel }}</span>
+                    </button>
+                    <button type="button" class="layout-topbar-action layout-mobile-item" @click="toggleLangMenu">
+                        <i class="pi pi-globe"></i>
+                        <span>{{ t('common.language') }}</span>
+                    </button>
+                    <button type="button" class="layout-topbar-action layout-mobile-item" @click="toggleDarkMode">
+                        <i :class="['pi', isDarkTheme ? 'pi-moon' : 'pi-sun']"></i>
+                        <span>{{ t('common.theme') }}</span>
+                    </button>
+                    <button v-if="authStore.canAccessCP" type="button" class="layout-topbar-action layout-mobile-item" @click="goToControlPanel">
+                        <i class="pi pi-cog"></i>
+                        <span>{{ t('common.control_panel') }}</span>
+                    </button>
+                    <div v-if="authStore.user" class="layout-desktop-item flex items-center gap-2 px-4">
                         <span class="text-muted-color">{{ authStore.user.name }}</span>
                         <Tag v-if="authStore.admin" size="small">Lv.{{ authStore.admin.level }}</Tag>
                     </div>
                     <button type="button" class="layout-topbar-action" @click="authStore.logout">
                         <i class="pi pi-sign-out"></i>
+                        <span>{{ t('common.logout') }}</span>
                     </button>
                 </div>
             </div>
+
+            <Menu ref="serverMenu" :model="serverItems" popup>
+                <template #item="{ item }">
+                    <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="switchServer(item.value)">
+                        <i class="pi pi-server"></i>
+                        <span>{{ item.label }}</span>
+                        <i v-if="item.value === authStore.currentServer" class="pi pi-check text-green-500 ml-auto"></i>
+                        <i v-else-if="authStore.isServerUnlocked(item.value)" class="pi pi-unlock text-green-500 ml-auto"></i>
+                        <i v-else class="pi pi-lock text-muted-color ml-auto"></i>
+                    </div>
+                </template>
+            </Menu>
+            <Menu ref="langMenu" :model="languageOptions" popup>
+                <template #item="{ item }">
+                    <div class="flex items-center gap-2 p-2 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800" @click="changeLocale(item.value)">
+                        <span class="font-mono text-xs bg-surface-200 dark:bg-surface-700 px-1.5 py-0.5 rounded">{{ item.code }}</span>
+                        <span>{{ item.label }}</span>
+                        <i v-if="item.value === currentLocale" class="pi pi-check text-green-500 ml-auto"></i>
+                    </div>
+                </template>
+            </Menu>
         </div>
     </div>
 </template>

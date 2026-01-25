@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
     const admin = ref(null);
     const unlockedServers = ref([]);
     const currentServer = ref(null);
+    const canAccessCP = ref(false);
     const loading = ref(false);
     const initialized = ref(false);
 
@@ -90,6 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const { data } = await api.get('/admin/session/status');
             unlockedServers.value = data.unlocked_servers || [];
+            canAccessCP.value = data.can_access_cp || false;
 
             if (unlockedServers.value.length > 0) {
                 const serverInfo = data.admin_on_servers?.find((s) => s.server === currentServer.value);
@@ -168,6 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
         admin.value = null;
         unlockedServers.value = [];
         currentServer.value = null;
+        canAccessCP.value = false;
         initialized.value = false;
 
         localStorage.removeItem('admin_token');
@@ -186,6 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
         admin,
         unlockedServers,
         currentServer,
+        canAccessCP,
         loading,
         initialized,
         canViewLogs,
