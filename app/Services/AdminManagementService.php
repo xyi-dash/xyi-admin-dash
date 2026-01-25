@@ -540,15 +540,11 @@ class AdminManagementService
             return ['success' => false, 'error' => 'invalid_server'];
         }
 
-        if ($actorLevel < 7 && ! ($actorLevel === 6 && $actorIsGA)) {
+        if ($actorLevel < 7) {
             return ['success' => false, 'error' => 'insufficient_level'];
         }
 
-        $maxLevel = match (true) {
-            $actorLevel >= 7 => 6,
-            $actorLevel === 6 || $actorIsGA => 5,
-            default => 0,
-        };
+        $maxLevel = $actorLevel >= 7 ? 6 : 0;
 
         if ($level < 1 || $level > $maxLevel) {
             return ['success' => false, 'error' => 'invalid_level'];
