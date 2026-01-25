@@ -86,7 +86,8 @@
   },
   "admins": {
     "title": "Список админов",
-    "add_admin": "Добавить админа",
+    "add_admin": "Назначить админа",
+    "search_placeholder": "Поиск админа",
     "level_title": "Уровень {level}",
     "ga": "ГА",
     "warns": "Преды",
@@ -98,7 +99,7 @@
     "no_admins": "Нет админов на этом уровне. Одиноко тут.",
     "failed_load": "Список админов сказал пока",
     "add_dialog": {
-      "title": "Добавить нового админа",
+      "title": "Назначить нового админа",
       "nickname": "Ник игрока",
       "nickname_placeholder": "точный ник",
       "level": "Уровень",
@@ -107,8 +108,8 @@
       "reason_placeholder": "почему этот игрок становится админом",
       "nickname_required": "Укажите ник",
       "reason_required": "Укажите причину",
-      "success": "Админ успешно добавлен",
-      "failed": "Не удалось добавить админа"
+      "success": "Админ успешно назначен",
+      "failed": "Не удалось назначить админа"
     }
   },
   "manage": {
@@ -167,6 +168,7 @@
       "admin_placeholder": "Имя админа",
       "player_placeholder": "Имя игрока",
       "command_placeholder": "Команда",
+      "reason_placeholder": "Причина",
       "no_actions": "Действий не найдено. Все вели себя хорошо?",
       "show_kills": "Показать киллы"
     },
@@ -244,8 +246,8 @@
       "kills": "Убийства",
       "deaths": "Смерти",
       "donate": "Донат",
-      "no_players": "игрок не найден. может он вышел на улицу?",
-      "enter_search": "введи ник или ID аккаунта"
+      "no_players": "Игрок не найден. Может он вышел на улицу?",
+      "enter_search": "Введи ник или ID аккаунта"
     },
     "player_stats": {
       "title": "Статистика игрока",
@@ -269,10 +271,19 @@
       "gangwar_stats": "Статистика Gangwar",
       "player_not_found": "Игрок исчез за границу",
       "ranks": {
-        "0": "Игрок",
-        "1": "VIP",
-        "2": "Премиум",
-        "3": "Легенда"
+        "novice": "Новичок",
+        "beginner": "Начинающий",
+        "amateur": "Любитель",
+        "accustomed": "Освоившийся",
+        "advanced": "Продвинутый",
+        "experienced": "Опытный",
+        "master": "Мастер",
+        "professional": "Профессионал",
+        "expert": "Эксперт",
+        "legend": "Легенда",
+        "myth": "Миф",
+        "immortal": "Бессмертный",
+        "unstoppable": "Неудержимый"
       }
     },
     "reputation": {
@@ -412,8 +423,8 @@
       "login": "Войти",
       "cancel": "Отмена",
       "back_dashboard": "Вернуться в ЛК",
-      "enter_password": "введите ваш админ-пароль",
-      "invalid_password": "неверный пароль"
+      "enter_password": "Введите ваш админ-пароль",
+      "invalid_password": "Неверный пароль"
     },
     "access": {
       "title": "Доступ запрещён",

@@ -86,7 +86,8 @@
   },
   "admins": {
     "title": "Admin List",
-    "add_admin": "Add Admin",
+    "add_admin": "Appoint Admin",
+    "search_placeholder": "Search admin",
     "level_title": "Level {level}",
     "ga": "GA",
     "warns": "Warns",
@@ -98,7 +99,7 @@
     "no_admins": "No admins at this level. Lonely up here.",
     "failed_load": "Admin list said goodbye",
     "add_dialog": {
-      "title": "Add New Admin",
+      "title": "Appoint New Admin",
       "nickname": "Player Nickname",
       "nickname_placeholder": "exact nickname",
       "level": "Level",
@@ -107,8 +108,8 @@
       "reason_placeholder": "why is this person becoming admin",
       "nickname_required": "Nickname required",
       "reason_required": "Reason required",
-      "success": "Admin added successfully",
-      "failed": "Failed to add admin"
+      "success": "Admin appointed successfully",
+      "failed": "Failed to appoint admin"
     }
   },
   "manage": {
@@ -167,6 +168,7 @@
       "admin_placeholder": "Admin name",
       "player_placeholder": "Player name",
       "command_placeholder": "Command",
+      "reason_placeholder": "Reason",
       "no_actions": "No actions found. Everyone behaved?",
       "show_kills": "Show kills"
     },
@@ -269,10 +271,19 @@
       "gangwar_stats": "Gangwar Stats",
       "player_not_found": "Player vanished into the boundary",
       "ranks": {
-        "0": "Player",
-        "1": "VIP",
-        "2": "Premium",
-        "3": "Legend"
+        "novice": "Novice",
+        "beginner": "Beginner",
+        "amateur": "Amateur",
+        "accustomed": "Accustomed",
+        "advanced": "Advanced",
+        "experienced": "Experienced",
+        "master": "Master",
+        "professional": "Professional",
+        "expert": "Expert",
+        "legend": "Legend",
+        "myth": "Myth",
+        "immortal": "Immortal",
+        "unstoppable": "Unstoppable"
       }
     },
     "reputation": {
@@ -412,8 +423,8 @@
       "login": "Login",
       "cancel": "Cancel",
       "back_dashboard": "Back to Dashboard",
-      "enter_password": "enter your admin password",
-      "invalid_password": "invalid password"
+      "enter_password": "Enter your admin password",
+      "invalid_password": "Invalid password"
     },
     "access": {
       "title": "Access Denied",
