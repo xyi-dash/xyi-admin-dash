@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem('admin_user', JSON.stringify(data.user));
 
             user.value = data.user;
-            currentServer.value = data.user.server;
+            currentServer.value = localStorage.getItem('current_server') || data.user.server;
 
             await refreshSessionStatus();
 
@@ -71,7 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         try {
             user.value = JSON.parse(storedUser);
-            currentServer.value = user.value.server;
+            currentServer.value = localStorage.getItem('current_server') || user.value.server;
 
             await refreshSessionStatus();
 
@@ -154,6 +154,7 @@ export const useAuthStore = defineStore('auth', () => {
             return false;
         }
         currentServer.value = server;
+        localStorage.setItem('current_server', server);
         return true;
     }
 
@@ -172,6 +173,7 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('admin_token');
         localStorage.removeItem('admin_user');
         localStorage.removeItem('unlocked_servers');
+        localStorage.removeItem('current_server');
     }
 
     function logout() {
