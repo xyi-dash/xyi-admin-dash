@@ -42,26 +42,43 @@ function search() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>{{ $t('logs.removed.title') }}</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('logs.removed.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.removed" :placeholder="$t('logs.removed.removed_placeholder')" class="w-40" />
-            <InputText v-model="filters.removed_by" :placeholder="$t('logs.removed.removed_by_placeholder')" class="w-40" />
-            <InputText v-model="filters.level" :placeholder="$t('logs.removed.level_placeholder')" type="number" class="w-24" />
-            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="removed">{{ $t('logs.removed.removed') }}</label>
+                    <InputText id="removed" v-model="filters.removed" :placeholder="$t('logs.removed.removed_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="removed_by">{{ $t('logs.removed.removed_by') }}</label>
+                    <InputText id="removed_by" v-model="filters.removed_by" :placeholder="$t('logs.removed.removed_by_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="level">{{ $t('logs.removed.level') }}</label>
+                    <InputNumber id="level" v-model="filters.level" :placeholder="$t('logs.removed.level_placeholder')" :useGrouping="false" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="target" :header="$t('logs.removed.removed')" />
-            <Column field="admin" :header="$t('logs.removed.removed_by')" />
-            <Column field="level" :header="$t('logs.removed.level')" />
-            <Column field="reason" :header="$t('logs.removed.reason')" />
-            <Column field="date" :header="$t('logs.removed.date')" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="target" :header="$t('logs.removed.removed')">
+                    <template #body="{ data }">
+                        <span class="font-semibold text-red-400">{{ data.target }}</span>
+                    </template>
+                </Column>
+                <Column field="admin" :header="$t('logs.removed.removed_by')" />
+                <Column field="level" :header="$t('logs.removed.level')" style="width: 100px" />
+                <Column field="reason" :header="$t('logs.removed.reason')" />
+                <Column field="date" :header="$t('logs.removed.date')" style="width: 180px" />
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('logs.removed.no_removed') }}</div>
-            </template>
-        </DataTable>
-    </div>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('logs.removed.no_removed') }}</div>
+                </template>
+            </DataTable>
+        </div>
+    </Fluid>
 </template>

@@ -24,7 +24,7 @@ async function loadData() {
 
         const response = await api.get(`/admin/extended/matchmaking?${params}`);
         data.value = response.data.data || [];
-    } catch (error) {
+    } catch {
         // matchmaking. where dreams go to die and elo is just a number that makes you sad.
         // much like my wang in winter.
         console.warn('matchmaking broke. as usual.');
@@ -36,32 +36,64 @@ async function loadData() {
 function search() {
     loadData();
 }
+
+const getEloClass = (elo) => {
+    if (elo >= 1500) return 'text-purple-500';
+    if (elo >= 1200) return 'text-green-500';
+    if (elo >= 1000) return 'text-yellow-500';
+    return 'text-red-500';
+};
 </script>
 
 <template>
-    <div class="card">
-        <h5>Matchmaking Stats</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('extended.matchmaking.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.player" placeholder="Player name" class="w-48" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="player">{{ $t('extended.matchmaking.name') }}</label>
+                    <InputText id="player" v-model="filters.player" :placeholder="$t('extended.matchmaking.player_placeholder')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="name" header="Player" />
-            <Column field="elo" header="ELO" />
-            <Column field="games" header="Games" />
-            <Column field="wins" header="Wins" />
-            <Column header="Winrate">
-                <template #body="{ data }"> {{ data.winrate }}% </template>
-            </Column>
-            <Column field="kills" header="Kills" />
-            <Column field="deaths" header="Deaths" />
-            <Column field="mvp" header="MVP" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="name" :header="$t('extended.matchmaking.name')">
+                    <template #body="{ data }">
+                        <span class="font-semibold">{{ data.name }}</span>
+                    </template>
+                </Column>
+                <Column field="elo" :header="$t('extended.matchmaking.elo')" style="width: 100px">
+                    <template #body="{ data }">
+                        <span class="font-bold" :class="getEloClass(data.elo)">{{ data.elo }}</span>
+                    </template>
+                </Column>
+                <Column field="games" :header="$t('extended.matchmaking.games')" style="width: 80px" />
+                <Column field="wins" :header="$t('extended.matchmaking.wins')" style="width: 80px">
+                    <template #body="{ data }">
+                        <span class="text-green-500">{{ data.wins }}</span>
+                    </template>
+                </Column>
+                <Column :header="$t('extended.matchmaking.winrate')" style="width: 100px">
+                    <template #body="{ data }">
+                        <span :class="{ 'text-green-500': data.winrate >= 50, 'text-red-500': data.winrate < 50 }">{{ data.winrate }}%</span>
+                    </template>
+                </Column>
+                <Column field="kills" :header="$t('extended.matchmaking.kills')" style="width: 80px" />
+                <Column field="deaths" :header="$t('extended.matchmaking.deaths')" style="width: 80px" />
+                <Column field="mvp" :header="$t('extended.matchmaking.mvp')" style="width: 80px">
+                    <template #body="{ data }">
+                        <span class="text-yellow-500">{{ data.mvp }}</span>
+                    </template>
+                </Column>
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">No matchmaking stats found</div>
-            </template>
-        </DataTable>
-    </div>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('extended.matchmaking.no_stats') }}</div>
+                </template>
+            </DataTable>
+        </div>
+    </Fluid>
 </template>

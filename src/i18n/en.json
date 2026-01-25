@@ -31,8 +31,8 @@
     "warning": "Warning",
     "error": "Error",
     "success": "Success",
-    "failed_load": "Failed to load data",
-    "failed_save": "Failed to save",
+    "failed_load": "Data refused to load. Rude.",
+    "failed_save": "Couldn't save changes. Please try again.",
     "no_data": "Nothing here. The void stares back.",
     "language": "Language",
     "theme": "Theme",
@@ -93,7 +93,7 @@
   "admins": {
     "title": "Admin List",
     "add_admin": "Appoint Admin",
-    "search_placeholder": "Search admin",
+    "search_placeholder": "Search admin...",
     "level_title": "Level {level}",
     "ga": "GA",
     "warns": "Warns",
@@ -102,20 +102,20 @@
     "week": "Week",
     "support": "Support",
     "youtuber": "YouTuber",
-    "no_admins": "No admins at this level. Lonely up here.",
-    "failed_load": "Admin list said goodbye",
+    "no_admins": "No admins at this level. Lonely up here...",
+    "failed_load": "Admin list failed to load. Maybe ants again.",
     "add_dialog": {
       "title": "Appoint New Admin",
       "nickname": "Player Nickname",
-      "nickname_placeholder": "exact nickname",
+      "nickname_placeholder": "Exact nickname",
       "level": "Level",
       "select_level": "Select level",
       "reason": "Reason",
-      "reason_placeholder": "why is this person becoming admin",
+      "reason_placeholder": "Why is this person becoming admin?",
       "nickname_required": "Nickname required",
       "reason_required": "Reason required",
       "success": "Admin appointed successfully",
-      "failed": "Failed to appoint admin"
+      "failed": "Couldn't appoint admin. Please try again."
     }
   },
   "manage": {
@@ -141,10 +141,10 @@
     "select_action": "Select an action",
     "reason_placeholder": "Reason",
     "execute": "Execute",
-      "no_actions": "No actions available. Your power ends here.",
-    "admin_not_found": "Admin not found",
-    "success": "Action executed successfully",
-    "failed": "Failed to execute action",
+    "no_actions": "No actions available. Your power ends here.",
+    "admin_not_found": "Admin not found. Maybe he's too hidden.",
+    "success": "Action completed. All good.",
+    "failed": "Couldn't execute action. Something went wrong.",
     "reason_required": "Please provide a reason",
     "action_labels": {
       "warn": "Give Warning",
@@ -175,7 +175,7 @@
       "player_placeholder": "Player name",
       "command_placeholder": "Command",
       "reason_placeholder": "Reason",
-      "no_actions": "No actions found. Everyone behaved?",
+      "no_actions": "No actions found. Admins are hidden.",
       "show_kills": "Show kills"
     },
     "warnings": {
@@ -204,9 +204,9 @@
       "promotion": "Promotion",
       "remove_warning": "Remove Warning",
       "confirm": "Confirm",
-      "confirmed": "Purchase confirmed",
-      "confirm_failed": "Failed to confirm purchase",
-      "no_purchases": "No purchases. The economy is dead bro"
+      "confirmed": "Purchase confirmed.",
+      "confirm_failed": "Failed to confirm purchase.",
+      "no_purchases": "No purchases. The economy is taking a nap."
     },
     "removed": {
       "title": "Removed Admins Log",
@@ -247,7 +247,7 @@
       "advanced_title": "Advanced Search",
       "advanced_search": "Advanced Search",
       "nickname": "Nickname",
-      "nickname_placeholder": "Enter nickname",
+      "nickname_placeholder": "Exact nickname, no tricks",
       "account_id": "Account ID",
       "id_placeholder": "ID",
       "id": "ID",
@@ -265,7 +265,7 @@
       "kills_range": "Kills range",
       "cash_range": "Cash range",
       "donate_range": "Donate range",
-      "no_players": "Player not found. Maybe they touched grass?",
+      "no_players": "Player not found. Maybe they finally touched grass!?",
       "enter_search": "Enter nickname or account ID",
       "enter_filters": "Set filters to search",
       "slow_search_title": "Slow search",
@@ -307,7 +307,7 @@
       "vid_kod": "Code Check",
       "vid_kod_every": "Every login",
       "vid_kod_ip": "On IP change",
-      "player_not_found": "Player vanished into the boundary",
+      "player_not_found": "Player vanished into the boundary. No data found.",
       "ranks": {
         "novice": "Novice",
         "beginner": "Beginner",
@@ -333,7 +333,7 @@
       "date": "Date",
       "from_placeholder": "From player",
       "to_placeholder": "To player",
-      "no_logs": "No reputation logs. Trust issues everywhere."
+      "no_logs": "We checked all the reputation and found nothing. Apparently, everyone behaved well."
     },
     "nicknames": {
       "title": "Nickname Logs",
@@ -342,14 +342,14 @@
       "new_nick": "New Nickname",
       "approved_by": "Approved By",
       "date": "Date",
-      "no_logs": "No nickname changes. Identity crisis averted."
+      "no_logs": "No nickname changes."
     },
     "unbans": {
       "title": "Unban Logs",
       "name": "Name",
       "date": "Date",
       "player_placeholder": "Player name",
-      "no_logs": "No unbans. Everyone stays in the shadow realm."
+      "no_logs": "We didn't find any unbans. Hmm..."
     },
     "bans": {
       "title": "Permanent Bans",
@@ -362,9 +362,9 @@
       "player_placeholder": "Player name",
       "admin_placeholder": "Admin name",
       "edit_reason": "Edit Ban Reason",
-      "reason_updated": "Ban reason updated",
-      "reason_placeholder": "reason for ban",
-      "no_bans": "No permanent bans. A miracle..."
+      "reason_updated": "Ban reason updated.",
+      "reason_placeholder": "Reason for ban",
+      "no_bans": "No permanent bans. We won't see any more IP match complaints!?"
     },
     "ip_bans": {
       "title": "IP Bans",
@@ -374,7 +374,7 @@
       "date": "Date",
       "ip_placeholder": "IP address",
       "admin_placeholder": "Admin name",
-      "no_bans": "No IP bans. VPN manufacturers in shambles."
+      "no_bans": "No IP bans. VPN manufacturers in shambles 🤯"
     },
     "matchmaking": {
       "title": "Matchmaking Stats",
@@ -397,7 +397,7 @@
       "date": "Date",
       "from_placeholder": "From player",
       "to_placeholder": "To player",
-      "no_logs": "No transfers. Everyone's broke lol"
+      "no_logs": "No transfers. Economy is very quiet."
     },
     "accessories": {
       "title": "Accessory Logs",
@@ -423,10 +423,10 @@
     "edit_title": "Edit News",
     "add_title": "Add News",
     "title_required": "Title is required",
-    "saved": "News saved",
-    "deleted": "News deleted",
-    "save_failed": "Failed to save news",
-    "delete_failed": "Failed to delete news",
+    "saved": "News saved.",
+    "deleted": "News deleted.",
+    "save_failed": "Failed to save news. Please try again.",
+    "delete_failed": "Failed to delete news. Please try again.",
     "delete_confirm": "Delete \"{title}\"?",
     "confirm_delete": "Confirm Delete",
     "no_news": "No news is good news. Allegedly."
@@ -442,9 +442,9 @@
     "ads_description": "Ads Description",
     "ads_desc_placeholder": "Short description...",
     "save_changes": "Save Changes",
-    "saved": "{server} settings updated",
-    "save_failed": "Failed to save settings",
-    "load_failed": "Failed to load settings",
+    "saved": "{server} settings updated.",
+    "save_failed": "Couldn't save settings. Please try again.",
+    "load_failed": "Couldn't load server settings.",
     "server_labels": {
       "one": "Server: 01",
       "two": "Server: 02",
@@ -457,7 +457,7 @@
       "subtitle": "Enter your admin password",
       "logged_as": "Logged in as: ",
       "password": "Admin Password",
-      "password_placeholder": "your admin password",
+      "password_placeholder": "Enter your admin password",
       "login": "Login",
       "cancel": "Cancel",
       "back_dashboard": "Back to Dashboard",
@@ -477,10 +477,10 @@
   },
   "errors": {
     "not_found": "Not found. It happens.",
-    "no_access": "Marisa stole your access",
-    "not_admin": "You're not an admin, chief",
-    "server_error": "Server said no",
-    "network_error": "Network decided to take a break",
+    "no_access": "Access denied. Someone \"borrowed\" the key again.",
+    "not_admin": "Admins only. Nice try, though.",
+    "server_error": "Server said no.",
+    "network_error": "Network decided to take a break.",
     "unknown": "Something broke. Classic. Absolute cinema. ✋😔🤚"
   }
 }

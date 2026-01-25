@@ -41,26 +41,51 @@ function search() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>Nickname Change Logs</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('extended.nicknames.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.account_id" placeholder="Account ID" type="number" class="w-32" />
-            <InputText v-model="filters.old_nick" placeholder="Old nickname" class="w-40" />
-            <InputText v-model="filters.new_nick" placeholder="New nickname" class="w-40" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="account_id">{{ $t('extended.nicknames.account_id') }}</label>
+                    <InputNumber id="account_id" v-model="filters.account_id" :placeholder="$t('extended.nicknames.account_id')" :useGrouping="false" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="old_nick">{{ $t('extended.nicknames.old_nick') }}</label>
+                    <InputText id="old_nick" v-model="filters.old_nick" :placeholder="$t('extended.nicknames.old_nick')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="new_nick">{{ $t('extended.nicknames.new_nick') }}</label>
+                    <InputText id="new_nick" v-model="filters.new_nick" :placeholder="$t('extended.nicknames.new_nick')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="account_id" header="Account ID" />
-            <Column field="old_nick" header="Old Nickname" />
-            <Column field="new_nick" header="New Nickname" />
-            <Column field="approved_by" header="Approved By" />
-            <Column field="date" header="Date" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="account_id" :header="$t('extended.nicknames.account_id')" style="width: 120px">
+                    <template #body="{ data }">
+                        <span class="font-mono">{{ data.account_id }}</span>
+                    </template>
+                </Column>
+                <Column field="old_nick" :header="$t('extended.nicknames.old_nick')">
+                    <template #body="{ data }">
+                        <span class="text-red-400">{{ data.old_nick }}</span>
+                    </template>
+                </Column>
+                <Column field="new_nick" :header="$t('extended.nicknames.new_nick')">
+                    <template #body="{ data }">
+                        <span class="text-green-500">{{ data.new_nick }}</span>
+                    </template>
+                </Column>
+                <Column field="approved_by" :header="$t('extended.nicknames.approved_by')" />
+                <Column field="date" :header="$t('extended.nicknames.date')" />
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">No nickname changes found</div>
-            </template>
-        </DataTable>
-    </div>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('extended.nicknames.no_logs') }}</div>
+                </template>
+            </DataTable>
+        </div>
+    </Fluid>
 </template>

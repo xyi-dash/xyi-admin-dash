@@ -93,41 +93,51 @@ async function deleteNews(id) {
 </script>
 
 <template>
-    <div class="card">
-        <div class="flex justify-between items-center mb-4">
-            <h5 class="m-0">{{ $t('news.title') }}</h5>
-            <Button :label="$t('news.add_news')" icon="pi pi-plus" @click="openNew" />
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <div class="font-semibold text-xl">{{ $t('news.title') }}</div>
+                <Button :label="$t('news.add_news')" icon="pi pi-plus" @click="openNew" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="title" :header="$t('news.title_field')" />
-            <Column field="author" :header="$t('news.author')" />
-            <Column field="date" :header="$t('news.date')" />
-            <Column :header="$t('common.actions')" style="width: 150px">
-                <template #body="{ data }">
-                    <Button icon="pi pi-pencil" text rounded @click="editNews(data)" />
-                    <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
-                </template>
-            </Column>
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="title" :header="$t('news.title_field')">
+                    <template #body="{ data }">
+                        <span class="font-semibold">{{ data.title }}</span>
+                    </template>
+                </Column>
+                <Column field="author" :header="$t('news.author')" style="width: 150px" />
+                <Column field="date" :header="$t('news.date')" style="width: 180px" />
+                <Column :header="$t('common.actions')" style="width: 120px">
+                    <template #body="{ data }">
+                        <div class="flex gap-1">
+                            <Button icon="pi pi-pencil" text rounded size="small" @click="editNews(data)" />
+                            <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click="confirmDelete(data)" />
+                        </div>
+                    </template>
+                </Column>
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('news.no_news') }}</div>
-            </template>
-        </DataTable>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('news.no_news') }}</div>
+                </template>
+            </DataTable>
+        </div>
 
         <Dialog v-model:visible="showDialog" :header="form.id ? $t('news.edit_title') : $t('news.add_title')" modal class="w-full max-w-2xl">
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
-                    <label class="font-semibold">{{ $t('news.title_field') }}</label>
-                    <InputText v-model="form.title" class="w-full" />
+                    <label for="title" class="font-semibold">{{ $t('news.title_field') }}</label>
+                    <InputText id="title" v-model="form.title" class="w-full" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-semibold">{{ $t('news.external_msg') }}</label>
-                    <Textarea v-model="form.message" rows="4" class="w-full" />
+                    <label for="message" class="font-semibold">{{ $t('news.external_msg') }}</label>
+                    <Textarea id="message" v-model="form.message" rows="4" class="w-full" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-semibold">{{ $t('news.internal_msg') }}</label>
-                    <Textarea v-model="form.message2" rows="4" class="w-full" />
+                    <label for="message2" class="font-semibold">{{ $t('news.internal_msg') }}</label>
+                    <Textarea id="message2" v-model="form.message2" rows="4" class="w-full" />
                 </div>
             </div>
             <template #footer>
@@ -137,5 +147,5 @@ async function deleteNews(id) {
         </Dialog>
 
         <ConfirmDialog />
-    </div>
+    </Fluid>
 </template>

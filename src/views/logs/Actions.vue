@@ -65,47 +65,65 @@ function toggleKills() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>{{ $t('logs.actions.title') }}</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <div class="font-semibold text-xl">{{ $t('logs.actions.title') }}</div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-muted-color cursor-pointer" @click="toggleKills">{{ $t('logs.actions.show_kills') }}</label>
+                    <InputSwitch v-model="showKills" @change="loadData" />
+                </div>
+            </div>
 
-        <div class="flex flex-wrap gap-2 mb-4 items-center">
-            <InputText v-model="filters.admin" :placeholder="$t('logs.actions.admin_placeholder')" class="w-40" />
-            <InputText v-model="filters.player" :placeholder="$t('logs.actions.player_placeholder')" class="w-40" />
-            <InputText v-model="filters.cmd" :placeholder="$t('logs.actions.command_placeholder')" class="w-40" />
-            <InputText v-model="filters.reason" :placeholder="$t('logs.actions.reason_placeholder')" class="w-40" />
-            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
-            <div class="flex items-center gap-2 ml-auto">
-                <label class="text-sm text-muted-color cursor-pointer" @click="toggleKills">{{ $t('logs.actions.show_kills') }}</label>
-                <InputSwitch v-model="showKills" @change="loadData" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="admin">{{ $t('logs.actions.admin') }}</label>
+                    <InputText id="admin" v-model="filters.admin" :placeholder="$t('logs.actions.admin_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="player">{{ $t('logs.actions.player') }}</label>
+                    <InputText id="player" v-model="filters.player" :placeholder="$t('logs.actions.player_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="cmd">{{ $t('logs.actions.command') }}</label>
+                    <InputText id="cmd" v-model="filters.cmd" :placeholder="$t('logs.actions.command_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="reason">{{ $t('logs.actions.reason') }}</label>
+                    <InputText id="reason" v-model="filters.reason" :placeholder="$t('logs.actions.reason_placeholder')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
             </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" :header="$t('logs.actions.admin')" />
-            <Column field="player" :header="$t('logs.actions.player')">
-                <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                        <span>{{ data.player }}</span>
-                        <Tag v-if="showKills && data.player_kills !== null" severity="secondary" size="small"> {{ data.player_kills?.toLocaleString() }} kills </Tag>
-                    </div>
+        <div class="card flex flex-col gap-4">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="admin" :header="$t('logs.actions.admin')" />
+                <Column field="player" :header="$t('logs.actions.player')">
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-2">
+                            <span>{{ data.player }}</span>
+                            <Tag v-if="showKills && data.player_kills !== null" severity="secondary" size="small">{{ data.player_kills?.toLocaleString() }} kills</Tag>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="cmd" :header="$t('logs.actions.command')" />
+                <Column field="amount" :header="$t('logs.actions.amount')" style="width: 100px" />
+                <Column field="reason" :header="$t('logs.actions.reason')" />
+                <Column field="date" :header="$t('logs.actions.date')" style="width: 180px" />
+
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('logs.actions.no_actions') }}</div>
                 </template>
-            </Column>
-            <Column field="cmd" :header="$t('logs.actions.command')" />
-            <Column field="amount" :header="$t('logs.actions.amount')" />
-            <Column field="reason" :header="$t('logs.actions.reason')" />
-            <Column field="date" :header="$t('logs.actions.date')" />
+            </DataTable>
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('logs.actions.no_actions') }}</div>
-            </template>
-        </DataTable>
-
-        <div class="flex justify-between items-center mt-4">
-            <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
-            <div class="flex gap-2">
-                <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />
-                <Button icon="pi pi-chevron-right" text @click="nextPage" />
+            <div class="flex justify-between items-center">
+                <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
+                <div class="flex gap-2">
+                    <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />
+                    <Button icon="pi pi-chevron-right" text @click="nextPage" />
+                </div>
             </div>
         </div>
-    </div>
+    </Fluid>
 </template>

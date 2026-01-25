@@ -94,44 +94,57 @@ function nextPage() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>{{ $t('logs.purchases.title') }}</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('logs.purchases.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.admin" :placeholder="$t('logs.purchases.admin_placeholder')" class="w-40" />
-            <InputText v-model="filters.vk" :placeholder="$t('logs.purchases.vk_placeholder')" class="w-40" />
-            <Select v-model="filters.type" :options="purchaseTypes" optionLabel="label" optionValue="value" :placeholder="$t('common.type')" class="w-40" />
-            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
-        </div>
-
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="name" :header="$t('logs.purchases.admin')" />
-            <Column :header="$t('logs.purchases.vk')">
-                <template #body="{ data }">
-                    <a :href="data.vk_page" target="_blank" class="text-primary">{{ data.vk_page }}</a>
-                </template>
-            </Column>
-            <Column field="type_name" :header="$t('logs.purchases.type')" />
-            <Column field="level" :header="$t('logs.purchases.level')" />
-            <Column field="date" :header="$t('logs.purchases.date')" />
-            <Column :header="$t('logs.purchases.action')">
-                <template #body="{ data }">
-                    <Button v-if="data.needs_confirm" :label="$t('logs.purchases.confirm')" size="small" @click="confirmPurchase(data.name)" />
-                    <span v-else class="text-muted-color">-</span>
-                </template>
-            </Column>
-
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('logs.purchases.no_purchases') }}</div>
-            </template>
-        </DataTable>
-
-        <div class="flex justify-between items-center mt-4">
-            <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
-            <div class="flex gap-2">
-                <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />
-                <Button icon="pi pi-chevron-right" text @click="nextPage" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="admin">{{ $t('logs.purchases.admin') }}</label>
+                    <InputText id="admin" v-model="filters.admin" :placeholder="$t('logs.purchases.admin_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="vk">{{ $t('logs.purchases.vk') }}</label>
+                    <InputText id="vk" v-model="filters.vk" :placeholder="$t('logs.purchases.vk_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="type">{{ $t('common.type') }}</label>
+                    <Select id="type" v-model="filters.type" :options="purchaseTypes" optionLabel="label" optionValue="value" :placeholder="$t('common.type')" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
             </div>
         </div>
-    </div>
+
+        <div class="card flex flex-col gap-4">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="name" :header="$t('logs.purchases.admin')" />
+                <Column :header="$t('logs.purchases.vk')">
+                    <template #body="{ data }">
+                        <a :href="data.vk_page" target="_blank" class="text-primary hover:underline">{{ data.vk_page }}</a>
+                    </template>
+                </Column>
+                <Column field="type_name" :header="$t('logs.purchases.type')" />
+                <Column field="level" :header="$t('logs.purchases.level')" style="width: 100px" />
+                <Column field="date" :header="$t('logs.purchases.date')" style="width: 180px" />
+                <Column :header="$t('logs.purchases.action')" style="width: 150px">
+                    <template #body="{ data }">
+                        <Button v-if="data.needs_confirm" :label="$t('logs.purchases.confirm')" size="small" @click="confirmPurchase(data.name)" />
+                        <span v-else class="text-muted-color">—</span>
+                    </template>
+                </Column>
+
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('logs.purchases.no_purchases') }}</div>
+                </template>
+            </DataTable>
+
+            <div class="flex justify-between items-center">
+                <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
+                <div class="flex gap-2">
+                    <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />
+                    <Button icon="pi pi-chevron-right" text @click="nextPage" />
+                </div>
+            </div>
+        </div>
+    </Fluid>
 </template>

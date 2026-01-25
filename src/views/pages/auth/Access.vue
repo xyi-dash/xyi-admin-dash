@@ -11,14 +11,13 @@ import { redirectToDashboard } from '@/service/api';
                         <div class="flex justify-center items-center border-2 border-orange-500 rounded-full" style="width: 3.2rem; height: 3.2rem">
                             <i class="text-orange-500 pi pi-fw pi-lock text-2xl!"></i>
                         </div>
-                        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">Access Denied</h1>
+                        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">{{ $t('auth.access.title') }}</h1>
                         <span class="text-muted-color mb-8 text-center">
-                            Reimu checked the shrine records.<br />
-                            Your level is not enough for this spell card.
+                            {{ $t('auth.access.subtitle') }}
                         </span>
                         <div class="flex gap-3">
-                            <Button as="router-link" label="Back to Home" to="/" severity="warn" />
-                            <Button label="Main Dashboard" severity="secondary" text @click="redirectToDashboard" />
+                            <Button as="router-link" :label="$t('common.back')" to="/" severity="warn" />
+                            <Button :label="$t('auth.unlock.back_dashboard')" severity="secondary" text @click="redirectToDashboard" />
                         </div>
                     </div>
                 </div>

@@ -85,39 +85,61 @@ async function saveReason() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>{{ $t('extended.bans.title') }}</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('extended.bans.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.player" :placeholder="$t('extended.bans.player_placeholder')" class="w-40" />
-            <InputText v-model="filters.admin" :placeholder="$t('extended.bans.admin_placeholder')" class="w-40" />
-            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="player">{{ $t('extended.bans.player') }}</label>
+                    <InputText id="player" v-model="filters.player" :placeholder="$t('extended.bans.player_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="admin">{{ $t('extended.bans.admin') }}</label>
+                    <InputText id="admin" v-model="filters.admin" :placeholder="$t('extended.bans.admin_placeholder')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" :header="$t('extended.bans.admin')" />
-            <Column field="admin_ip" :header="$t('extended.bans.admin_ip')" />
-            <Column field="name" :header="$t('extended.bans.player')" />
-            <Column field="player_ip" :header="$t('extended.bans.player_ip')" />
-            <Column field="reason" :header="$t('extended.bans.reason')">
-                <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                        <span class="flex-1">{{ data.reason }}</span>
-                        <Button icon="pi pi-pencil" text rounded size="small" @click="openEditDialog(data)" v-tooltip.top="$t('common.edit')" />
-                    </div>
-                </template>
-            </Column>
-            <Column field="date" :header="$t('extended.bans.date')" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="admin" :header="$t('extended.bans.admin')" />
+                <Column field="admin_ip" :header="$t('extended.bans.admin_ip')">
+                    <template #body="{ data }">
+                        <span class="font-mono text-muted-color">{{ data.admin_ip }}</span>
+                    </template>
+                </Column>
+                <Column field="name" :header="$t('extended.bans.player')">
+                    <template #body="{ data }">
+                        <span class="font-semibold text-red-400">{{ data.name }}</span>
+                    </template>
+                </Column>
+                <Column field="player_ip" :header="$t('extended.bans.player_ip')">
+                    <template #body="{ data }">
+                        <span class="font-mono text-muted-color">{{ data.player_ip }}</span>
+                    </template>
+                </Column>
+                <Column field="reason" :header="$t('extended.bans.reason')">
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-2">
+                            <span class="flex-1">{{ data.reason || '—' }}</span>
+                            <Button icon="pi pi-pencil" text rounded size="small" @click="openEditDialog(data)" v-tooltip.top="$t('common.edit')" />
+                        </div>
+                    </template>
+                </Column>
+                <Column field="date" :header="$t('extended.bans.date')" style="width: 180px" />
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('extended.bans.no_bans') }}</div>
-            </template>
-        </DataTable>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('extended.bans.no_bans') }}</div>
+                </template>
+            </DataTable>
+        </div>
 
         <Dialog v-model:visible="editDialog" :header="$t('extended.bans.edit_reason')" modal class="w-full max-w-lg">
             <div class="flex flex-col gap-4">
                 <div v-if="editingBan" class="text-muted-color text-sm">
-                    {{ $t('extended.bans.player') }}: <span class="font-semibold text-color">{{ editingBan.name }}</span>
+                    {{ $t('extended.bans.player') }}: <span class="font-semibold text-surface-900 dark:text-surface-0">{{ editingBan.name }}</span>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-semibold">{{ $t('extended.bans.reason') }}</label>
@@ -129,5 +151,5 @@ async function saveReason() {
                 <Button :label="$t('common.save')" :loading="saving" @click="saveReason" />
             </template>
         </Dialog>
-    </div>
+    </Fluid>
 </template>

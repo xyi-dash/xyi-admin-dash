@@ -43,25 +43,38 @@ function search() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>{{ $t('logs.warnings.title') }}</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('logs.warnings.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.issued_by" :placeholder="$t('logs.warnings.issued_by_placeholder')" class="w-40" />
-            <InputText v-model="filters.issued_to" :placeholder="$t('logs.warnings.issued_to_placeholder')" class="w-40" />
-            <InputText v-model="filters.reason" :placeholder="$t('logs.warnings.reason_placeholder')" class="w-40" />
-            <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="issued_by">{{ $t('logs.warnings.issued_by') }}</label>
+                    <InputText id="issued_by" v-model="filters.issued_by" :placeholder="$t('logs.warnings.issued_by_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="issued_to">{{ $t('logs.warnings.issued_to') }}</label>
+                    <InputText id="issued_to" v-model="filters.issued_to" :placeholder="$t('logs.warnings.issued_to_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="reason">{{ $t('logs.warnings.reason') }}</label>
+                    <InputText id="reason" v-model="filters.reason" :placeholder="$t('logs.warnings.reason_placeholder')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="admin" :header="$t('logs.warnings.issued_by')" />
-            <Column field="target" :header="$t('logs.warnings.issued_to')" />
-            <Column field="reason" :header="$t('logs.warnings.reason')" />
-            <Column field="date" :header="$t('logs.warnings.date')" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="admin" :header="$t('logs.warnings.issued_by')" />
+                <Column field="target" :header="$t('logs.warnings.issued_to')" />
+                <Column field="reason" :header="$t('logs.warnings.reason')" />
+                <Column field="date" :header="$t('logs.warnings.date')" style="width: 180px" />
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">{{ $t('logs.warnings.no_warnings') }}</div>
-            </template>
-        </DataTable>
-    </div>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('logs.warnings.no_warnings') }}</div>
+                </template>
+            </DataTable>
+        </div>
+    </Fluid>
 </template>

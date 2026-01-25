@@ -26,7 +26,7 @@ async function loadData() {
 
         const response = await api.get(`/admin/extended/ip-bans?${params}`);
         data.value = response.data.data || [];
-    } catch (error) {
+    } catch {
         // every time this fails i add another year to my therapy estimate
         console.warn('ip bans ghosted us');
     } finally {
@@ -40,24 +40,42 @@ function search() {
 </script>
 
 <template>
-    <div class="card">
-        <h5>IP Bans</h5>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">{{ $t('extended.ip_bans.title') }}</div>
 
-        <div class="flex flex-wrap gap-2 mb-4">
-            <InputText v-model="filters.ip" placeholder="IP address" class="w-40" />
-            <InputText v-model="filters.admin" placeholder="Admin name" class="w-40" />
-            <Button label="Search" icon="pi pi-search" @click="search" />
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="ip">{{ $t('extended.ip_bans.ip') }}</label>
+                    <InputText id="ip" v-model="filters.ip" :placeholder="$t('extended.ip_bans.ip_placeholder')" @keyup.enter="search" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="admin">{{ $t('extended.ip_bans.admin') }}</label>
+                    <InputText id="admin" v-model="filters.admin" :placeholder="$t('extended.ip_bans.admin_placeholder')" @keyup.enter="search" />
+                </div>
+                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+            </div>
         </div>
 
-        <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
-            <Column field="banned_ip" header="Banned IP" />
-            <Column field="admin" header="Admin" />
-            <Column field="admin_ip" header="Admin IP" />
-            <Column field="date" header="Date" />
+        <div class="card">
+            <DataTable :value="data" :loading="loading" stripedRows class="p-datatable-sm">
+                <Column field="banned_ip" :header="$t('extended.ip_bans.ip')">
+                    <template #body="{ data }">
+                        <span class="font-mono">{{ data.banned_ip }}</span>
+                    </template>
+                </Column>
+                <Column field="admin" :header="$t('extended.ip_bans.admin')" />
+                <Column field="admin_ip" :header="$t('extended.ip_bans.admin_ip')">
+                    <template #body="{ data }">
+                        <span class="font-mono text-muted-color">{{ data.admin_ip }}</span>
+                    </template>
+                </Column>
+                <Column field="date" :header="$t('extended.ip_bans.date')" />
 
-            <template #empty>
-                <div class="text-center py-4 text-muted-color">No IP bans found</div>
-            </template>
-        </DataTable>
-    </div>
+                <template #empty>
+                    <div class="text-center py-8 text-muted-color">{{ $t('extended.ip_bans.no_bans') }}</div>
+                </template>
+            </DataTable>
+        </div>
+    </Fluid>
 </template>

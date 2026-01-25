@@ -126,89 +126,93 @@ async function submitNewAdmin() {
 </script>
 
 <template>
-    <div class="card">
-        <div class="flex justify-between items-center mb-4">
-            <h5 class="m-0">{{ $t('admins.title') }}</h5>
-            <div class="flex gap-4 items-center">
-                <InputText v-model="searchName" :placeholder="$t('admins.search_placeholder')" class="w-48" />
-                <Button v-if="canAddAdmin" :label="$t('admins.add_admin')" icon="pi pi-plus" size="small" @click="openAddDialog" />
-                <template v-if="adminList">
-                    <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>
-                    <Tag severity="success">{{ $t('common.online') }}: {{ adminList.online }}</Tag>
-                </template>
-            </div>
-        </div>
-
-        <ProgressSpinner v-if="loading" class="flex justify-center" />
-
-        <div v-else-if="adminList">
-            <div v-for="level in availableLevels" :key="level" class="mb-4">
-                <div class="flex items-center gap-2 cursor-pointer p-3 bg-surface-100 dark:bg-surface-800 rounded-lg mb-2" @click="toggleLevel(level)">
-                    <i :class="['pi', expandedLevels[level] ? 'pi-chevron-down' : 'pi-chevron-right']"></i>
-                    <span class="font-semibold">{{ $t('common.level') }} {{ level }}</span>
-                    <Tag size="small">{{ getAdminsByLevel(level).length }}</Tag>
+    <Fluid>
+        <div class="card flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div class="font-semibold text-xl">{{ $t('admins.title') }}</div>
+                <div class="flex flex-wrap gap-4 items-center">
+                    <InputText v-model="searchName" :placeholder="$t('admins.search_placeholder')" class="w-48" />
+                    <Button v-if="canAddAdmin" :label="$t('admins.add_admin')" icon="pi pi-plus" size="small" @click="openAddDialog" />
+                    <template v-if="adminList">
+                        <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>
+                        <Tag severity="success">{{ $t('common.online') }}: {{ adminList.online }}</Tag>
+                    </template>
                 </div>
-
-                <DataTable v-if="expandedLevels[level]" :value="getAdminsByLevel(level)" stripedRows class="p-datatable-sm">
-                    <Column field="name" :header="$t('common.name')">
-                        <template #body="{ data }">
-                            <div class="flex items-center gap-2">
-                                <Button v-if="canViewDetails" :label="data.name" link class="p-0" @click="openAdmin(data)" />
-                                <span v-else>{{ data.name }}</span>
-                                <Tag v-if="data.is_support" severity="info" size="small">SUP</Tag>
-                                <Tag v-if="data.is_youtuber" severity="warn" size="small">YT</Tag>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="warnings" :header="$t('admins.warns')">
-                        <template #body="{ data }">
-                            <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }"> {{ data.warnings }}/3 </span>
-                        </template>
-                    </Column>
-                    <Column :header="$t('admins.rep')">
-                        <template #body="{ data }">
-                            <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
-                            /
-                            <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
-                        </template>
-                    </Column>
-                    <Column field="playtime_3days" :header="$t('admins.three_days')" />
-                    <Column field="playtime_week" :header="$t('admins.week')" />
-                    <Column :header="$t('common.status')">
-                        <template #body="{ data }">
-                            <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
-                                {{ data.is_online ? $t('common.online') : $t('common.offline') }}
-                            </Tag>
-                        </template>
-                    </Column>
-                </DataTable>
             </div>
         </div>
 
-        <div v-else class="text-center py-8">
-            <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
-            <p class="text-muted-color">{{ $t('admins.failed_load') }}</p>
-        </div>
-    </div>
+        <div class="card">
+            <ProgressSpinner v-if="loading" class="flex justify-center py-8" />
 
-    <Dialog v-model:visible="addDialog" :header="$t('admins.add_dialog.title')" modal :style="{ width: '400px' }">
-        <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-                <label for="nickname">{{ $t('admins.add_dialog.nickname') }}</label>
-                <InputText id="nickname" v-model="newAdmin.nickname" :placeholder="$t('admins.add_dialog.nickname_placeholder')" />
+            <div v-else-if="adminList" class="flex flex-col gap-4">
+                <div v-for="level in availableLevels" :key="level">
+                    <div class="flex items-center gap-2 cursor-pointer p-3 bg-surface-100 dark:bg-surface-800 rounded-lg mb-2" @click="toggleLevel(level)">
+                        <i :class="['pi', expandedLevels[level] ? 'pi-chevron-down' : 'pi-chevron-right']"></i>
+                        <span class="font-semibold">{{ $t('common.level') }} {{ level }}</span>
+                        <Tag size="small">{{ getAdminsByLevel(level).length }}</Tag>
+                    </div>
+
+                    <DataTable v-if="expandedLevels[level]" :value="getAdminsByLevel(level)" stripedRows class="p-datatable-sm" tableStyle="min-width: 50rem">
+                        <Column field="name" :header="$t('common.name')" style="min-width: 200px">
+                            <template #body="{ data }">
+                                <div class="flex items-center gap-2">
+                                    <Button v-if="canViewDetails" :label="data.name" link class="p-0" @click="openAdmin(data)" />
+                                    <span v-else>{{ data.name }}</span>
+                                    <Tag v-if="data.is_support" severity="info" size="small">SUP</Tag>
+                                    <Tag v-if="data.is_youtuber" severity="warn" size="small">YT</Tag>
+                                </div>
+                            </template>
+                        </Column>
+                        <Column field="warnings" :header="$t('admins.warns')" style="width: 80px">
+                            <template #body="{ data }">
+                                <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">{{ data.warnings }}/3</span>
+                            </template>
+                        </Column>
+                        <Column :header="$t('admins.rep')" style="width: 100px">
+                            <template #body="{ data }">
+                                <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
+                                <span class="text-muted-color"> / </span>
+                                <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
+                            </template>
+                        </Column>
+                        <Column field="playtime_3days" :header="$t('admins.three_days')" style="width: 80px" />
+                        <Column field="playtime_week" :header="$t('admins.week')" style="width: 80px" />
+                        <Column :header="$t('common.status')" style="width: 100px">
+                            <template #body="{ data }">
+                                <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
+                                    {{ data.is_online ? $t('common.online') : $t('common.offline') }}
+                                </Tag>
+                            </template>
+                        </Column>
+                    </DataTable>
+                </div>
             </div>
-            <div class="flex flex-col gap-2">
-                <label for="level">{{ $t('admins.add_dialog.level') }}</label>
-                <Select id="level" v-model="newAdmin.level" :options="levelOptions" optionLabel="label" optionValue="value" :placeholder="$t('admins.add_dialog.select_level')" />
-            </div>
-            <div class="flex flex-col gap-2">
-                <label for="reason">{{ $t('admins.add_dialog.reason') }}</label>
-                <Textarea id="reason" v-model="newAdmin.reason" rows="3" :placeholder="$t('admins.add_dialog.reason_placeholder')" />
+
+            <div v-else class="text-center py-8">
+                <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                <p class="text-muted-color">{{ $t('admins.failed_load') }}</p>
             </div>
         </div>
-        <template #footer>
-            <Button :label="$t('common.cancel')" text @click="addDialog = false" />
-            <Button :label="$t('admins.add_admin')" :loading="addLoading" @click="submitNewAdmin" />
-        </template>
-    </Dialog>
+
+        <Dialog v-model:visible="addDialog" :header="$t('admins.add_dialog.title')" modal class="w-full max-w-md">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="nickname">{{ $t('admins.add_dialog.nickname') }}</label>
+                    <InputText id="nickname" v-model="newAdmin.nickname" :placeholder="$t('admins.add_dialog.nickname_placeholder')" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="level">{{ $t('admins.add_dialog.level') }}</label>
+                    <Select id="level" v-model="newAdmin.level" :options="levelOptions" optionLabel="label" optionValue="value" :placeholder="$t('admins.add_dialog.select_level')" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="reason">{{ $t('admins.add_dialog.reason') }}</label>
+                    <Textarea id="reason" v-model="newAdmin.reason" rows="3" :placeholder="$t('admins.add_dialog.reason_placeholder')" />
+                </div>
+            </div>
+            <template #footer>
+                <Button :label="$t('common.cancel')" text @click="addDialog = false" />
+                <Button :label="$t('admins.add_admin')" :loading="addLoading" @click="submitNewAdmin" />
+            </template>
+        </Dialog>
+    </Fluid>
 </template>
