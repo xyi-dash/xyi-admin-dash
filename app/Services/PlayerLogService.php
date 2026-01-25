@@ -520,24 +520,20 @@ class PlayerLogService
 
     private function calculateRank(int $kills): string
     {
-        // 100k kills for "legend". at 1 kill per second that's 27 hours of pure murder.
-        // some people need different hobbies. or maybe this IS the hobby. respect.
         return match (true) {
-            $kills >= 100000 => 'legend',
-            $kills >= 80000 => 'matchless',
-            $kills >= 60000 => 'immortal',
-            $kills >= 40000 => 'monster',
-            $kills >= 20000 => 'invincible',
-            $kills >= 15000 => 'fearless',
-            $kills >= 10000 => 'professional',
-            $kills >= 8000 => 'master',
-            $kills >= 6000 => 'experienced',
-            $kills >= 4000 => 'advanced',
-            $kills >= 2000 => 'settled',
+            $kills >= 500000 => 'unstoppable',
+            $kills >= 400000 => 'immortal',
+            $kills >= 300000 => 'myth',
+            $kills >= 200000 => 'legend',
+            $kills >= 100000 => 'expert',
+            $kills >= 50000 => 'professional',
+            $kills >= 20000 => 'master',
+            $kills >= 10000 => 'experienced',
+            $kills >= 5000 => 'advanced',
+            $kills >= 2000 => 'accustomed',
             $kills >= 1000 => 'amateur',
             $kills >= 500 => 'beginner',
-            $kills >= 200 => 'newbie',
-            default => 'newborn',
+            default => 'novice',
         };
     }
 }
