@@ -63,6 +63,12 @@ const router = createRouter({
                     meta: { requiresLevel: 7 }
                 },
                 {
+                    path: 'extended/players/advanced',
+                    name: 'extended-players-advanced',
+                    component: () => import('@/views/extended/PlayerAdvancedSearch.vue'),
+                    meta: { requiresLevel: 7 }
+                },
+                {
                     path: 'extended/players/:id',
                     name: 'extended-player-stats',
                     component: () => import('@/views/extended/PlayerStats.vue'),
