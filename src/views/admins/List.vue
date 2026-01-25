@@ -26,8 +26,7 @@ const newAdmin = ref({
 const canAddAdmin = computed(() => {
     if (!authStore.admin) return false;
     const level = authStore.admin.level || 0;
-    const isGA = authStore.admin.is_ga || false;
-    return level >= 7 || (level === 6 && isGA);
+    return level >= 7;
 });
 
 const maxAssignableLevel = computed(() => {
