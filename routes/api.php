@@ -75,6 +75,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', '
 
     Route::prefix('players')->group(function () {
         Route::get('/search', [PlayerLogController::class, 'searchPlayer']);
+        Route::get('/search/advanced', [PlayerLogController::class, 'advancedSearchPlayer']);
         Route::get('/{accountId}', [PlayerLogController::class, 'getPlayerStats'])->where('accountId', '[0-9]+');
     });
 

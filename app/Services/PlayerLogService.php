@@ -89,7 +89,7 @@ class PlayerLogService
         $query = DB::connection($connection)->table('a27ccount');
 
         if ($nickname) {
-            $query->whereRaw('BINARY Name = ?', [$nickname]);
+            $query->where('Name', $nickname);
         }
         if ($accountId) {
             $query->where('ID', $accountId);
@@ -114,6 +114,116 @@ class PlayerLogService
             ->toArray();
     }
 
+    // someone will use this to find accounts on sale. i know it. i can feel it.
+    public function advancedSearchPlayer(
+        string $server,
+        array $filters,
+        int $limit = 50
+    ): array {
+        $connection = $this->conn($server);
+        if (! $connection) {
+            return [];
+        }
+
+        $query = DB::connection($connection)->table('a27ccount');
+
+        if (! empty($filters['nickname'])) {
+            if (! empty($filters['nickname_like'])) {
+                $query->where('Name', 'LIKE', '%'.$this->escapeLike($filters['nickname']).'%');
+            } else {
+                $query->where('Name', $filters['nickname']);
+            }
+        }
+
+        if (! empty($filters['account_id'])) {
+            $query->where('ID', $filters['account_id']);
+        }
+
+        if (! empty($filters['ip'])) {
+            if (! empty($filters['ip_like'])) {
+                $query->where(function ($q) use ($filters) {
+                    $q->where('IpLog', 'LIKE', '%'.$this->escapeLike($filters['ip']).'%')
+                        ->orWhere('IpReg', 'LIKE', '%'.$this->escapeLike($filters['ip']).'%');
+                });
+            } else {
+                $query->where(function ($q) use ($filters) {
+                    $q->where('IpLog', $filters['ip'])
+                        ->orWhere('IpReg', $filters['ip']);
+                });
+            }
+        }
+
+        if (! empty($filters['email'])) {
+            if (! empty($filters['email_like'])) {
+                $query->where(function ($q) use ($filters) {
+                    $q->where('Email', 'LIKE', '%'.$this->escapeLike($filters['email']).'%')
+                        ->orWhere('EmailVerified', 'LIKE', '%'.$this->escapeLike($filters['email']).'%');
+                });
+            } else {
+                $query->where(function ($q) use ($filters) {
+                    $q->where('Email', $filters['email'])
+                        ->orWhere('EmailVerified', $filters['email']);
+                });
+            }
+        }
+
+        if (isset($filters['level_min'])) {
+            $query->where('Level', '>=', (int) $filters['level_min']);
+        }
+        if (isset($filters['level_max'])) {
+            $query->where('Level', '<=', (int) $filters['level_max']);
+        }
+
+        if (isset($filters['kills_min'])) {
+            $query->where('Kills', '>=', (int) $filters['kills_min']);
+        }
+        if (isset($filters['kills_max'])) {
+            $query->where('Kills', '<=', (int) $filters['kills_max']);
+        }
+
+        if (isset($filters['cash_min'])) {
+            $query->where('Cash', '>=', (int) $filters['cash_min']);
+        }
+        if (isset($filters['cash_max'])) {
+            $query->where('Cash', '<=', (int) $filters['cash_max']);
+        }
+
+        if (isset($filters['donate_min'])) {
+            $query->where('DonateMoney', '>=', (int) $filters['donate_min']);
+        }
+        if (isset($filters['donate_max'])) {
+            $query->where('DonateMoney', '<=', (int) $filters['donate_max']);
+        }
+
+        $hasFilters = ! empty($filters['nickname']) || ! empty($filters['account_id']) ||
+            ! empty($filters['ip']) || ! empty($filters['email']) ||
+            isset($filters['level_min']) || isset($filters['level_max']) ||
+            isset($filters['kills_min']) || isset($filters['kills_max']) ||
+            isset($filters['cash_min']) || isset($filters['cash_max']) ||
+            isset($filters['donate_min']) || isset($filters['donate_max']);
+
+        if (! $hasFilters) {
+            return [];
+        }
+
+        return $query->orderByDesc('Kills')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($row) => [
+                'id' => $row->ID,
+                'name' => $row->Name,
+                'level' => $row->Level ?? 1,
+                'kills' => $row->Kills ?? 0,
+                'deaths' => $row->Deaths ?? 0,
+                'cash' => $row->Cash ?? 0,
+                'donate_money' => $row->DonateMoney ?? 0,
+                'ip_last' => $row->IpLog ?? null,
+                'registered_at' => $row->DateReg ?? null,
+                'last_online' => $row->Online ?? null,
+            ])
+            ->toArray();
+    }
+
     public function getPlayerStats(string $server, int $accountId): ?array
     {
         $connection = $this->conn($server);
@@ -130,11 +240,38 @@ class PlayerLogService
             return null;
         }
 
+        $mm = DB::connection($connection)
+            ->table('Matchmaking')
+            ->where('Name', $player->Name)
+            ->first();
+
+        $clan = null;
+        if (($player->clanid ?? 0) > 0) {
+            $clanData = DB::connection($connection)
+                ->table('clan')
+                ->where('id', $player->clanid)
+                ->first();
+
+            if ($clanData) {
+                $clan = [
+                    'id' => $clanData->id,
+                    'name' => $clanData->clanName,
+                    'rep' => $clanData->clanRep ?? 0,
+                    'rank' => $player->clanrank ?? 0,
+                ];
+            }
+        }
+
+        $playtimeHours = ($player->Time ?? 0) / 3600;
+        $playtime = $playtimeHours >= 1
+            ? round($playtimeHours).'ч'
+            : round(($player->Time ?? 0) / 60).'м';
+
         return [
             'id' => $player->ID,
             'name' => $player->Name,
             'email' => $player->Email ?? null,
-            'email_verified' => ($player->EmailVerified ?? 0) == 1,
+            'email_verified' => ($player->EmailVerified ?? '') !== '' && ($player->EmailVerified ?? '') !== '0',
             'registered_at' => $player->DateReg ?? null,
             'last_online' => $player->Online ?? null,
             'ip_last' => $player->IpLog ?? null,
@@ -160,6 +297,26 @@ class PlayerLogService
                 'td_pass_set' => ($player->TDPass ?? '-') !== '-',
                 'vid_kod' => $player->vidkod ?? 0,
             ],
+            'reputation' => $player->repa ?? 0,
+            'score_chase' => $player->ScoreChase ?? 0,
+            'playtime' => $playtime,
+            'vip' => ($player->VIP ?? 0) > time(),
+            'premium' => ($player->PREMIUM ?? 0) > time(),
+            'clan' => $clan,
+            'matchmaking' => $mm ? [
+                'elo' => $mm->ELO ?? 1000,
+                'games' => $mm->Games ?? 0,
+                'wins' => $mm->Wins ?? 0,
+                'kills' => $mm->Kills ?? 0,
+                'deaths' => $mm->Deaths ?? 0,
+                'mvp' => $mm->MVP ?? 0,
+                'winrate' => ($mm->Games ?? 0) > 0
+                    ? round((($mm->Wins ?? 0) / $mm->Games) * 100, 1)
+                    : 0,
+                'game_time' => ($mm->GameTime ?? 0) > 0
+                    ? round(($mm->GameTime ?? 0) / 3600).'ч'
+                    : '0ч',
+            ] : null,
         ];
     }
 

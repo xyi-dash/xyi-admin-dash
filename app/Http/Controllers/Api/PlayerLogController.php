@@ -59,6 +59,52 @@ class PlayerLogController extends Controller
         ]);
     }
 
+    public function advancedSearchPlayer(Request $request): JsonResponse
+    {
+        if (! $this->canAccess($request)) {
+            return response()->json(['error' => 'level_7_required'], 403);
+        }
+
+        $request->validate([
+            'nickname' => 'nullable|string|max:24',
+            'nickname_like' => 'nullable|boolean',
+            'account_id' => 'nullable|integer',
+            'ip' => 'nullable|string|max:45',
+            'ip_like' => 'nullable|boolean',
+            'email' => 'nullable|string|max:50',
+            'email_like' => 'nullable|boolean',
+            'level_min' => 'nullable|integer|min:0',
+            'level_max' => 'nullable|integer|min:0',
+            'kills_min' => 'nullable|integer|min:0',
+            'kills_max' => 'nullable|integer|min:0',
+            'cash_min' => 'nullable|integer',
+            'cash_max' => 'nullable|integer',
+            'donate_min' => 'nullable|integer|min:0',
+            'donate_max' => 'nullable|integer|min:0',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'server' => 'nullable|string|in:one,two,three',
+        ]);
+
+        $server = $this->resolveServer($request);
+        if (! $server) {
+            return response()->json(['error' => 'server_access_denied'], 403);
+        }
+
+        $filters = $request->only([
+            'nickname', 'nickname_like', 'account_id', 'ip', 'ip_like', 'email', 'email_like',
+            'level_min', 'level_max', 'kills_min', 'kills_max',
+            'cash_min', 'cash_max', 'donate_min', 'donate_max',
+        ]);
+
+        return response()->json([
+            'data' => $this->logService->advancedSearchPlayer(
+                $server,
+                $filters,
+                (int) $request->input('limit', 50)
+            ),
+        ]);
+    }
+
     public function getPlayerStats(Request $request, int $accountId): JsonResponse
     {
         if (! $this->canAccess($request)) {
