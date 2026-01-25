@@ -140,7 +140,7 @@ class AdminManagementController extends Controller
         $myLevel = $myAdmin->Adm ?? 0;
         $isGA = ($myAdmin->GA ?? 0) == 1;
 
-        if ($myLevel < 7 && ! ($myLevel === 6 && $isGA)) {
+        if ($myLevel < 7) {
             return response()->json(['error' => 'marisa_stole_your_permission'], 403);
         }
 
