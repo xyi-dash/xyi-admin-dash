@@ -36,6 +36,12 @@ api.interceptors.response.use(
             localStorage.removeItem('unlocked_servers');
             window.location.href = DASHBOARD_URL;
         }
+
+        if (error.response?.status === 403 && error.response?.data?.error === 'server_locked') {
+            localStorage.removeItem('unlocked_servers');
+            window.location.href = '/unlock?expired=1';
+        }
+
         return Promise.reject(error);
     }
 );

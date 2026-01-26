@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import api, { redirectToDashboard } from '@/service/api';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -10,6 +10,8 @@ export const useAuthStore = defineStore('auth', () => {
     const canAccessCP = ref(false);
     const loading = ref(false);
     const initialized = ref(false);
+    
+    let keepAliveInterval = null;
 
     const canViewLogs = computed(() => {
         if (!admin.value) return false;
@@ -75,6 +77,10 @@ export const useAuthStore = defineStore('auth', () => {
             currentServer.value = localStorage.getItem('current_server') || user.value.server;
 
             await refreshSessionStatus();
+            
+            if (hasUnlockedServers.value) {
+                startKeepAlive();
+            }
 
             initialized.value = true;
             loading.value = false;
@@ -124,6 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
             admin.value = { level: data.admin_level, is_ga: false };
 
             await refreshSessionStatus();
+            startKeepAlive();
 
             return { success: true };
         } catch (error) {
@@ -177,11 +184,41 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('admin_user');
         localStorage.removeItem('unlocked_servers');
         localStorage.removeItem('current_server');
+        
+        stopKeepAlive();
     }
 
     function logout() {
         clearAuth();
         redirectToDashboard();
+    }
+
+    function startKeepAlive() {
+        if (keepAliveInterval) return;
+        
+        keepAliveInterval = setInterval(() => {
+            if (document.visibilityState === 'visible' && hasUnlockedServers.value) {
+                refreshSessionStatus().catch(() => {
+                    // session died while we weren't looking (typical)
+                });
+            }
+        }, 5 * 60 * 1000);
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+    
+    function stopKeepAlive() {
+        if (keepAliveInterval) {
+            clearInterval(keepAliveInterval);
+            keepAliveInterval = null;
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+    
+    function handleVisibilityChange() {
+        if (document.visibilityState === 'visible' && hasUnlockedServers.value) {
+            refreshSessionStatus().catch(() => {});
+        }
     }
 
     return {
@@ -206,6 +243,8 @@ export const useAuthStore = defineStore('auth', () => {
         switchServer,
         isServerUnlocked,
         clearAuth,
-        logout
+        logout,
+        startKeepAlive,
+        stopKeepAlive
     };
 });

@@ -18,9 +18,10 @@ const targetServer = computed(() => route.query.server || authStore.currentServe
 
 const serverLabel = computed(() => t(`servers.server_labels.${targetServer.value}`));
 const isAdditionalServer = computed(() => authStore.hasUnlockedServers);
+const sessionExpired = computed(() => route.query.expired === '1');
 
 onMounted(() => {
-    if (authStore.hasUnlockedServers && !route.query.server) router.push('/');
+    if (authStore.hasUnlockedServers && !route.query.server && !sessionExpired.value) router.push('/');
 });
 
 async function handleUnlock() {
@@ -66,6 +67,8 @@ function goBack() {
                             {{ $t('auth.unlock.subtitle') }}
                         </span>
                     </div>
+
+                    <Message v-if="sessionExpired" severity="warn" class="mb-6">{{ $t('auth.unlock.session_expired') }}</Message>
 
                     <div v-if="authStore.user" class="mb-6 text-center">
                         <span class="text-surface-600 dark:text-surface-400">{{ $t('auth.unlock.logged_as') }} </span>
