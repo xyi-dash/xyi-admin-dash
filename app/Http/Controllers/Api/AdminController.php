@@ -225,15 +225,8 @@ class AdminController extends Controller
             return response()->json(['error' => 'not_admin_here'], 404);
         }
 
-        $serverNum = match ($server) {
-            'one' => 1,
-            'two' => 2,
-            'three' => 3,
-            default => 1,
-        };
-
         return response()->json(
-            $this->normHistoryService->getHistory($admin->ID, $serverNum)
+            $this->normHistoryService->getHistory($admin->ID, $server)
         );
     }
 

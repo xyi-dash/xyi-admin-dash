@@ -282,15 +282,8 @@ class AdminManagementController extends Controller
             return response()->json(['error' => 'admin_spirited_away'], 404);
         }
 
-        $serverNum = match ($server) {
-            'one' => 1,
-            'two' => 2,
-            'three' => 3,
-            default => 1,
-        };
-
         return response()->json(
-            $this->normHistoryService->getHistory($targetAdmin->ID, $serverNum)
+            $this->normHistoryService->getHistory($targetAdmin->ID, $server)
         );
     }
 

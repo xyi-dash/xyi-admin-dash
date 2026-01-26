@@ -29,6 +29,8 @@ class AdminLogController extends Controller
             'cmd' => 'nullable|string|max:50',
             'reason' => 'nullable|string|max:255',
             'with_kills' => 'nullable|boolean',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $server = $this->resolveServer($request, 6);
@@ -51,7 +53,9 @@ class AdminLogController extends Controller
                 $request->query('player'),
                 $request->query('cmd'),
                 $request->query('reason'),
-                $request->boolean('with_kills')
+                $request->boolean('with_kills'),
+                $request->query('date_from'),
+                $request->query('date_to')
             )
         );
     }
@@ -62,6 +66,8 @@ class AdminLogController extends Controller
             'issued_by' => 'nullable|string|max:24',
             'issued_to' => 'nullable|string|max:24',
             'reason' => 'nullable|string|max:255',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $server = $this->resolveServer($request, 6);
@@ -78,7 +84,9 @@ class AdminLogController extends Controller
                 $server,
                 $request->query('issued_by'),
                 $request->query('issued_to'),
-                $request->query('reason')
+                $request->query('reason'),
+                $request->query('date_from'),
+                $request->query('date_to')
             ),
         ]);
     }
@@ -91,6 +99,8 @@ class AdminLogController extends Controller
             'vk' => 'nullable|string|max:100',
             'type' => 'nullable|integer|min:1|max:10',
             'level' => 'nullable|integer|min:1|max:8',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $server = $this->resolveServer($request, 6);
@@ -109,7 +119,9 @@ class AdminLogController extends Controller
                 $request->query('admin'),
                 $request->query('vk'),
                 $request->query('type') ? (int) $request->query('type') : null,
-                $request->query('level') ? (int) $request->query('level') : null
+                $request->query('level') ? (int) $request->query('level') : null,
+                $request->query('date_from'),
+                $request->query('date_to')
             )
         );
     }
@@ -156,6 +168,8 @@ class AdminLogController extends Controller
             'removed_by' => 'nullable|string|max:24',
             'level' => 'nullable|integer|min:1|max:8',
             'reason' => 'nullable|string|max:255',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $server = $this->resolveServer($request, 7);
@@ -169,7 +183,9 @@ class AdminLogController extends Controller
                 $request->query('removed'),
                 $request->query('removed_by'),
                 $request->query('level') ? (int) $request->query('level') : null,
-                $request->query('reason')
+                $request->query('reason'),
+                $request->query('date_from'),
+                $request->query('date_to')
             ),
         ]);
     }
@@ -182,6 +198,8 @@ class AdminLogController extends Controller
             'target' => 'nullable|string|max:24',
             'type' => 'nullable|integer|min:1|max:20',
             'reason' => 'nullable|string|max:255',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $server = $this->resolveServer($request, 8);
@@ -196,7 +214,9 @@ class AdminLogController extends Controller
                 $request->query('ga'),
                 $request->query('target'),
                 $request->query('type') ? (int) $request->query('type') : null,
-                $request->query('reason')
+                $request->query('reason'),
+                $request->query('date_from'),
+                $request->query('date_to')
             )
         );
     }

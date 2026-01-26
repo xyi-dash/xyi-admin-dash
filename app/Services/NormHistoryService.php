@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ServerSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -10,13 +11,21 @@ class NormHistoryService
     // 17 minutes a day keeps unemployment away!
     private const DEFAULT_NORM = 17;
 
-    public function getHistory(int $playerId, int $server, int $days = 30): array
+    private const SERVER_NAME_TO_NUMBER = [
+        'one' => 1,
+        'two' => 2,
+        'three' => 3,
+    ];
+
+    public function getHistory(int $playerId, string $serverName, int $days = 30): array
     {
+        $serverNumber = self::SERVER_NAME_TO_NUMBER[$serverName] ?? 1;
+
         try {
             $history = DB::connection('bot')
                 ->table('online_log')
                 ->where('player_id', $playerId)
-                ->where('server', $server)
+                ->where('server', $serverNumber)
                 ->where('date', '>=', now()->subDays($days)->toDateString())
                 ->orderBy('date', 'asc')
                 ->get(['date', 'online'])
@@ -26,7 +35,7 @@ class NormHistoryService
                 ])
                 ->toArray();
 
-            $normPerDay = $this->getNormForServer($server);
+            $normPerDay = $this->getNormForServer($serverName);
 
             return [
                 'history' => $this->fillMissingDays($history, $days),
@@ -43,7 +52,30 @@ class NormHistoryService
         }
     }
 
-    private function getNormForServer(int $server): int
+    private function getNormForServer(string $serverName): int
+    {
+        $conversationId = ServerSetting::getAdminConversationId($serverName);
+
+        if (! $conversationId) {
+            $serverNumber = self::SERVER_NAME_TO_NUMBER[$serverName] ?? 1;
+
+            return $this->getNormByServerNumber($serverNumber);
+        }
+
+        try {
+            $norm = DB::connection('bot')
+                ->table('conversations')
+                ->where('peer_id', $conversationId)
+                ->where('norma', '>', 0)
+                ->value('norma');
+
+            return $norm ?: self::DEFAULT_NORM;
+        } catch (\Exception $e) {
+            return self::DEFAULT_NORM;
+        }
+    }
+
+    private function getNormByServerNumber(int $server): int
     {
         try {
             $norm = DB::connection('bot')
