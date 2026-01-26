@@ -61,7 +61,9 @@ class AdminLogService
         ?string $player = null,
         ?string $cmd = null,
         ?string $reason = null,
-        bool $withKills = false
+        bool $withKills = false,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -70,12 +72,16 @@ class AdminLogService
 
         $query = DB::connection($connection)->table('logsadmin');
 
-        $startDate = now()->subDays($page)->startOfDay();
-        $endDate = now()->subDays($page - 1)->startOfDay();
+        if ($dateFrom && $dateTo) {
+            $query->whereDate('Date', '>=', $dateFrom)
+                ->whereDate('Date', '<=', $dateTo);
+        } else {
+            $startDate = now()->subDays($page)->startOfDay();
+            $endDate = now()->subDays($page - 1)->startOfDay();
+            $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
+        }
 
-        $query->where('Date', '>', $startDate)
-            ->where('Date', '<=', $endDate)
-            ->where('ALevel', '<=', $viewerLevel);
+        $query->where('ALevel', '<=', $viewerLevel);
 
         if ($admin) {
             $query->where('Admin', $admin);
@@ -126,7 +132,9 @@ class AdminLogService
         string $server,
         ?string $issuedBy = null,
         ?string $issuedTo = null,
-        ?string $reason = null
+        ?string $reason = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -146,9 +154,12 @@ class AdminLogService
         if ($reason) {
             $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
+        if ($dateFrom && $dateTo) {
+            $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
+        }
 
         return $query->orderByDesc('date')
-            ->limit(30)
+            ->limit(100)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->id,
@@ -166,7 +177,9 @@ class AdminLogService
         ?string $removedAdmin = null,
         ?string $removedBy = null,
         ?int $level = null,
-        ?string $reason = null
+        ?string $reason = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -189,9 +202,12 @@ class AdminLogService
         if ($reason) {
             $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
+        if ($dateFrom && $dateTo) {
+            $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
+        }
 
         return $query->orderByDesc('date')
-            ->limit(30)
+            ->limit(100)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->id,
@@ -211,7 +227,9 @@ class AdminLogService
         ?string $admin = null,
         ?string $vkPage = null,
         ?int $type = null,
-        ?int $level = null
+        ?int $level = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -223,10 +241,13 @@ class AdminLogService
             ->where('Status', 0)
             ->where('Status2', 1);
 
-        $startDate = now()->subDays($page)->startOfDay();
-        $endDate = now()->subDays($page - 1)->startOfDay();
-
-        $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
+        if ($dateFrom && $dateTo) {
+            $query->whereDate('Date', '>=', $dateFrom)->whereDate('Date', '<=', $dateTo);
+        } else {
+            $startDate = now()->subDays($page)->startOfDay();
+            $endDate = now()->subDays($page - 1)->startOfDay();
+            $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
+        }
 
         if ($admin) {
             $query->where('NameGame', $admin);
@@ -268,7 +289,9 @@ class AdminLogService
         ?string $gaAdmin = null,
         ?string $target = null,
         ?int $actionType = null,
-        ?string $reason = null
+        ?string $reason = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -279,10 +302,13 @@ class AdminLogService
 
         $query->whereNotIn('type', [7, 11, 12]);
 
-        $startDate = now()->subDays($page)->startOfDay();
-        $endDate = now()->subDays($page - 1)->startOfDay();
-
-        $query->where('date', '>', $startDate)->where('date', '<=', $endDate);
+        if ($dateFrom && $dateTo) {
+            $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
+        } else {
+            $startDate = now()->subDays($page)->startOfDay();
+            $endDate = now()->subDays($page - 1)->startOfDay();
+            $query->where('date', '>', $startDate)->where('date', '<=', $endDate);
+        }
 
         if ($gaAdmin) {
             $query->where('admin', $gaAdmin);
