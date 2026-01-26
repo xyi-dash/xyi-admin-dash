@@ -93,15 +93,25 @@
   "admins": {
     "title": "Admin List",
     "add_admin": "Appoint Admin",
-    "search_placeholder": "Search admin...",
+    "search_label": "Nickname",
+    "search_placeholder": "Search admin",
+    "no_results": "No results found",
+    "appointed_at": "Appointed",
+    "media": "Media",
+    "support": "Support",
+    "filters": {
+      "all_levels": "All levels",
+      "all_types": "All types",
+      "all_statuses": "All statuses",
+      "view": "View",
+      "group_by_level": "Group by level"
+    },
     "level_title": "Level {level}",
     "ga": "GA",
     "warns": "Warns",
     "rep": "Rep",
     "three_days": "3 Days",
     "week": "Week",
-    "support": "Support",
-    "youtuber": "YouTuber",
     "no_admins": "No admins at this level. Lonely up here...",
     "failed_load": "Admin list failed to load. Maybe ants again.",
     "add_dialog": {
@@ -163,6 +173,7 @@
     }
   },
   "logs": {
+    "date_range_placeholder": "Select dates",
     "actions": {
       "title": "Admin Actions Log",
       "admin": "Admin",
@@ -176,7 +187,8 @@
       "command_placeholder": "Command",
       "reason_placeholder": "Reason",
       "no_actions": "No actions found. Admins are hidden.",
-      "show_kills": "Show kills"
+      "show_kills": "Show kills",
+      "kills_label": "kills"
     },
     "warnings": {
       "title": "Admin Warnings Log",
@@ -322,6 +334,15 @@
         "myth": "Myth",
         "immortal": "Immortal",
         "unstoppable": "Unstoppable"
+      },
+      "clan_ranks": {
+        "0": "Recruit",
+        "1": "Member",
+        "2": "Senior",
+        "3": "Deputy",
+        "4": "Officer",
+        "5": "Co-Leader",
+        "6": "Leader"
       }
     },
     "reputation": {
@@ -462,7 +483,8 @@
       "cancel": "Cancel",
       "back_dashboard": "Back to Dashboard",
       "enter_password": "Enter your admin password",
-      "invalid_password": "Invalid password"
+      "invalid_password": "Invalid password",
+      "session_expired": "Session expired. Please log in again."
     },
     "access": {
       "title": "Access Denied",

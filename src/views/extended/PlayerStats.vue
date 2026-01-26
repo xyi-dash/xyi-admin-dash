@@ -15,11 +15,10 @@ const player = ref(null);
 
 const getRankLabel = (rank) => t(`extended.player_stats.ranks.${rank}`);
 
-const clanRanks = ['Рекрут', 'Участник', 'Старший', 'Заместитель', 'Офицер', 'Со-лидер', 'Лидер'];
 const clanRankLabel = computed(() => {
     const rank = player.value?.clan?.rank;
     if (rank === undefined || rank === null) return '-';
-    return clanRanks[rank] || `Ранг ${rank}`;
+    return t(`extended.player_stats.clan_ranks.${rank}`, t('common.unknown'));
 });
 
 onMounted(() => loadPlayer());

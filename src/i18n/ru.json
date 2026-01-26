@@ -93,15 +93,25 @@
   "admins": {
     "title": "Список админов",
     "add_admin": "Назначить админа",
-    "search_placeholder": "Поиск админа...",
+    "search_label": "Никнейм",
+    "search_placeholder": "Найти админа",
+    "no_results": "Ничего не найдено",
+    "appointed_at": "Назначен",
+    "media": "Media",
+    "support": "Support",
+    "filters": {
+      "all_levels": "Все уровни",
+      "all_types": "Все типы",
+      "all_statuses": "Все статусы",
+      "view": "Вид",
+      "group_by_level": "По уровням"
+    },
     "level_title": "Уровень {level}",
     "ga": "ГА",
     "warns": "Преды",
     "rep": "Репа",
     "three_days": "3 дня",
     "week": "Неделя",
-    "support": "Саппорт",
-    "youtuber": "Ютубер",
     "no_admins": "Нет админов на этом уровне. Одиноко здесь, однако...",
     "failed_load": "Не удалось загрузить список админов. Похоже, его украли муравьи.",
     "add_dialog": {
@@ -158,11 +168,12 @@
       "reset_password": "Сбросить пароль",
       "mark_support": "Отметить как саппорта",
       "remove_support": "Снять саппорта",
-      "mark_youtuber": "Отметить как ютубера",
-      "remove_youtuber": "Снять ютубера"
+      "mark_youtuber": "Отметить как медиа-партнёра",
+      "remove_youtuber": "Снять медиа-партнёра"
     }
   },
   "logs": {
+    "date_range_placeholder": "Выберите даты",
     "actions": {
       "title": "Логи действий админов",
       "admin": "Админ",
@@ -176,7 +187,8 @@
       "command_placeholder": "Команда",
       "reason_placeholder": "Причина",
       "no_actions": "Действий не найдено. Скрытая администрация.",
-      "show_kills": "Показать киллы"
+      "show_kills": "Показать киллы",
+      "kills_label": "киллов"
     },
     "warnings": {
       "title": "Логи предупреждений",
@@ -322,6 +334,15 @@
         "myth": "Миф",
         "immortal": "Бессмертный",
         "unstoppable": "Неудержимый"
+      },
+      "clan_ranks": {
+        "0": "Рекрут",
+        "1": "Участник",
+        "2": "Старший",
+        "3": "Заместитель",
+        "4": "Офицер",
+        "5": "Со-лидер",
+        "6": "Лидер"
       }
     },
     "reputation": {
@@ -462,7 +483,8 @@
       "cancel": "Отмена",
       "back_dashboard": "Вернуться в панель",
       "enter_password": "Введите ваш админ-пароль",
-      "invalid_password": "Неверный пароль"
+      "invalid_password": "Неверный пароль",
+      "session_expired": "Сессия истекла. Войдите заново."
     },
     "access": {
       "title": "Доступ запрещён",
