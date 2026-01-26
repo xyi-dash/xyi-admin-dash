@@ -8,6 +8,7 @@ use App\Models\ControlPanelUser;
 use App\Services\ActionLogService;
 use App\Services\AdminSessionService;
 use App\Services\GameAccountService;
+use App\Services\NormHistoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,8 @@ class AdminController extends Controller
     public function __construct(
         private GameAccountService $gameAccountService,
         private ActionLogService $actionLogService,
-        private AdminSessionService $adminSessionService
+        private AdminSessionService $adminSessionService,
+        private NormHistoryService $normHistoryService
     ) {}
 
     public function auth(Request $request): JsonResponse
@@ -206,6 +208,33 @@ class AdminController extends Controller
         }
 
         return $data;
+    }
+
+    public function normHistory(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $server = $this->resolveServer($request);
+
+        if (! $server) {
+            return response()->json(['error' => 'server_not_unlocked'], 403);
+        }
+
+        $admin = $this->gameAccountService->getAdminByName($server, $user->game_account_name);
+
+        if (! $admin) {
+            return response()->json(['error' => 'not_admin_here'], 404);
+        }
+
+        $serverNum = match ($server) {
+            'one' => 1,
+            'two' => 2,
+            'three' => 3,
+            default => 1,
+        };
+
+        return response()->json(
+            $this->normHistoryService->getHistory($admin->ID, $serverNum)
+        );
     }
 
     private function formatSeconds(int $seconds): string

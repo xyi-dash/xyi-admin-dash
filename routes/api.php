@@ -47,6 +47,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', 'throttle:authenticated'])->group(function () {
     Route::get('/me', [AdminController::class, 'me']);
+    Route::get('/me/norm-history', [AdminController::class, 'normHistory']);
     Route::get('/list', [AdminController::class, 'index']);
     Route::get('/{adminId}', [AdminController::class, 'show'])->where('adminId', '[0-9]+');
 
@@ -54,6 +55,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', '
     Route::post('/manage/add', [AdminManagementController::class, 'addAdmin'])->middleware('throttle:sensitive');
     Route::get('/manage/{adminName}/actions', [AdminManagementController::class, 'availableActions']);
     Route::get('/manage/{adminName}/history', [AdminManagementController::class, 'history']);
+    Route::get('/manage/{adminName}/norm-history', [AdminManagementController::class, 'normHistory']);
 
     Route::get('/logs/actions', [AdminLogController::class, 'adminActions']);
     Route::get('/logs/warnings', [AdminLogController::class, 'warnings']);
