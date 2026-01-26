@@ -482,5 +482,14 @@
     "server_error": "Server said no.",
     "network_error": "Network decided to take a break.",
     "unknown": "Something broke. Classic. Absolute cinema. ✋😔🤚"
+  },
+  "charts": {
+    "online_history": "Online History",
+    "online_hours": "Online",
+    "norm": "Norm",
+    "hours_short": "h",
+    "this_week": "This week",
+    "weekly_norm": "Weekly norm",
+    "no_data": "No data"
   }
 }
