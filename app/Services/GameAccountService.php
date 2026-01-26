@@ -136,6 +136,7 @@ class GameAccountService
                     ($admin->Segodnya ?? 0) + ($admin->Vchera ?? 0) + ($admin->Pozavchera ?? 0)
                 ),
                 'playtime_week' => $this->formatAdminPlaytime($admin->NOnline ?? 0),
+                'appointed_at' => $admin->Date ?? null,
             ])
             ->toArray();
     }
