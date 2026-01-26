@@ -322,43 +322,64 @@ class PlayerLogService
 
     public function getReputationLogs(
         string $server,
+        int $page = 0,
         ?string $fromPlayer = null,
         ?string $toPlayer = null,
-        int $limit = 100
+        ?string $type = null,
+        ?string $dateFrom = null,
+        ?string $dateTo = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         $query = DB::connection($connection)->table('reputation');
 
+        if ($dateFrom && $dateTo) {
+            $tsFrom = strtotime($dateFrom.' 00:00:00');
+            $tsTo = strtotime($dateTo.' 23:59:59');
+            $query->where('Date2', '>=', $tsFrom)
+                ->where('Date2', '<=', $tsTo);
+        }
+
         if ($fromPlayer) {
-            $query->where('A', $fromPlayer);
+            $query->where('A', 'like', '%'.$this->escapeLike($fromPlayer).'%');
         }
         if ($toPlayer) {
-            $query->where('B', $toPlayer);
+            $query->where('B', 'like', '%'.$this->escapeLike($toPlayer).'%');
         }
-        $banList = $this->getBanList($connection);
+        if ($type) {
+            $query->where('Repa', $type);
+        }
 
-        return $query->orderByDesc('ID')
-            ->limit($limit)
+        $total = $query->count();
+        $banList = $this->getBanList($connection);
+        $offset = $page * 100;
+
+        $data = $query->orderByDesc('ID')
+            ->offset($offset)
+            ->limit(100)
             ->get()
             ->map(function ($row) use ($banList) {
-                $date = $row->Date ?? null;
-
                 return [
                     'id' => $row->ID ?? null,
                     'from' => $row->A,
                     'from_is_banned' => isset($banList[$row->A]),
                     'to' => $row->B,
                     'to_is_banned' => isset($banList[$row->B]),
-                    'type' => $row->Repa, // + or -
+                    'type' => $row->Repa,
                     'comment' => $row->Comment ?: null,
-                    'date' => $date,
+                    'date' => $row->Date ?? null,
                 ];
             })
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getNicknameLogs(
@@ -401,22 +422,26 @@ class PlayerLogService
 
     public function getUnbanLogs(
         string $server,
-        ?string $playerName = null,
-        int $limit = 50
+        int $page = 0,
+        ?string $playerName = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         $query = DB::connection($connection)->table('unbans');
 
         if ($playerName) {
-            $query->where('UnBan', $playerName);
+            $query->where('UnBan', 'like', '%'.$this->escapeLike($playerName).'%');
         }
 
-        return $query->orderByDesc('Date')
-            ->limit($limit)
+        $total = $query->count();
+        $offset = $page * 100;
+
+        $data = $query->orderByDesc('Date')
+            ->offset($offset)
+            ->limit(100)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
@@ -424,17 +449,23 @@ class PlayerLogService
                 'date' => $row->Date,
             ])
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getPermanentBans(
         string $server,
+        int $page = 0,
         ?string $playerName = null,
-        ?string $adminName = null,
-        int $limit = 50
+        ?string $adminName = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         // banlist Type = 4 is /block
@@ -446,11 +477,15 @@ class PlayerLogService
             $query->where('Name', 'like', '%'.$this->escapeLike($playerName).'%');
         }
         if ($adminName) {
-            $query->where('Admin', $adminName);
+            $query->where('Admin', 'like', '%'.$this->escapeLike($adminName).'%');
         }
 
-        return $query->orderByDesc('UnBanDate')
-            ->limit($limit)
+        $total = $query->count();
+        $offset = $page * 100;
+
+        $data = $query->orderByDesc('Date')
+            ->offset($offset)
+            ->limit(100)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
@@ -462,36 +497,45 @@ class PlayerLogService
                 'date' => $row->Date ?? null,
             ])
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getPermanentIPBans(
         string $server,
+        int $page = 0,
         ?string $ip = null,
-        ?string $adminName = null,
-        int $limit = 50
+        ?string $adminName = null
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         $query = DB::connection($connection)->table('ip2banlist');
 
-        // type=5 filter only when searching
         $hasFilters = $ip || $adminName;
         if ($hasFilters) {
             $query->where('type', 5);
         }
 
         if ($ip) {
-            $query->where('IPp', $ip);
+            $query->where('IPp', 'like', '%'.$this->escapeLike($ip).'%');
         }
         if ($adminName) {
-            $query->where('Admin', $adminName);
+            $query->where('Admin', 'like', '%'.$this->escapeLike($adminName).'%');
         }
 
-        return $query->orderByDesc('Date')
-            ->limit($limit)
+        $total = $query->count();
+        $offset = $page * 100;
+
+        $data = $query->orderByDesc('Date')
+            ->offset($offset)
+            ->limit(100)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->ID ?? null,
@@ -501,6 +545,12 @@ class PlayerLogService
                 'date' => $row->Date,
             ])
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getMatchmakingStats(
