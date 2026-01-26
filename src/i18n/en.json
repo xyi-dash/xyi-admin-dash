@@ -43,7 +43,11 @@
     "min": "Min",
     "max": "Max",
     "clear": "Clear",
-    "open": "Open"
+    "open": "Open",
+    "copy": "Copy",
+    "copied": "Copied",
+    "showing_records": "{first} - {last} of {total}",
+    "go_to_page": "Go to"
   },
   "nav": {
     "home": "Home",
@@ -61,7 +65,7 @@
     "nicknames": "Nicknames",
     "unbans": "Unbans",
     "bans": "Permanent Bans",
-    "ip_bans": "IP Bans",
+    "ip_bans": "Permanent IP Bans",
     "matchmaking": "Matchmaking",
     "money": "Money Transfers",
     "accessories": "Accessories",
@@ -251,6 +255,18 @@
       "remove": "Remove",
       "appoint": "Appoint",
       "no_actions": "No GA actions. The higher-ups are sleeping!"
+    },
+    "reputation": {
+      "title": "Reputation Logs",
+      "from": "From",
+      "to": "To",
+      "type": "Type",
+      "comment": "Comment",
+      "date": "Date",
+      "from_placeholder": "From player",
+      "to_placeholder": "To player",
+      "all_types": "All types",
+      "no_logs": "No reputation logs. Nobody cares about internet points here."
     }
   },
   "extended": {
@@ -388,7 +404,7 @@
       "no_bans": "No permanent bans. We won't see any more IP match complaints!?"
     },
     "ip_bans": {
-      "title": "IP Bans",
+      "title": "Permanent IP Bans",
       "ip": "IP",
       "admin": "Admin",
       "admin_ip": "Admin IP",

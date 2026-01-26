@@ -57,6 +57,12 @@ const router = createRouter({
                     meta: { requiresLevel: 8 }
                 },
                 {
+                    path: 'logs/reputation',
+                    name: 'logs-reputation',
+                    component: () => import('@/views/logs/Reputation.vue'),
+                    meta: { requiresLevel: 7 }
+                },
+                {
                     path: 'extended/players',
                     name: 'extended-players',
                     component: () => import('@/views/extended/PlayerSearch.vue'),
@@ -72,12 +78,6 @@ const router = createRouter({
                     path: 'extended/players/:id',
                     name: 'extended-player-stats',
                     component: () => import('@/views/extended/PlayerStats.vue'),
-                    meta: { requiresLevel: 7 }
-                },
-                {
-                    path: 'extended/reputation',
-                    name: 'extended-reputation',
-                    component: () => import('@/views/extended/Reputation.vue'),
                     meta: { requiresLevel: 7 }
                 },
                 {

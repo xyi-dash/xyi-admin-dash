@@ -1,7 +1,7 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '@/stores/auth';
 import AppMenuItem from './AppMenuItem.vue';
 
 const { t } = useI18n();
@@ -35,13 +35,13 @@ const model = computed(() => {
         const logsSection = items.find((i) => i.label === t('nav.logs'));
         if (logsSection) {
             logsSection.items.push({ label: t('nav.removed'), icon: 'pi pi-fw pi-user-minus', to: '/logs/removed' });
+            logsSection.items.push({ label: t('nav.reputation'), icon: 'pi pi-fw pi-star', to: '/logs/reputation' });
         }
 
         items.push({
             label: t('nav.extended'),
             items: [
                 { label: t('nav.player_search'), icon: 'pi pi-fw pi-search', to: '/extended/players' },
-                { label: t('nav.reputation'), icon: 'pi pi-fw pi-star', to: '/extended/reputation' },
                 { label: t('nav.nicknames'), icon: 'pi pi-fw pi-id-card', to: '/extended/nicknames' },
                 { label: t('nav.unbans'), icon: 'pi pi-fw pi-check-circle', to: '/extended/unbans' },
                 { label: t('nav.bans'), icon: 'pi pi-fw pi-ban', to: '/extended/bans' },
