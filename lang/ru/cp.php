@@ -5,6 +5,8 @@ return [
     'action_log' => 'Лог действия',
     'control_panel_users' => 'Пользователи панели',
     'control_panel_user' => 'Пользователь панели',
+    'server_settings' => 'Настройки серверов',
+    'server_setting' => 'Настройка сервера',
 
     'fields' => [
         'id' => 'ID',

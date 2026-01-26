@@ -5,6 +5,8 @@ return [
     'action_log' => 'Action Log',
     'control_panel_users' => 'Control Panel Users',
     'control_panel_user' => 'Control Panel User',
+    'server_settings' => 'Server Settings',
+    'server_setting' => 'Server Setting',
 
     'fields' => [
         'id' => 'ID',
