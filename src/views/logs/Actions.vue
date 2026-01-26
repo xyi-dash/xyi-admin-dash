@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/service/api';
 
@@ -9,6 +9,7 @@ const loading = ref(false);
 const data = ref([]);
 const page = ref(0);
 const showKills = ref(false);
+const dateRange = ref(null);
 const filters = ref({
     admin: '',
     player: '',
@@ -16,9 +17,17 @@ const filters = ref({
     reason: ''
 });
 
+const useDateFilter = computed(() => dateRange.value && dateRange.value[0] && dateRange.value[1]);
+
 onMounted(async () => {
     await loadData();
 });
+
+function formatDate(date) {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+}
 
 async function loadData() {
     loading.value = true;
@@ -29,7 +38,14 @@ async function loadData() {
         if (filters.value.cmd) params.append('cmd', filters.value.cmd);
         if (filters.value.reason) params.append('reason', filters.value.reason);
         if (showKills.value) params.append('with_kills', '1');
-        params.append('page', page.value);
+        
+        if (useDateFilter.value) {
+            params.append('date_from', formatDate(dateRange.value[0]));
+            params.append('date_to', formatDate(dateRange.value[1]));
+        } else {
+            params.append('page', page.value);
+        }
+        
         if (authStore.currentServer) params.append('server', authStore.currentServer);
 
         const response = await api.get(`/admin/logs/actions?${params}`);
@@ -62,6 +78,12 @@ function toggleKills() {
     showKills.value = !showKills.value;
     loadData();
 }
+
+function clearDateFilter() {
+    dateRange.value = null;
+    page.value = 0;
+    loadData();
+}
 </script>
 
 <template>
@@ -75,7 +97,7 @@ function toggleKills() {
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-end gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
                 <div class="flex flex-col gap-2">
                     <label for="admin">{{ $t('logs.actions.admin') }}</label>
                     <InputText id="admin" v-model="filters.admin" :placeholder="$t('logs.actions.admin_placeholder')" @keyup.enter="search" />
@@ -92,7 +114,14 @@ function toggleKills() {
                     <label for="reason">{{ $t('logs.actions.reason') }}</label>
                     <InputText id="reason" v-model="filters.reason" :placeholder="$t('logs.actions.reason_placeholder')" @keyup.enter="search" />
                 </div>
-                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.date') }}</label>
+                    <DatePicker v-model="dateRange" selectionMode="range" :manualInput="false" showIcon dateFormat="dd.mm.yy" :placeholder="$t('logs.date_range_placeholder')" showButtonBar @update:modelValue="search" />
+                </div>
+                <div class="flex gap-2 items-end">
+                    <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                    <Button v-if="useDateFilter" icon="pi pi-times" severity="secondary" text @click="clearDateFilter" />
+                </div>
             </div>
         </div>
 
@@ -103,7 +132,7 @@ function toggleKills() {
                     <template #body="{ data }">
                         <div class="flex items-center gap-2">
                             <span>{{ data.player }}</span>
-                            <Tag v-if="showKills && data.player_kills !== null" severity="secondary" size="small">{{ data.player_kills?.toLocaleString() }} kills</Tag>
+                            <Tag v-if="showKills && data.player_kills !== null" severity="secondary" size="small">{{ data.player_kills?.toLocaleString() }} {{ $t('logs.actions.kills_label') }}</Tag>
                         </div>
                     </template>
                 </Column>
@@ -117,7 +146,7 @@ function toggleKills() {
                 </template>
             </DataTable>
 
-            <div class="flex justify-between items-center">
+            <div v-if="!useDateFilter" class="flex justify-between items-center">
                 <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
                 <div class="flex gap-2">
                     <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />

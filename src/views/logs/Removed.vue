@@ -1,17 +1,26 @@
 <script setup>
 import api from '@/service/api';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 const authStore = useAuthStore();
 
 const loading = ref(false);
 const data = ref([]);
+const dateRange = ref(null);
 const filters = ref({
     removed: '',
     removed_by: '',
     level: ''
 });
+
+const useDateFilter = computed(() => dateRange.value && dateRange.value[0] && dateRange.value[1]);
+
+function formatDate(date) {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+}
 
 onMounted(async () => {
     await loadData();
@@ -24,6 +33,10 @@ async function loadData() {
         if (filters.value.removed) params.append('removed', filters.value.removed);
         if (filters.value.removed_by) params.append('removed_by', filters.value.removed_by);
         if (filters.value.level) params.append('level', filters.value.level);
+        if (useDateFilter.value) {
+            params.append('date_from', formatDate(dateRange.value[0]));
+            params.append('date_to', formatDate(dateRange.value[1]));
+        }
         if (authStore.currentServer) params.append('server', authStore.currentServer);
 
         const response = await api.get(`/admin/logs/removed?${params}`);
@@ -39,6 +52,11 @@ async function loadData() {
 function search() {
     loadData();
 }
+
+function clearDateFilter() {
+    dateRange.value = null;
+    loadData();
+}
 </script>
 
 <template>
@@ -46,7 +64,7 @@ function search() {
         <div class="card flex flex-col gap-4">
             <div class="font-semibold text-xl">{{ $t('logs.removed.title') }}</div>
 
-            <div class="flex flex-wrap items-end gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div class="flex flex-col gap-2">
                     <label for="removed">{{ $t('logs.removed.removed') }}</label>
                     <InputText id="removed" v-model="filters.removed" :placeholder="$t('logs.removed.removed_placeholder')" @keyup.enter="search" />
@@ -59,7 +77,14 @@ function search() {
                     <label for="level">{{ $t('logs.removed.level') }}</label>
                     <InputNumber id="level" v-model="filters.level" :placeholder="$t('logs.removed.level_placeholder')" :useGrouping="false" @keyup.enter="search" />
                 </div>
-                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.date') }}</label>
+                    <DatePicker v-model="dateRange" selectionMode="range" :manualInput="false" showIcon dateFormat="dd.mm.yy" :placeholder="$t('logs.date_range_placeholder')" showButtonBar @update:modelValue="search" />
+                </div>
+                <div class="flex gap-2 items-end">
+                    <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                    <Button v-if="useDateFilter" icon="pi pi-times" severity="secondary" text @click="clearDateFilter" />
+                </div>
             </div>
         </div>
 

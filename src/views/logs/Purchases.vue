@@ -12,6 +12,7 @@ const toast = useToast();
 const loading = ref(false);
 const data = ref([]);
 const page = ref(0);
+const dateRange = ref(null);
 const filters = ref({
     admin: '',
     vk: '',
@@ -25,6 +26,14 @@ const purchaseTypes = computed(() => [
     { label: t('logs.purchases.remove_warning'), value: '3' }
 ]);
 
+const useDateFilter = computed(() => dateRange.value && dateRange.value[0] && dateRange.value[1]);
+
+function formatDate(date) {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+}
+
 onMounted(async () => {
     await loadData();
 });
@@ -36,7 +45,14 @@ async function loadData() {
         if (filters.value.admin) params.append('admin', filters.value.admin);
         if (filters.value.vk) params.append('vk', filters.value.vk);
         if (filters.value.type) params.append('type', filters.value.type);
-        params.append('page', page.value);
+        
+        if (useDateFilter.value) {
+            params.append('date_from', formatDate(dateRange.value[0]));
+            params.append('date_to', formatDate(dateRange.value[1]));
+        } else {
+            params.append('page', page.value);
+        }
+        
         if (authStore.currentServer) params.append('server', authStore.currentServer);
 
         const response = await api.get(`/admin/logs/purchases?${params}`);
@@ -91,6 +107,12 @@ function nextPage() {
     page.value++;
     loadData();
 }
+
+function clearDateFilter() {
+    dateRange.value = null;
+    page.value = 0;
+    loadData();
+}
 </script>
 
 <template>
@@ -98,7 +120,7 @@ function nextPage() {
         <div class="card flex flex-col gap-4">
             <div class="font-semibold text-xl">{{ $t('logs.purchases.title') }}</div>
 
-            <div class="flex flex-wrap items-end gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div class="flex flex-col gap-2">
                     <label for="admin">{{ $t('logs.purchases.admin') }}</label>
                     <InputText id="admin" v-model="filters.admin" :placeholder="$t('logs.purchases.admin_placeholder')" @keyup.enter="search" />
@@ -111,7 +133,14 @@ function nextPage() {
                     <label for="type">{{ $t('common.type') }}</label>
                     <Select id="type" v-model="filters.type" :options="purchaseTypes" optionLabel="label" optionValue="value" :placeholder="$t('common.type')" />
                 </div>
-                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.date') }}</label>
+                    <DatePicker v-model="dateRange" selectionMode="range" :manualInput="false" showIcon dateFormat="dd.mm.yy" :placeholder="$t('logs.date_range_placeholder')" showButtonBar @update:modelValue="search" />
+                </div>
+                <div class="flex gap-2 items-end">
+                    <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                    <Button v-if="useDateFilter" icon="pi pi-times" severity="secondary" text @click="clearDateFilter" />
+                </div>
             </div>
         </div>
 
@@ -138,7 +167,7 @@ function nextPage() {
                 </template>
             </DataTable>
 
-            <div class="flex justify-between items-center">
+            <div v-if="!useDateFilter" class="flex justify-between items-center">
                 <span class="text-muted-color">{{ $t('common.page') }} {{ page + 1 }}</span>
                 <div class="flex gap-2">
                     <Button icon="pi pi-chevron-left" text :disabled="page === 0" @click="prevPage" />

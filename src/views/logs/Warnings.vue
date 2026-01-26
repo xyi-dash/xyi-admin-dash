@@ -1,17 +1,26 @@
 <script setup>
 import api from '@/service/api';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 const authStore = useAuthStore();
 
 const loading = ref(false);
 const data = ref([]);
+const dateRange = ref(null);
 const filters = ref({
     issued_by: '',
     issued_to: '',
     reason: ''
 });
+
+const useDateFilter = computed(() => dateRange.value && dateRange.value[0] && dateRange.value[1]);
+
+function formatDate(date) {
+    if (!date) return null;
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+}
 
 onMounted(async () => {
     await loadData();
@@ -24,6 +33,10 @@ async function loadData() {
         if (filters.value.issued_by) params.append('issued_by', filters.value.issued_by);
         if (filters.value.issued_to) params.append('issued_to', filters.value.issued_to);
         if (filters.value.reason) params.append('reason', filters.value.reason);
+        if (useDateFilter.value) {
+            params.append('date_from', formatDate(dateRange.value[0]));
+            params.append('date_to', formatDate(dateRange.value[1]));
+        }
         if (authStore.currentServer) params.append('server', authStore.currentServer);
 
         const response = await api.get(`/admin/logs/warnings?${params}`);
@@ -40,6 +53,11 @@ async function loadData() {
 function search() {
     loadData();
 }
+
+function clearDateFilter() {
+    dateRange.value = null;
+    loadData();
+}
 </script>
 
 <template>
@@ -47,7 +65,7 @@ function search() {
         <div class="card flex flex-col gap-4">
             <div class="font-semibold text-xl">{{ $t('logs.warnings.title') }}</div>
 
-            <div class="flex flex-wrap items-end gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div class="flex flex-col gap-2">
                     <label for="issued_by">{{ $t('logs.warnings.issued_by') }}</label>
                     <InputText id="issued_by" v-model="filters.issued_by" :placeholder="$t('logs.warnings.issued_by_placeholder')" @keyup.enter="search" />
@@ -60,7 +78,14 @@ function search() {
                     <label for="reason">{{ $t('logs.warnings.reason') }}</label>
                     <InputText id="reason" v-model="filters.reason" :placeholder="$t('logs.warnings.reason_placeholder')" @keyup.enter="search" />
                 </div>
-                <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.date') }}</label>
+                    <DatePicker v-model="dateRange" selectionMode="range" :manualInput="false" showIcon dateFormat="dd.mm.yy" :placeholder="$t('logs.date_range_placeholder')" showButtonBar @update:modelValue="search" />
+                </div>
+                <div class="flex gap-2 items-end">
+                    <Button :label="$t('common.search')" icon="pi pi-search" @click="search" />
+                    <Button v-if="useDateFilter" icon="pi pi-times" severity="secondary" text @click="clearDateFilter" />
+                </div>
             </div>
         </div>
 
