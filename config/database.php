@@ -123,7 +123,7 @@ return [
             'strict' => false,
         ],
 
-        // site db (news etc) same creds as game dbs
+        // game db
         'site' => [
             'driver' => 'mariadb',
             'host' => env('GAME_DB_HOST'),
@@ -135,6 +135,23 @@ return [
             'collation' => 'utf8_general_ci',
             'prefix' => '',
             'strict' => false,
+        ],
+
+        // arkxa db
+        'bot' => [
+            'driver' => 'mysql',
+            'host' => env('BOT_DB_HOST'),
+            'port' => env('BOT_DB_PORT', '3306'),
+            'database' => env('BOT_DB_DATABASE'),
+            'username' => env('BOT_DB_USERNAME'),
+            'password' => env('BOT_DB_PASSWORD'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'options' => [
+                \PDO::ATTR_TIMEOUT => 5,
+            ],
         ],
 
         'pgsql' => [
