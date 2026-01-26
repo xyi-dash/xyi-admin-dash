@@ -14,7 +14,14 @@ const toast = useToast();
 const loading = ref(true);
 const adminList = ref(null);
 const expandedLevels = ref({});
-const searchName = ref('');
+
+const filters = ref({
+    name: '',
+    level: 'all',
+    type: 'all',
+    status: 'all'
+});
+const groupByLevel = ref(true);
 
 const addDialog = ref(false);
 const addLoading = ref(false);
@@ -43,6 +50,29 @@ const levelOptions = computed(() => {
     }));
 });
 
+const filterLevelOptions = computed(() => [
+    { label: t('admins.filters.all_levels'), value: 'all' },
+    { label: t('common.level') + ' 7', value: 7 },
+    { label: t('common.level') + ' 6', value: 6 },
+    { label: t('common.level') + ' 5', value: 5 },
+    { label: t('common.level') + ' 4', value: 4 },
+    { label: t('common.level') + ' 3', value: 3 },
+    { label: t('common.level') + ' 2', value: 2 },
+    { label: t('common.level') + ' 1', value: 1 }
+]);
+
+const typeOptions = computed(() => [
+    { label: t('admins.filters.all_types'), value: 'all' },
+    { label: t('admins.media'), value: 'yt' },
+    { label: t('admins.support'), value: 'sup' }
+]);
+
+const statusOptions = computed(() => [
+    { label: t('admins.filters.all_statuses'), value: 'all' },
+    { label: t('common.online'), value: 'online' },
+    { label: t('common.offline'), value: 'offline' }
+]);
+
 onMounted(async () => {
     await loadAdmins();
 });
@@ -66,17 +96,31 @@ async function loadAdmins() {
 
 const availableLevels = computed(() => {
     if (!adminList.value?.admins) return [];
+    if (filters.value.level !== 'all') return [filters.value.level];
     return [...new Set(adminList.value.admins.map((a) => a.level))].sort((a, b) => b - a);
 });
 
+function filterAdmin(admin) {
+    if (filters.value.name && !admin.name.toLowerCase().includes(filters.value.name.toLowerCase())) return false;
+    if (filters.value.level !== 'all' && admin.level !== filters.value.level) return false;
+    if (filters.value.type === 'yt' && !admin.is_youtuber) return false;
+    if (filters.value.type === 'sup' && !admin.is_support) return false;
+    if (filters.value.status === 'online' && !admin.is_online) return false;
+    if (filters.value.status === 'offline' && admin.is_online) return false;
+    return true;
+}
+
 function getAdminsByLevel(level) {
     if (!adminList.value?.admins) return [];
-    return adminList.value.admins.filter((a) => {
-        if (a.level !== level) return false;
-        if (searchName.value && !a.name.toLowerCase().includes(searchName.value.toLowerCase())) return false;
-        return true;
-    });
+    return adminList.value.admins.filter((a) => a.level === level && filterAdmin(a));
 }
+
+const flatAdminList = computed(() => {
+    if (!adminList.value?.admins) return [];
+    return adminList.value.admins
+        .filter(filterAdmin)
+        .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
+});
 
 const canViewDetails = computed(() => adminList.value?.can_view_details ?? false);
 
@@ -128,15 +172,40 @@ async function submitNewAdmin() {
 <template>
     <Fluid>
         <div class="card flex flex-col gap-4">
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div class="flex justify-between items-center">
                 <div class="font-semibold text-xl">{{ $t('admins.title') }}</div>
-                <div class="flex flex-wrap gap-4 items-center">
-                    <InputText v-model="searchName" :placeholder="$t('admins.search_placeholder')" class="w-48" />
-                    <Button v-if="canAddAdmin" :label="$t('admins.add_admin')" icon="pi pi-plus" size="small" @click="openAddDialog" />
-                    <template v-if="adminList">
-                        <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>
-                        <Tag severity="success">{{ $t('common.online') }}: {{ adminList.online }}</Tag>
-                    </template>
+                <div class="flex items-center gap-2" v-if="adminList">
+                    <Tag severity="info">{{ $t('common.total') }}: {{ adminList.total }}</Tag>
+                    <Tag severity="success">{{ $t('common.online') }}: {{ adminList.online }}</Tag>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('admins.search_label') }}</label>
+                    <InputText v-model="filters.name" :placeholder="$t('admins.search_placeholder')" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.level') }}</label>
+                    <Select v-model="filters.level" :options="filterLevelOptions" optionLabel="label" optionValue="value" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.type') }}</label>
+                    <Select v-model="filters.type" :options="typeOptions" optionLabel="label" optionValue="value" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('common.status') }}</label>
+                    <Select v-model="filters.status" :options="statusOptions" optionLabel="label" optionValue="value" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label>{{ $t('admins.filters.view') }}</label>
+                    <div class="flex items-center gap-2 h-[42px]">
+                        <InputSwitch v-model="groupByLevel" />
+                        <span class="text-sm text-muted-color">{{ $t('admins.filters.group_by_level') }}</span>
+                    </div>
+                </div>
+                <div class="flex gap-2 items-end">
+                    <Button v-if="canAddAdmin" :label="$t('admins.add_admin')" icon="pi pi-plus" @click="openAddDialog" />
                 </div>
             </div>
         </div>
@@ -144,49 +213,100 @@ async function submitNewAdmin() {
         <div class="card">
             <ProgressSpinner v-if="loading" class="flex justify-center py-8" />
 
-            <div v-else-if="adminList" class="flex flex-col gap-4">
-                <div v-for="level in availableLevels" :key="level">
-                    <div class="flex items-center gap-2 cursor-pointer p-3 bg-surface-100 dark:bg-surface-800 rounded-lg mb-2" @click="toggleLevel(level)">
-                        <i :class="['pi', expandedLevels[level] ? 'pi-chevron-down' : 'pi-chevron-right']"></i>
-                        <span class="font-semibold">{{ $t('common.level') }} {{ level }}</span>
-                        <Tag size="small">{{ getAdminsByLevel(level).length }}</Tag>
-                    </div>
+            <template v-else-if="adminList">
+                <div v-if="groupByLevel" class="flex flex-col gap-4">
+                    <div v-for="level in availableLevels" :key="level">
+                        <div class="flex items-center gap-2 cursor-pointer p-3 bg-surface-100 dark:bg-surface-800 rounded-lg mb-2" @click="toggleLevel(level)">
+                            <i :class="['pi', expandedLevels[level] ? 'pi-chevron-down' : 'pi-chevron-right']"></i>
+                            <span class="font-semibold">{{ $t('common.level') }} {{ level }}</span>
+                            <Tag size="small">{{ getAdminsByLevel(level).length }}</Tag>
+                        </div>
 
-                    <DataTable v-if="expandedLevels[level]" :value="getAdminsByLevel(level)" stripedRows class="p-datatable-sm" tableStyle="min-width: 50rem">
-                        <Column field="name" :header="$t('common.name')" style="min-width: 200px">
-                            <template #body="{ data }">
-                                <div class="flex items-center gap-2">
-                                    <Button v-if="canViewDetails" :label="data.name" link class="p-0" @click="openAdmin(data)" />
-                                    <span v-else>{{ data.name }}</span>
-                                    <Tag v-if="data.is_support" severity="info" size="small">SUP</Tag>
-                                    <Tag v-if="data.is_youtuber" severity="warn" size="small">YT</Tag>
-                                </div>
-                            </template>
-                        </Column>
-                        <Column field="warnings" :header="$t('admins.warns')" style="width: 80px">
-                            <template #body="{ data }">
-                                <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">{{ data.warnings }}/3</span>
-                            </template>
-                        </Column>
-                        <Column :header="$t('admins.rep')" style="width: 100px">
-                            <template #body="{ data }">
-                                <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
-                                <span class="text-muted-color"> / </span>
-                                <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
-                            </template>
-                        </Column>
-                        <Column field="playtime_3days" :header="$t('admins.three_days')" style="width: 80px" />
-                        <Column field="playtime_week" :header="$t('admins.week')" style="width: 80px" />
-                        <Column :header="$t('common.status')" style="width: 100px">
-                            <template #body="{ data }">
-                                <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
-                                    {{ data.is_online ? $t('common.online') : $t('common.offline') }}
-                                </Tag>
-                            </template>
-                        </Column>
-                    </DataTable>
+                        <DataTable v-if="expandedLevels[level]" :value="getAdminsByLevel(level)" stripedRows size="small" responsiveLayout="scroll">
+                            <Column field="name" :header="$t('common.name')" style="width: 280px">
+                                <template #body="{ data }">
+                                    <span class="inline-flex items-center">
+                                        <Button v-if="canViewDetails" :label="data.name" link class="p-0" @click="openAdmin(data)" />
+                                        <span v-else>{{ data.name }}</span>
+                                        <Tag v-if="data.is_support" severity="info" size="small">{{ $t('admins.support') }}</Tag>
+                                        <Tag v-if="data.is_youtuber" severity="danger" size="small">{{ $t('admins.media') }}</Tag>
+                                    </span>
+                                </template>
+                            </Column>
+                            <Column field="warnings" :header="$t('admins.warns')">
+                                <template #body="{ data }">
+                                    <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">{{ data.warnings }}/3</span>
+                                </template>
+                            </Column>
+                            <Column :header="$t('admins.rep')">
+                                <template #body="{ data }">
+                                    <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
+                                    <span class="text-muted-color"> / </span>
+                                    <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
+                                </template>
+                            </Column>
+                            <Column field="playtime_3days" :header="$t('admins.three_days')" />
+                            <Column field="playtime_week" :header="$t('admins.week')" />
+                            <Column :header="$t('common.status')">
+                                <template #body="{ data }">
+                                    <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
+                                        {{ data.is_online ? $t('common.online') : $t('common.offline') }}
+                                    </Tag>
+                                </template>
+                            </Column>
+                            <Column field="appointed_at" :header="$t('admins.appointed_at')">
+                                <template #body="{ data }">
+                                    {{ data.appointed_at || $t('common.unknown') }}
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
                 </div>
-            </div>
+
+                <DataTable v-else :value="flatAdminList" stripedRows size="small" responsiveLayout="scroll">
+                    <Column field="name" :header="$t('common.name')" style="width: 280px">
+                        <template #body="{ data }">
+                            <span class="inline-flex items-center gap-2">
+                                <Button v-if="canViewDetails" :label="data.name" link class="p-0" @click="openAdmin(data)" />
+                                <span v-else>{{ data.name }}</span>
+                                <Tag v-if="data.is_support" severity="info" size="small">Support</Tag>
+                                <Tag v-if="data.is_youtuber" severity="danger" size="small">Media</Tag>
+                            </span>
+                        </template>
+                    </Column>
+                    <Column field="level" :header="$t('common.level')" style="width: 80px" />
+                    <Column field="warnings" :header="$t('admins.warns')">
+                        <template #body="{ data }">
+                            <span :class="{ 'text-red-500 font-bold': data.warnings >= 2 }">{{ data.warnings }}/3</span>
+                        </template>
+                    </Column>
+                    <Column :header="$t('admins.rep')">
+                        <template #body="{ data }">
+                            <span class="text-green-500">+{{ data.reputation?.up || 0 }}</span>
+                            <span class="text-muted-color"> / </span>
+                            <span class="text-red-500">-{{ data.reputation?.down || 0 }}</span>
+                        </template>
+                    </Column>
+                    <Column field="playtime_3days" :header="$t('admins.three_days')" />
+                    <Column field="playtime_week" :header="$t('admins.week')" />
+                    <Column :header="$t('common.status')">
+                        <template #body="{ data }">
+                            <Tag :severity="data.is_online ? 'success' : 'secondary'" size="small">
+                                {{ data.is_online ? $t('common.online') : $t('common.offline') }}
+                            </Tag>
+                        </template>
+                    </Column>
+                    <Column field="appointed_at" :header="$t('admins.appointed_at')">
+                        <template #body="{ data }">
+                            {{ data.appointed_at || $t('common.unknown') }}
+                        </template>
+                    </Column>
+
+                    <template #empty>
+                        <div class="text-center py-8 text-muted-color">{{ $t('admins.no_results') }}</div>
+                    </template>
+                </DataTable>
+            </template>
 
             <div v-else class="text-center py-8">
                 <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
