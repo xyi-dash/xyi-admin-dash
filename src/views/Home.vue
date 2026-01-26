@@ -15,6 +15,11 @@ const normHistory = ref(null);
 const chartData = ref(null);
 const chartOptions = ref(null);
 
+const serverDisplayName = computed(() => {
+    const map = { one: '01', two: '02', three: '03' };
+    return map[authStore.currentServer] || authStore.currentServer;
+});
+
 onMounted(async () => {
     await loadAdminData();
     await loadNormHistory();
@@ -202,7 +207,7 @@ const weeklyMet = computed(() => {
                         <h2 class="text-2xl font-semibold m-0 mb-2">{{ t('home.welcome', { name: authStore.user?.name }) }}</h2>
                         <div class="flex items-center gap-2 text-muted-color">
                             <i class="pi pi-server"></i>
-                            <span>{{ t('home.server') }}: {{ authStore.currentServer }}</span>
+                            <span>Server: {{ serverDisplayName }}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
