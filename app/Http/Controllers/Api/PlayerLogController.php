@@ -135,9 +135,12 @@ class PlayerLogController extends Controller
         }
 
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'from' => 'nullable|string|max:24',
             'to' => 'nullable|string|max:24',
-            'limit' => 'nullable|integer|min:1|max:500',
+            'type' => 'nullable|string|in:+,-',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
             'server' => 'nullable|string|in:one,two,three',
         ]);
 
@@ -146,14 +149,17 @@ class PlayerLogController extends Controller
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getReputationLogs(
+        return response()->json(
+            $this->logService->getReputationLogs(
                 $server,
+                (int) $request->query('page', 0),
                 $request->from,
                 $request->to,
-                (int) $request->input('limit', 100)
-            ),
-        ]);
+                $request->type,
+                $request->date_from,
+                $request->date_to
+            )
+        );
     }
 
     public function nicknameLogs(Request $request): JsonResponse
@@ -193,8 +199,8 @@ class PlayerLogController extends Controller
         }
 
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'player' => 'nullable|string|max:24',
-            'limit' => 'nullable|integer|min:1|max:200',
             'server' => 'nullable|string|in:one,two,three',
         ]);
 
@@ -203,13 +209,13 @@ class PlayerLogController extends Controller
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getUnbanLogs(
+        return response()->json(
+            $this->logService->getUnbanLogs(
                 $server,
-                $request->player,
-                (int) $request->input('limit', 50)
-            ),
-        ]);
+                (int) $request->query('page', 0),
+                $request->player
+            )
+        );
     }
 
     public function permanentBans(Request $request): JsonResponse
@@ -219,9 +225,9 @@ class PlayerLogController extends Controller
         }
 
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'player' => 'nullable|string|max:24',
             'admin' => 'nullable|string|max:24',
-            'limit' => 'nullable|integer|min:1|max:200',
             'server' => 'nullable|string|in:one,two,three',
         ]);
 
@@ -230,14 +236,14 @@ class PlayerLogController extends Controller
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getPermanentBans(
+        return response()->json(
+            $this->logService->getPermanentBans(
                 $server,
+                (int) $request->query('page', 0),
                 $request->player,
-                $request->admin,
-                (int) $request->input('limit', 50)
-            ),
-        ]);
+                $request->admin
+            )
+        );
     }
 
     public function permanentIPBans(Request $request): JsonResponse
@@ -247,9 +253,9 @@ class PlayerLogController extends Controller
         }
 
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'ip' => 'nullable|string|max:45',
             'admin' => 'nullable|string|max:24',
-            'limit' => 'nullable|integer|min:1|max:200',
             'server' => 'nullable|string|in:one,two,three',
         ]);
 
@@ -258,14 +264,14 @@ class PlayerLogController extends Controller
             return response()->json(['error' => 'server_access_denied'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getPermanentIPBans(
+        return response()->json(
+            $this->logService->getPermanentIPBans(
                 $server,
+                (int) $request->query('page', 0),
                 $request->ip,
-                $request->admin,
-                (int) $request->input('limit', 50)
-            ),
-        ]);
+                $request->admin
+            )
+        );
     }
 
     public function matchmakingStats(Request $request): JsonResponse

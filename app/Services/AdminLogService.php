@@ -63,7 +63,8 @@ class AdminLogService
         ?string $reason = null,
         bool $withKills = false,
         ?string $dateFrom = null,
-        ?string $dateTo = null
+        ?string $dateTo = null,
+        string $sort = 'desc'
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -72,7 +73,9 @@ class AdminLogService
 
         $query = DB::connection($connection)->table('logsadmin');
 
-        if ($dateFrom && $dateTo) {
+        $useDateFilter = $dateFrom && $dateTo;
+
+        if ($useDateFilter) {
             $query->whereDate('Date', '>=', $dateFrom)
                 ->whereDate('Date', '<=', $dateTo);
         } else {
@@ -96,9 +99,18 @@ class AdminLogService
             $query->where('Reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
-        $total = $query->count();
+        $perPage = 200;
+        $total = null;
 
-        $rows = $query->orderByDesc('Date')->limit(50)->get();
+        if ($useDateFilter) {
+            $total = (clone $query)->count();
+            $rows = $query->orderBy('Date', $sort)
+                ->offset($page * $perPage)
+                ->limit($perPage)
+                ->get();
+        } else {
+            $rows = $query->orderBy('Date', $sort)->limit($perPage)->get();
+        }
 
         $killsMap = [];
         if ($withKills && $rows->isNotEmpty()) {
@@ -125,11 +137,18 @@ class AdminLogService
             'player_kills' => $withKills ? ($killsMap[$row->Player] ?? null) : null,
         ])->toArray();
 
-        return ['data' => $data, 'total' => $total, 'page' => $page];
+        return [
+            'data' => $data,
+            'total' => $total,
+            'total_pages' => $useDateFilter ? null : 30,
+            'page' => $page,
+            'day_based' => ! $useDateFilter,
+        ];
     }
 
     public function getIssuedWarnings(
         string $server,
+        int $page = 0,
         ?string $issuedBy = null,
         ?string $issuedTo = null,
         ?string $reason = null,
@@ -138,7 +157,7 @@ class AdminLogService
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         $query = DB::connection($connection)
@@ -158,8 +177,12 @@ class AdminLogService
             $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
         }
 
-        return $query->orderByDesc('date')
-            ->limit(100)
+        $perPage = 50;
+        $total = (clone $query)->count();
+
+        $data = $query->orderByDesc('date')
+            ->offset($page * $perPage)
+            ->limit($perPage)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->id,
@@ -170,10 +193,17 @@ class AdminLogService
                 'date' => $row->date,
             ])
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getRemovedAdmins(
         string $server,
+        int $page = 0,
         ?string $removedAdmin = null,
         ?string $removedBy = null,
         ?int $level = null,
@@ -183,7 +213,7 @@ class AdminLogService
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
-            return [];
+            return ['data' => [], 'total' => 0];
         }
 
         $query = DB::connection($connection)
@@ -206,8 +236,12 @@ class AdminLogService
             $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
         }
 
-        return $query->orderByDesc('date')
-            ->limit(100)
+        $perPage = 50;
+        $total = (clone $query)->count();
+
+        $data = $query->orderByDesc('date')
+            ->offset($page * $perPage)
+            ->limit($perPage)
             ->get()
             ->map(fn ($row) => [
                 'id' => $row->id,
@@ -219,6 +253,12 @@ class AdminLogService
                 'date' => $row->date,
             ])
             ->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+        ];
     }
 
     public function getPurchases(
@@ -229,7 +269,8 @@ class AdminLogService
         ?int $type = null,
         ?int $level = null,
         ?string $dateFrom = null,
-        ?string $dateTo = null
+        ?string $dateTo = null,
+        string $sort = 'desc'
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -241,7 +282,9 @@ class AdminLogService
             ->where('Status', 0)
             ->where('Status2', 1);
 
-        if ($dateFrom && $dateTo) {
+        $useDateFilter = $dateFrom && $dateTo;
+
+        if ($useDateFilter) {
             $query->whereDate('Date', '>=', $dateFrom)->whereDate('Date', '<=', $dateTo);
         } else {
             $startDate = now()->subDays($page)->startOfDay();
@@ -262,25 +305,38 @@ class AdminLogService
             $query->where('Level', $level);
         }
 
-        $total = $query->count();
+        $perPage = 50;
+        $total = null;
 
-        $data = $query->orderByDesc('Date')
-            ->limit(50)
-            ->get()
-            ->map(fn ($row) => [
-                'id' => $row->ID ?? null,
-                'admin_id' => $row->admacc ?? null,
-                'name' => $row->NameGame,
-                'vk_page' => $row->NameSkype,
-                'type' => $row->Type,
-                'type_name' => $this->buyTypeName($row->Type),
-                'level' => $row->Level,
-                'date' => $row->Date,
-                'needs_confirm' => ($row->admgive ?? 0) == 1,
-            ])
-            ->toArray();
+        if ($useDateFilter) {
+            $total = (clone $query)->count();
+            $rows = $query->orderBy('Date', $sort)
+                ->offset($page * $perPage)
+                ->limit($perPage)
+                ->get();
+        } else {
+            $rows = $query->orderBy('Date', $sort)->limit($perPage)->get();
+        }
 
-        return ['data' => $data, 'total' => $total, 'page' => $page];
+        $data = $rows->map(fn ($row) => [
+            'id' => $row->ID ?? null,
+            'admin_id' => $row->admacc ?? null,
+            'name' => $row->NameGame,
+            'vk_page' => $row->NameSkype,
+            'type' => $row->Type,
+            'type_name' => $this->buyTypeName($row->Type),
+            'level' => $row->Level,
+            'date' => $row->Date,
+            'needs_confirm' => ($row->admgive ?? 0) == 1,
+        ])->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'total_pages' => $useDateFilter ? null : 30,
+            'page' => $page,
+            'day_based' => ! $useDateFilter,
+        ];
     }
 
     public function getGAActions(
@@ -291,7 +347,8 @@ class AdminLogService
         ?int $actionType = null,
         ?string $reason = null,
         ?string $dateFrom = null,
-        ?string $dateTo = null
+        ?string $dateTo = null,
+        string $sort = 'desc'
     ): array {
         $connection = $this->conn($server);
         if (! $connection) {
@@ -302,7 +359,9 @@ class AdminLogService
 
         $query->whereNotIn('type', [7, 11, 12]);
 
-        if ($dateFrom && $dateTo) {
+        $useDateFilter = $dateFrom && $dateTo;
+
+        if ($useDateFilter) {
             $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
         } else {
             $startDate = now()->subDays($page)->startOfDay();
@@ -323,26 +382,39 @@ class AdminLogService
             $query->where('reason', 'like', '%'.$this->escapeLike($reason).'%');
         }
 
-        $total = $query->count();
+        $perPage = 50;
+        $total = null;
 
-        $data = $query->orderByDesc('date')
-            ->limit(50)
-            ->get()
-            ->map(fn ($row) => [
-                'id' => $row->id,
-                'admin_id' => $row->idadm ?? null,
-                'admin' => $row->admin,
-                'target' => $row->name,
-                'type' => $row->type,
-                'type_name' => $this->actionTypeName($row->type),
-                'amount' => $row->kolvo ?? null,
-                'reason' => $row->reason,
-                'date' => $row->date,
-                'can_cancel' => ($row->status ?? 0) == 1,
-            ])
-            ->toArray();
+        if ($useDateFilter) {
+            $total = (clone $query)->count();
+            $rows = $query->orderBy('date', $sort)
+                ->offset($page * $perPage)
+                ->limit($perPage)
+                ->get();
+        } else {
+            $rows = $query->orderBy('date', $sort)->limit($perPage)->get();
+        }
 
-        return ['data' => $data, 'total' => $total, 'page' => $page];
+        $data = $rows->map(fn ($row) => [
+            'id' => $row->id,
+            'admin_id' => $row->idadm ?? null,
+            'admin' => $row->admin,
+            'target' => $row->name,
+            'type' => $row->type,
+            'type_name' => $this->actionTypeName($row->type),
+            'amount' => $row->kolvo ?? null,
+            'reason' => $row->reason,
+            'date' => $row->date,
+            'can_cancel' => ($row->status ?? 0) == 1,
+        ])->toArray();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'total_pages' => $useDateFilter ? null : 30,
+            'page' => $page,
+            'day_based' => ! $useDateFilter,
+        ];
     }
 
     public function getServerSettings(string $server): ?array

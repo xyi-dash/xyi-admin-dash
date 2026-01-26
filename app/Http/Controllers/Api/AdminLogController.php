@@ -23,7 +23,7 @@ class AdminLogController extends Controller
     public function adminActions(Request $request): JsonResponse
     {
         $request->validate([
-            'page' => 'nullable|integer|min:0|max:365',
+            'page' => 'nullable|integer|min:0',
             'admin' => 'nullable|string|max:24',
             'player' => 'nullable|string|max:24',
             'cmd' => 'nullable|string|max:50',
@@ -31,6 +31,7 @@ class AdminLogController extends Controller
             'with_kills' => 'nullable|boolean',
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date',
+            'sort' => 'nullable|string|in:asc,desc',
         ]);
 
         $server = $this->resolveServer($request, 6);
@@ -55,7 +56,8 @@ class AdminLogController extends Controller
                 $request->query('reason'),
                 $request->boolean('with_kills'),
                 $request->query('date_from'),
-                $request->query('date_to')
+                $request->query('date_to'),
+                $request->query('sort', 'desc')
             )
         );
     }
@@ -63,6 +65,7 @@ class AdminLogController extends Controller
     public function warnings(Request $request): JsonResponse
     {
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'issued_by' => 'nullable|string|max:24',
             'issued_to' => 'nullable|string|max:24',
             'reason' => 'nullable|string|max:255',
@@ -79,28 +82,30 @@ class AdminLogController extends Controller
             return response()->json(['error' => 'cirno tried but 6+ needed'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getIssuedWarnings(
+        return response()->json(
+            $this->logService->getIssuedWarnings(
                 $server,
+                (int) $request->query('page', 0),
                 $request->query('issued_by'),
                 $request->query('issued_to'),
                 $request->query('reason'),
                 $request->query('date_from'),
                 $request->query('date_to')
-            ),
-        ]);
+            )
+        );
     }
 
     public function purchases(Request $request): JsonResponse
     {
         $request->validate([
-            'page' => 'nullable|integer|min:0|max:365',
+            'page' => 'nullable|integer|min:0',
             'admin' => 'nullable|string|max:24',
             'vk' => 'nullable|string|max:100',
             'type' => 'nullable|integer|min:1|max:10',
             'level' => 'nullable|integer|min:1|max:8',
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date',
+            'sort' => 'nullable|string|in:asc,desc',
         ]);
 
         $server = $this->resolveServer($request, 6);
@@ -121,7 +126,8 @@ class AdminLogController extends Controller
                 $request->query('type') ? (int) $request->query('type') : null,
                 $request->query('level') ? (int) $request->query('level') : null,
                 $request->query('date_from'),
-                $request->query('date_to')
+                $request->query('date_to'),
+                $request->query('sort', 'desc')
             )
         );
     }
@@ -164,6 +170,7 @@ class AdminLogController extends Controller
     public function removedAdmins(Request $request): JsonResponse
     {
         $request->validate([
+            'page' => 'nullable|integer|min:0',
             'removed' => 'nullable|string|max:24',
             'removed_by' => 'nullable|string|max:24',
             'level' => 'nullable|integer|min:1|max:8',
@@ -177,29 +184,31 @@ class AdminLogController extends Controller
             return response()->json(['error' => 'need 7lvl on this server blud'], 403);
         }
 
-        return response()->json([
-            'data' => $this->logService->getRemovedAdmins(
+        return response()->json(
+            $this->logService->getRemovedAdmins(
                 $server,
+                (int) $request->query('page', 0),
                 $request->query('removed'),
                 $request->query('removed_by'),
                 $request->query('level') ? (int) $request->query('level') : null,
                 $request->query('reason'),
                 $request->query('date_from'),
                 $request->query('date_to')
-            ),
-        ]);
+            )
+        );
     }
 
     public function gaActions(Request $request): JsonResponse
     {
         $request->validate([
-            'page' => 'nullable|integer|min:0|max:365',
+            'page' => 'nullable|integer|min:0',
             'ga' => 'nullable|string|max:24',
             'target' => 'nullable|string|max:24',
             'type' => 'nullable|integer|min:1|max:20',
             'reason' => 'nullable|string|max:255',
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date',
+            'sort' => 'nullable|string|in:asc,desc',
         ]);
 
         $server = $this->resolveServer($request, 8);
@@ -216,7 +225,8 @@ class AdminLogController extends Controller
                 $request->query('type') ? (int) $request->query('type') : null,
                 $request->query('reason'),
                 $request->query('date_from'),
-                $request->query('date_to')
+                $request->query('date_to'),
+                $request->query('sort', 'desc')
             )
         );
     }
