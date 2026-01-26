@@ -8,6 +8,7 @@ use App\Http\Requests\AdminManageRequest;
 use App\Models\ActionLog;
 use App\Services\AdminManagementService;
 use App\Services\GameAccountService;
+use App\Services\NormHistoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,8 @@ class AdminManagementController extends Controller
 
     public function __construct(
         private AdminManagementService $mgmtService,
-        private GameAccountService $gameService
+        private GameAccountService $gameService,
+        private NormHistoryService $normHistoryService
     ) {}
 
     public function execute(AdminManageRequest $request): JsonResponse
@@ -265,6 +267,31 @@ class AdminManagementController extends Controller
         }
 
         return $data;
+    }
+
+    public function normHistory(Request $request, string $adminName): JsonResponse
+    {
+        $server = $this->resolveServer($request);
+
+        if (! $server) {
+            return response()->json(['error' => 'boundary_sealed'], 403);
+        }
+
+        $targetAdmin = $this->gameService->getAdminByName($server, $adminName);
+        if (! $targetAdmin) {
+            return response()->json(['error' => 'admin_spirited_away'], 404);
+        }
+
+        $serverNum = match ($server) {
+            'one' => 1,
+            'two' => 2,
+            'three' => 3,
+            default => 1,
+        };
+
+        return response()->json(
+            $this->normHistoryService->getHistory($targetAdmin->ID, $serverNum)
+        );
     }
 
     private function formatTime(int $seconds): string
