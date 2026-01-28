@@ -39,7 +39,7 @@ const canAddAdmin = computed(() => {
 
 const maxAssignableLevel = computed(() => {
     if (!authStore.admin) return 5;
-    return authStore.admin.level >= 7 ? 6 : 5;
+    return authStore.admin.level === 8 ? 7 : (authStore.admin.level === 7 ? 6 : 5);
 });
 
 const levelOptions = computed(() => {
