@@ -78,6 +78,7 @@ class AccountController extends Controller
 
             'security' => [
                 'has_2fa' => ($account->TDPass ?? '-') !== '-',
+                'google_type' => $account->GoogleType ?? 0,
             ],
         ];
     }

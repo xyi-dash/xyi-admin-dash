@@ -19,7 +19,9 @@
     "online": "Онлайн",
     "nothing": "тут ничего нет",
     "not_implemented": "еще не реализовано",
-    "account": "Аккаунт"
+    "account": "Аккаунт",
+    "connected": "Подключен",
+    "not_connected": "Не подключен"
   },
   "errors": {
     "no_access": "нет доступа",

@@ -19,7 +19,9 @@
     "online": "Online",
     "nothing": "nothing here",
     "not_implemented": "not implemented yet",
-    "account": "Account"
+    "account": "Account",
+    "connected": "Connected",
+    "not_connected": "Not connected"
   },
   "errors": {
     "no_access": "no access",

@@ -1,38 +1,35 @@
 <template>
-  <div class="dashboard">
-<div class="header">
-    <div class="header__left">
-      <strong class="header__name">
-        {{ profile?.account?.name || account?.name || '...' }}
-      </strong>
-      <span class="header__server">({{ account?.server }})</span>
-      <span v-if="profile?.account?.is_online" class="status-online">[online]</span>
-    </div>
+  <div class="dashboard-wrapper">
+    <div v-if="loading" class="dashboard-loading">{{ $t('common.loading') }}</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else-if="profile?.account" class="dashboard-center">
+      <div class="header">
+        <div class="header__left">
+          <strong class="header__name">
+            {{ profile?.account?.name || account?.name || '...' }}
+          </strong>
+          <span class="header__server">({{ account?.server }})</span>
+          <span v-if="profile?.account?.is_online" class="status-online">[online]</span>
+        </div>
 
-    <div class="header__actions">
-      <button class="btn btn--lang" @click="toggleLocale" :title="currentLocale === 'ru' ? 'Switch to English' : 'Переключить на русский'">
-        {{ currentLocale.toUpperCase() }}
-      </button>
-      <button v-if="profile?.is_admin" class="btn btn--admin" @click="goToAdmin" title="Admin Panel">
-        {{ $t('dashboard.admin_panel') }}
-        <svg viewBox="0 0 24 24">
-          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5Z"/>
-        </svg>
-      </button>
+        <div class="header__actions">
+          <button class="btn btn--lang" @click="toggleLocale" :title="currentLocale === 'ru' ? 'Switch to English' : 'Переключить на русский'">
+            {{ currentLocale.toUpperCase() }}
+          </button>
+          <button v-if="profile?.is_admin" class="btn btn--admin" @click="goToAdmin" title="Admin Panel">
+            {{ $t('dashboard.admin_panel') }}
+            <svg viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5Z"/>
+            </svg>
+          </button>
 
-
-      <button class="btn btn--logout" @click="logout" :title="$t('dashboard.logout')">
-        <svg viewBox="0 0 24 24">
-          <path d="M10 17l5-5-5-5v10Zm9-12h-8v2h8v10h-8v2h8c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2Z"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div v-if="loading" class="loading">{{ $t('common.loading') }}</div>
-<div v-else-if="error" class="error">{{ error }}</div>
-<template v-else-if="profile?.account">
+          <button class="btn btn--logout" @click="logout" :title="$t('dashboard.logout')">
+            <svg viewBox="0 0 24 24">
+              <path d="M10 17l5-5-5-5v10Zm9-12h-8v2h8v10h-8v2h8c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
       <div class="dash-card">
         <div class="dash-card__header">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -123,10 +120,11 @@
         </div>
         <div class="dash-card__body">
           <div class="dash-row">
-            <span class="dash-row__label">Google Type:</span>
-            <span class="dash-row__value">{{ profile.account.security.google_type || 1 }}</span>
+            <span class="dash-row__label">Google Authenticator</span>
+            <span class="dash-row__value" :class="profile.account.security.google_type ? 'dash-row__value--green' : 'dash-row__value--muted'">
+              {{ profile.account.security.google_type ? $t('common.connected') : $t('common.not_connected') }}
+            </span>
           </div>
-
         </div>
       </div>
 
@@ -169,7 +167,8 @@
           </div>
         </div>
       </div>
-</template>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -198,6 +197,13 @@ export default {
   },
   mounted() {
     this.loadProfile()
+  },
+  computed: {
+    calculateKD() {
+      const kills = this.profile?.account?.stats?.kills || 0
+      const deaths = this.profile?.account?.stats?.deaths || 1
+      return (kills / deaths).toFixed(2)
+    }
   },
   methods: {
     async loadProfile() {
