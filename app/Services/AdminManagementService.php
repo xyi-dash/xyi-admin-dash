@@ -544,7 +544,7 @@ class AdminManagementService
             return ['success' => false, 'error' => 'insufficient_level'];
         }
 
-        $maxLevel = $actorLevel >= 7 ? 6 : 0;
+        $maxLevel = $actorLevel === 8 ? 7 : ($actorLevel === 7 ? 6 : 0);
 
         if ($level < 1 || $level > $maxLevel) {
             return ['success' => false, 'error' => 'invalid_level'];
