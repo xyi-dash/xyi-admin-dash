@@ -72,16 +72,11 @@ class AdminLogService
         }
 
         $query = DB::connection($connection)->table('logsadmin');
+        $query->where('Date', '>', now('Europe/Moscow')->subDays(30)->startOfDay());
 
-        $useDateFilter = $dateFrom && $dateTo;
-
-        if ($useDateFilter) {
+        if ($dateFrom && $dateTo) {
             $query->whereDate('Date', '>=', $dateFrom)
                 ->whereDate('Date', '<=', $dateTo);
-        } else {
-            $startDate = now()->subDays($page)->startOfDay();
-            $endDate = now()->subDays($page - 1)->startOfDay();
-            $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
         }
 
         $query->where('ALevel', '<=', $viewerLevel);
@@ -100,17 +95,12 @@ class AdminLogService
         }
 
         $perPage = 200;
-        $total = null;
+        $total = (clone $query)->count();
 
-        if ($useDateFilter) {
-            $total = (clone $query)->count();
-            $rows = $query->orderBy('Date', $sort)
-                ->offset($page * $perPage)
-                ->limit($perPage)
-                ->get();
-        } else {
-            $rows = $query->orderBy('Date', $sort)->limit($perPage)->get();
-        }
+        $rows = $query->orderBy('Date', $sort)
+            ->offset($page * $perPage)
+            ->limit($perPage)
+            ->get();
 
         $killsMap = [];
         if ($withKills && $rows->isNotEmpty()) {
@@ -140,9 +130,7 @@ class AdminLogService
         return [
             'data' => $data,
             'total' => $total,
-            'total_pages' => $useDateFilter ? null : 30,
             'page' => $page,
-            'day_based' => ! $useDateFilter,
         ];
     }
 
@@ -282,14 +270,10 @@ class AdminLogService
             ->where('Status', 0)
             ->where('Status2', 1);
 
-        $useDateFilter = $dateFrom && $dateTo;
+        $query->where('Date', '>', now('Europe/Moscow')->subDays(30)->startOfDay());
 
-        if ($useDateFilter) {
+        if ($dateFrom && $dateTo) {
             $query->whereDate('Date', '>=', $dateFrom)->whereDate('Date', '<=', $dateTo);
-        } else {
-            $startDate = now()->subDays($page)->startOfDay();
-            $endDate = now()->subDays($page - 1)->startOfDay();
-            $query->where('Date', '>', $startDate)->where('Date', '<=', $endDate);
         }
 
         if ($admin) {
@@ -306,17 +290,12 @@ class AdminLogService
         }
 
         $perPage = 50;
-        $total = null;
+        $total = (clone $query)->count();
 
-        if ($useDateFilter) {
-            $total = (clone $query)->count();
-            $rows = $query->orderBy('Date', $sort)
-                ->offset($page * $perPage)
-                ->limit($perPage)
-                ->get();
-        } else {
-            $rows = $query->orderBy('Date', $sort)->limit($perPage)->get();
-        }
+        $rows = $query->orderBy('Date', $sort)
+            ->offset($page * $perPage)
+            ->limit($perPage)
+            ->get();
 
         $data = $rows->map(fn ($row) => [
             'id' => $row->ID ?? null,
@@ -333,9 +312,7 @@ class AdminLogService
         return [
             'data' => $data,
             'total' => $total,
-            'total_pages' => $useDateFilter ? null : 30,
             'page' => $page,
-            'day_based' => ! $useDateFilter,
         ];
     }
 
@@ -359,14 +336,10 @@ class AdminLogService
 
         $query->whereNotIn('type', [7, 11, 12]);
 
-        $useDateFilter = $dateFrom && $dateTo;
+        $query->where('date', '>', now('Europe/Moscow')->subDays(30)->startOfDay());
 
-        if ($useDateFilter) {
+        if ($dateFrom && $dateTo) {
             $query->whereDate('date', '>=', $dateFrom)->whereDate('date', '<=', $dateTo);
-        } else {
-            $startDate = now()->subDays($page)->startOfDay();
-            $endDate = now()->subDays($page - 1)->startOfDay();
-            $query->where('date', '>', $startDate)->where('date', '<=', $endDate);
         }
 
         if ($gaAdmin) {
@@ -383,17 +356,12 @@ class AdminLogService
         }
 
         $perPage = 50;
-        $total = null;
+        $total = (clone $query)->count();
 
-        if ($useDateFilter) {
-            $total = (clone $query)->count();
-            $rows = $query->orderBy('date', $sort)
-                ->offset($page * $perPage)
-                ->limit($perPage)
-                ->get();
-        } else {
-            $rows = $query->orderBy('date', $sort)->limit($perPage)->get();
-        }
+        $rows = $query->orderBy('date', $sort)
+            ->offset($page * $perPage)
+            ->limit($perPage)
+            ->get();
 
         $data = $rows->map(fn ($row) => [
             'id' => $row->id,
@@ -411,9 +379,7 @@ class AdminLogService
         return [
             'data' => $data,
             'total' => $total,
-            'total_pages' => $useDateFilter ? null : 30,
             'page' => $page,
-            'day_based' => ! $useDateFilter,
         ];
     }
 
