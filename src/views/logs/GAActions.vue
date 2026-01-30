@@ -18,7 +18,6 @@ const data = ref([]);
 const first = ref(0);
 const page = ref(0);
 const totalRecords = ref(0);
-const dayBased = ref(true);
 const sortField = ref(null);
 const sortOrder = ref(null);
 const dateRange = ref(null);
@@ -126,14 +125,7 @@ async function loadData(scroll = true) {
 
         const response = await api.get(`/admin/logs/ga-actions?${params}`);
         data.value = response.data.data || [];
-        dayBased.value = response.data.day_based ?? true;
-        
-        if (dayBased.value) {
-            totalRecords.value = 30 * rows;
-        } else {
-            const total = response.data.total ?? data.value.length;
-            totalRecords.value = Math.max(total, (page.value + 1) * rows);
-        }
+        totalRecords.value = response.data.total ?? 0;
         
         updateUrl();
         if (scroll) scrollToTop();
