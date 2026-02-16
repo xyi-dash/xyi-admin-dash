@@ -165,7 +165,7 @@ router.beforeEach(async (to, from, next) => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
-    if (token && !authStore.initialized && !authStore.isAuthenticated) {
+    if (token) {
         window.history.replaceState({}, '', window.location.pathname);
         const success = await authStore.initFromToken(token);
         if (!success) {

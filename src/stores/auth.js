@@ -47,7 +47,13 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem('admin_user', JSON.stringify(data.user));
 
             user.value = data.user;
-            currentServer.value = localStorage.getItem('current_server') || data.user.server;
+            currentServer.value = data.user.server;
+            localStorage.setItem('current_server', data.user.server);
+
+            admin.value = null;
+            unlockedServers.value = [];
+            canAccessCP.value = false;
+            localStorage.removeItem('unlocked_servers');
 
             await refreshSessionStatus();
 
