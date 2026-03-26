@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\AdminCardController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminLogController;
 use App\Http\Controllers\Api\AdminManagementController;
@@ -91,5 +92,13 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', '
         Route::get('/matchmaking', [PlayerLogController::class, 'matchmakingStats']);
         Route::get('/money-transfers', [PlayerLogController::class, 'moneyTransferLogs']);
         Route::get('/accessories', [PlayerLogController::class, 'accessoryLogs']);
+    });
+
+    // Admin Card System routes
+    Route::prefix('cards')->group(function () {
+        Route::post('/', [AdminCardController::class, 'store'])->middleware('throttle:sensitive');
+        Route::get('/pending', [AdminCardController::class, 'index']);
+        Route::post('/{cardId}/review', [AdminCardController::class, 'review'])->middleware('throttle:sensitive');
+        Route::post('/{cardId}/confirm-ban', [AdminCardController::class, 'confirmBan'])->middleware('throttle:sensitive');
     });
 });
