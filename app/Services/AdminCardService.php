@@ -83,6 +83,59 @@ class AdminCardService
     }
 
     /**
+     * get pending cards filtered by action type
+     *
+     * @param  string  $type  'warnings' or 'bans'
+     * @param  string|null  $server  Optional server filter
+     * @return Collection
+     */
+    public function getPendingCardsByType(string $type, ?string $server = null): Collection
+    {
+        $query = AdminCard::pending()->orderByDesc('created_at');
+
+        if ($type === 'warnings') {
+            $query->whereIn('action_type', ['warning_add', 'warning_remove']);
+        } elseif ($type === 'bans') {
+            $query->where('action_type', 'permanent_ban');
+        }
+
+        if ($server) {
+            $query->byServer($server);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * get processed cards with filtering and sorting
+     *
+     * @param  array  $filters  ['status', 'action_type', 'target_name']
+     * @param  string  $sort  'asc' or 'desc'
+     * @param  int  $perPage
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getProcessedCards(array $filters = [], string $sort = 'desc', int $perPage = 20): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = AdminCard::query()
+            ->whereIn('status', ['approved', 'rejected'])
+            ->orderBy('reviewed_at', $sort);
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['action_type'])) {
+            $query->where('action_type', $filters['action_type']);
+        }
+
+        if (! empty($filters['target_name'])) {
+            $query->where('target_admin_name', 'LIKE', '%'.$filters['target_name'].'%');
+        }
+
+        return $query->paginate($perPage);
+    }
+
+    /**
      * review a card (approve or reject)
      */
     public function reviewCard(int $cardId, string $action, int $reviewerId, string $reviewerName, string $reviewerServer): array

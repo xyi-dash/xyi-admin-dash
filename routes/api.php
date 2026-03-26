@@ -98,6 +98,9 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', '
     Route::prefix('cards')->group(function () {
         Route::post('/', [AdminCardController::class, 'store'])->middleware('throttle:sensitive');
         Route::get('/pending', [AdminCardController::class, 'index']);
+        Route::get('/pending/warnings', [AdminCardController::class, 'pendingWarnings']);
+        Route::get('/pending/bans', [AdminCardController::class, 'pendingBans']);
+        Route::get('/history', [AdminCardController::class, 'history']);
         Route::post('/{cardId}/review', [AdminCardController::class, 'review'])->middleware('throttle:sensitive');
         Route::post('/{cardId}/confirm-ban', [AdminCardController::class, 'confirmBan'])->middleware('throttle:sensitive');
     });

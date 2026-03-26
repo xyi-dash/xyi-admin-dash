@@ -220,4 +220,125 @@ class AdminCardServiceTest extends TestCase
         $this->assertFalse($result['success']);
         $this->assertEquals('no_active_warning', $result['error']);
     }
+
+    public function test_get_pending_cards_by_type_returns_only_warnings(): void
+    {
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'warning_add', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'warning_remove', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'permanent_ban', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'approved', 'action_type' => 'warning_add', 'creator_server' => 'one']);
+
+        $cards = $this->service->getPendingCardsByType('warnings');
+
+        $this->assertCount(2, $cards);
+        $this->assertTrue($cards->every(fn ($card) => in_array($card->action_type, ['warning_add', 'warning_remove'])));
+    }
+
+    public function test_get_pending_cards_by_type_returns_only_bans(): void
+    {
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'warning_add', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'permanent_ban', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'permanent_ban', 'creator_server' => 'two']);
+        AdminCard::factory()->create(['status' => 'approved', 'action_type' => 'permanent_ban', 'creator_server' => 'one']);
+
+        $cards = $this->service->getPendingCardsByType('bans');
+
+        $this->assertCount(2, $cards);
+        $this->assertTrue($cards->every(fn ($card) => $card->action_type === 'permanent_ban'));
+    }
+
+    public function test_get_pending_cards_by_type_filters_by_server(): void
+    {
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'warning_add', 'creator_server' => 'one']);
+        AdminCard::factory()->create(['status' => 'pending', 'action_type' => 'warning_remove', 'creator_server' => 'two']);
+
+        $cards = $this->service->getPendingCardsByType('warnings', 'one');
+
+        $this->assertCount(1, $cards);
+        $this->assertEquals('one', $cards->first()->creator_server);
+    }
+
+    public function test_get_processed_cards_returns_only_processed(): void
+    {
+        AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(2)]);
+        AdminCard::factory()->create(['status' => 'rejected', 'reviewed_at' => now()->subHours(1)]);
+        AdminCard::factory()->create(['status' => 'pending']);
+        AdminCard::factory()->create(['status' => 'requires_confirmation']);
+
+        $result = $this->service->getProcessedCards();
+
+        $this->assertCount(2, $result);
+        $this->assertTrue($result->every(fn ($card) => in_array($card->status, ['approved', 'rejected'])));
+    }
+
+    public function test_get_processed_cards_filters_by_status(): void
+    {
+        AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(2)]);
+        AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(1)]);
+        AdminCard::factory()->create(['status' => 'rejected', 'reviewed_at' => now()]);
+
+        $result = $this->service->getProcessedCards(['status' => 'approved']);
+
+        $this->assertCount(2, $result);
+        $this->assertTrue($result->every(fn ($card) => $card->status === 'approved'));
+    }
+
+    public function test_get_processed_cards_filters_by_action_type(): void
+    {
+        AdminCard::factory()->create(['status' => 'approved', 'action_type' => 'warning_add', 'reviewed_at' => now()->subHours(2)]);
+        AdminCard::factory()->create(['status' => 'approved', 'action_type' => 'warning_remove', 'reviewed_at' => now()->subHours(1)]);
+        AdminCard::factory()->create(['status' => 'approved', 'action_type' => 'permanent_ban', 'reviewed_at' => now()]);
+
+        $result = $this->service->getProcessedCards(['action_type' => 'permanent_ban']);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('permanent_ban', $result->first()->action_type);
+    }
+
+    public function test_get_processed_cards_filters_by_target_name(): void
+    {
+        AdminCard::factory()->create(['status' => 'approved', 'target_admin_name' => 'TestAdmin', 'reviewed_at' => now()->subHours(2)]);
+        AdminCard::factory()->create(['status' => 'approved', 'target_admin_name' => 'AnotherAdmin', 'reviewed_at' => now()->subHours(1)]);
+        AdminCard::factory()->create(['status' => 'approved', 'target_admin_name' => 'TestPlayer', 'reviewed_at' => now()]);
+
+        $result = $this->service->getProcessedCards(['target_name' => 'Test']);
+
+        $this->assertCount(2, $result);
+        $this->assertTrue($result->every(fn ($card) => str_contains($card->target_admin_name, 'Test')));
+    }
+
+    public function test_get_processed_cards_sorts_ascending(): void
+    {
+        $card1 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(3)]);
+        $card2 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(2)]);
+        $card3 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(1)]);
+
+        $result = $this->service->getProcessedCards([], 'asc');
+
+        $this->assertEquals($card1->id, $result->first()->id);
+        $this->assertEquals($card3->id, $result->last()->id);
+    }
+
+    public function test_get_processed_cards_sorts_descending(): void
+    {
+        $card1 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(3)]);
+        $card2 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(2)]);
+        $card3 = AdminCard::factory()->create(['status' => 'approved', 'reviewed_at' => now()->subHours(1)]);
+
+        $result = $this->service->getProcessedCards([], 'desc');
+
+        $this->assertEquals($card3->id, $result->first()->id);
+        $this->assertEquals($card1->id, $result->last()->id);
+    }
+
+    public function test_get_processed_cards_paginates_results(): void
+    {
+        AdminCard::factory()->count(25)->create(['status' => 'approved', 'reviewed_at' => now()]);
+
+        $result = $this->service->getProcessedCards([], 'desc', 10);
+
+        $this->assertCount(10, $result);
+        $this->assertEquals(25, $result->total());
+        $this->assertEquals(3, $result->lastPage());
+    }
 }
