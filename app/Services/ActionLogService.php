@@ -61,6 +61,16 @@ class ActionLogService
 
     public const CP_USER_UPDATE = 'cp_user_update';
 
+    public const ADMIN_CARD_CREATED = 'admin_card_created';
+
+    public const ADMIN_CARD_APPROVED = 'admin_card_approved';
+
+    public const ADMIN_CARD_REJECTED = 'admin_card_rejected';
+
+    public const ADMIN_CARD_REQUIRES_CONFIRMATION = 'admin_card_requires_confirmation';
+
+    public const ADMIN_PERMANENT_BAN_CONFIRMED = 'admin_permanent_ban_confirmed';
+
     public function log(
         string $actionType,
         int $actorId,
@@ -163,6 +173,11 @@ class ActionLogService
             self::CP_USER_ADD => 'cp user add',
             self::CP_USER_REMOVE => 'cp user remove',
             self::CP_USER_UPDATE => 'cp user update',
+            self::ADMIN_CARD_CREATED => 'admin card created',
+            self::ADMIN_CARD_APPROVED => 'admin card approved',
+            self::ADMIN_CARD_REJECTED => 'admin card rejected',
+            self::ADMIN_CARD_REQUIRES_CONFIRMATION => 'admin card requires confirmation',
+            self::ADMIN_PERMANENT_BAN_CONFIRMED => 'admin permanent ban confirmed',
         ];
     }
 }
