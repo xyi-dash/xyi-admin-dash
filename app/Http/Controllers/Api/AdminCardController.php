@@ -36,21 +36,16 @@ class AdminCardController extends Controller
             return response()->json(['error' => 'insufficient_level', 'required_level' => 6], 403);
         }
 
-        $result = $this->cardService->createCard(
+        $card = $this->cardService->createCard(
             $request->validated(),
             $user->game_account_id,
             $user->game_account_name,
-            $server,
-            $request->ip()
+            $server
         );
-
-        if (! $result['success']) {
-            return response()->json(['error' => $result['error']], $result['status'] ?? 400);
-        }
 
         return response()->json([
             'success' => true,
-            'card' => $result['card'],
+            'card' => $card,
         ], 201);
     }
 
