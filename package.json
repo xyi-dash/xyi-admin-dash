@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "@primevue/themes": "^4.5.4",
-        "@vitejs/plugin-vue": "^6.0.3",
+        "@vitejs/plugin-vue": "^6.0.5",
         "primeicons": "^7.0.0",
         "primevue": "^4.5.4",
         "sass": "^1.97.2",
