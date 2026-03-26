@@ -44,4 +44,13 @@ trait ResolvesServer
 
         return $admin ? ($admin->Adm ?? 0) : 0;
     }
+
+    protected function isGAOnServer(Request $request, string $server): bool
+    {
+        $user = $request->user();
+        $gameService = app(GameAccountService::class);
+        $admin = $gameService->getAdminByName($server, $user->game_account_name);
+
+        return $admin ? (($admin->GA ?? 0) == 1) : false;
+    }
 }

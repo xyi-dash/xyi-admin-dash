@@ -50,7 +50,7 @@ class AdminCardController extends Controller
     }
 
     /**
-     * Get list of pending cards (Level 7+ access)
+     * Get list of pending cards (Level 7+ OR Level 6 GA for warnings only)
      */
     public function index(Request $request): JsonResponse
     {
@@ -62,12 +62,20 @@ class AdminCardController extends Controller
         }
 
         $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $isGA = $this->isGAOnServer($request, $server);
 
-        if ($myLevel < 7) {
+        // Level 7+ see all cards, Level 6 GA see only warnings
+        if ($myLevel < 6 || ($myLevel === 6 && !$isGA)) {
             return response()->json(['error' => 'insufficient_level', 'required_level' => 7], 403);
         }
 
-        $cards = $this->cardService->getPendingCards($server);
+        if ($myLevel === 6 && $isGA) {
+            // Level 6 GA can only see warning cards
+            $cards = $this->cardService->getPendingCardsByType('warnings', $server);
+        } else {
+            // Level 7+ see all cards
+            $cards = $this->cardService->getPendingCards($server);
+        }
 
         return response()->json([
             'cards' => $cards,
@@ -125,7 +133,7 @@ class AdminCardController extends Controller
     }
 
     /**
-     * Get card history with filtering and sorting (Level 7+ access)
+     * Get card history with filtering and sorting (Level 7+ OR Level 6 GA)
      */
     public function history(Request $request): JsonResponse
     {
@@ -137,8 +145,9 @@ class AdminCardController extends Controller
         }
 
         $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $isGA = $this->isGAOnServer($request, $server);
 
-        if ($myLevel < 7) {
+        if ($myLevel < 6 || ($myLevel === 6 && !$isGA)) {
             return response()->json(['error' => 'insufficient_level', 'required_level' => 7], 403);
         }
 
@@ -147,6 +156,11 @@ class AdminCardController extends Controller
             'action_type' => $request->query('action_type'),
             'target_name' => $request->query('target_name'),
         ];
+
+        // Level 6 GA can only see warning cards in history
+        if ($myLevel === 6 && $isGA) {
+            $filters['action_type'] = 'warnings';
+        }
 
         $sort = $request->query('sort', 'desc');
         $perPage = min((int) $request->query('per_page', 20), 100);
@@ -165,7 +179,7 @@ class AdminCardController extends Controller
     }
 
     /**
-     * Review a card (approve/reject) (Level 7+ access)
+     * Review a card (approve/reject) (Level 7+ OR Level 6 GA for warnings only)
      */
     public function review(ReviewAdminCardRequest $request, int $cardId): JsonResponse
     {
@@ -177,9 +191,18 @@ class AdminCardController extends Controller
         }
 
         $myLevel = $this->getAdminLevelOnServer($request, $server);
+        $isGA = $this->isGAOnServer($request, $server);
 
-        if ($myLevel < 7) {
+        if ($myLevel < 6 || ($myLevel === 6 && !$isGA)) {
             return response()->json(['error' => 'insufficient_level', 'required_level' => 7], 403);
+        }
+
+        // Level 6 GA can only review warning cards
+        if ($myLevel === 6 && $isGA) {
+            $card = $this->cardService->getCardById($cardId);
+            if (!$card || !in_array($card->action_type, ['warning_add', 'warning_remove'])) {
+                return response()->json(['error' => 'insufficient_level', 'required_level' => 7], 403);
+            }
         }
 
         $result = $this->cardService->reviewCard(

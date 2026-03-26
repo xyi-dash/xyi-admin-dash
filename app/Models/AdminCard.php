@@ -17,6 +17,7 @@ class AdminCard extends Model
         'action_type',
         'reason',
         'evidence',
+        'custom_action_description',
         'status',
         'reviewed_by',
         'reviewed_at',

@@ -220,7 +220,7 @@ export default {
       try {
         const response = await axios.post('/api/admin/prepare-redirect')
         const token = response.data.token
-        const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5173'
+        const adminUrl = 'https://admin.monser-dm.nl'
         window.location.href = `${adminUrl}?token=${token}`
       } catch (err) {
         if (err.response?.status === 403) {

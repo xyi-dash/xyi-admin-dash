@@ -39,6 +39,7 @@ class AdminCardService
             'action_type' => $data['action_type'],
             'reason' => $data['reason'],
             'evidence' => $data['evidence'] ?? null,
+            'custom_action_description' => $data['custom_action_description'] ?? null,
             'status' => 'pending',
         ]);
 
@@ -54,6 +55,7 @@ class AdminCardService
                 'card_id' => $card->id,
                 'action_type' => $data['action_type'],
                 'reason' => $data['reason'],
+                'custom_action_description' => $data['custom_action_description'] ?? null,
             ],
             request()->ip()
         );
@@ -63,6 +65,7 @@ class AdminCardService
             'creator' => $creatorName,
             'target' => $data['target_admin_name'],
             'action' => $data['action_type'],
+            'custom_description' => $data['custom_action_description'] ?? null,
         ]);
 
         return $card;
@@ -80,6 +83,14 @@ class AdminCardService
         }
 
         return $query->get();
+    }
+
+    /**
+     * get card by ID
+     */
+    public function getCardById(int $cardId): ?AdminCard
+    {
+        return AdminCard::find($cardId);
     }
 
     /**
@@ -286,6 +297,13 @@ class AdminCardService
             'level_up' => $this->levelUpAdmin($card, $actorId, $actorName, $actorServer),
             'level_down' => $this->levelDownAdmin($card, $actorId, $actorName, $actorServer),
             'permanent_ban' => ['success' => false, 'error' => 'permanent_ban_no_auto_execution'],
+            'give_ga' => $this->giveGAToAdmin($card, $actorId, $actorName, $actorServer),
+            'remove_ga' => $this->removeGAFromAdmin($card, $actorId, $actorName, $actorServer),
+            'reset_password' => $this->resetAdminPassword($card, $actorId, $actorName, $actorServer),
+            'confirm_admin' => $this->confirmAdmin($card, $actorId, $actorName, $actorServer),
+            'promote' => $this->promoteAdmin($card, $actorId, $actorName, $actorServer),
+            'demote' => $this->demoteAdmin($card, $actorId, $actorName, $actorServer),
+            'custom' => ['success' => true, 'message' => 'Custom action approved, no automatic execution'],
             default => ['success' => false, 'error' => 'invalid_action_type'],
         };
     }
@@ -503,5 +521,185 @@ class AdminCardService
         ]);
 
         return ['success' => true, 'old_level' => $currentLevel, 'new_level' => $newLevel];
+    }
+
+    /**
+     * Give GA to admin
+     */
+    private function giveGAToAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->giveGA(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('GA given via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to give GA via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Remove GA from admin
+     */
+    private function removeGAFromAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->removeGA(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('GA removed via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to remove GA via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Reset admin password
+     */
+    private function resetAdminPassword(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->resetPassword(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('Password reset via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to reset password via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Confirm admin
+     */
+    private function confirmAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->confirm(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('Admin confirmed via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to confirm admin via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Promote admin
+     */
+    private function promoteAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->promote(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('Admin promoted via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to promote admin via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Demote admin
+     */
+    private function demoteAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        try {
+            $this->adminManagementService->demote(
+                $actorServer,
+                $card->target_admin_name,
+                $actorName,
+                $card->reason
+            );
+
+            Log::info('Admin demoted via card system', [
+                'card_id' => $card->id,
+                'target_admin' => $card->target_admin_name,
+                'actor' => $actorName,
+                'reason' => $card->reason,
+            ]);
+
+            return ['success' => true];
+        } catch (\Exception $e) {
+            Log::error('Failed to demote admin via card system', [
+                'card_id' => $card->id,
+                'error' => $e->getMessage(),
+            ]);
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 }

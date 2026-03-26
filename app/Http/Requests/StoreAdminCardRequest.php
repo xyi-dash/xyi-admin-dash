@@ -34,7 +34,20 @@ class StoreAdminCardRequest extends FormRequest
             'action_type' => [
                 'required',
                 'string',
-                Rule::in(['warning_add', 'warning_remove', 'level_up', 'level_down', 'permanent_ban']),
+                Rule::in([
+                    'warning_add',
+                    'warning_remove',
+                    'permanent_ban',
+                    'give_ga',
+                    'remove_ga',
+                    'reset_password',
+                    'confirm_admin',
+                    'promote',
+                    'demote',
+                    'level_up',
+                    'level_down',
+                    'custom'
+                ]),
             ],
             'reason' => [
                 'required',
@@ -46,6 +59,12 @@ class StoreAdminCardRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:2000',
+            ],
+            'custom_action_description' => [
+                'required_if:action_type,custom',
+                'nullable',
+                'string',
+                'max:500',
             ],
         ];
     }
@@ -61,6 +80,8 @@ class StoreAdminCardRequest extends FormRequest
             'reason.min' => 'Reason must be at least 10 characters.',
             'reason.max' => 'Reason cannot exceed 1000 characters.',
             'evidence.max' => 'Evidence cannot exceed 2000 characters.',
+            'custom_action_description.required_if' => 'Custom action description is required for custom actions.',
+            'custom_action_description.max' => 'Custom action description cannot exceed 500 characters.',
         ];
     }
 }
