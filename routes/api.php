@@ -102,6 +102,5 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin', 'admin.unlocked', '
         Route::get('/pending/bans', [AdminCardController::class, 'pendingBans']);
         Route::get('/history', [AdminCardController::class, 'history']);
         Route::post('/{cardId}/review', [AdminCardController::class, 'review'])->middleware('throttle:sensitive');
-        Route::post('/{cardId}/confirm-ban', [AdminCardController::class, 'confirmBan'])->middleware('throttle:sensitive');
     });
 });

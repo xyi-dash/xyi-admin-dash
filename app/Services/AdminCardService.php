@@ -94,7 +94,7 @@ class AdminCardService
         $query = AdminCard::pending()->orderByDesc('created_at');
 
         if ($type === 'warnings') {
-            $query->whereIn('action_type', ['warning_add', 'warning_remove']);
+            $query->whereIn('action_type', ['warning_add', 'warning_remove', 'level_up', 'level_down']);
         } elseif ($type === 'bans') {
             $query->where('action_type', 'permanent_ban');
         }
@@ -202,16 +202,17 @@ class AdminCardService
      */
     private function approveCard(AdminCard $card, int $reviewerId, string $reviewerName, string $reviewerServer): array
     {
-        // permanent ban requires confirmation
+        // permanent ban does NOT auto-execute - just approve the card
+        // main administration will handle the actual ban in-game
         if ($card->isPermanentBan()) {
             $card->update([
-                'status' => 'requires_confirmation',
+                'status' => 'approved',
                 'reviewed_by' => $reviewerId,
                 'reviewed_at' => now(),
             ]);
 
             $this->actionLog->log(
-                'admin_card_requires_confirmation',
+                'admin_card_approved',
                 $reviewerId,
                 $reviewerName,
                 $reviewerServer,
@@ -221,24 +222,21 @@ class AdminCardService
                 [
                     'card_id' => $card->id,
                     'action_type' => $card->action_type,
+                    'note' => 'permanent_ban approved - main administration will execute in-game',
                 ],
                 request()->ip()
             );
 
-            Log::info('Admin card requires confirmation', [
+            Log::info('Permanent ban card approved - no auto-execution', [
                 'card_id' => $card->id,
                 'reviewer' => $reviewerName,
                 'target' => $card->target_admin_name,
             ]);
 
-            return [
-                'success' => true,
-                'status' => 'requires_confirmation',
-                'requires_confirmation' => true,
-            ];
+            return ['success' => true, 'status' => 'approved', 'action_executed' => false];
         }
 
-        // execute the action for warning_add and warning_remove
+        // execute the action for warning_add, warning_remove, level_up, level_down
         $result = $this->executeCardAction($card, $reviewerId, $reviewerName, $reviewerServer);
 
         if (! $result['success']) {
@@ -278,14 +276,16 @@ class AdminCardService
     }
 
     /**
-     * execute the card action (warning_add, warning_remove, permanent_ban)
+     * execute the card action (warning_add, warning_remove, level_up, level_down)
      */
     public function executeCardAction(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
     {
         return match ($card->action_type) {
             'warning_add' => $this->addWarningToAdmin($card, $actorId, $actorName, $actorServer),
             'warning_remove' => $this->removeWarningFromAdmin($card, $actorId, $actorName, $actorServer),
-            'permanent_ban' => ['success' => false, 'error' => 'permanent_ban_requires_confirmation'],
+            'level_up' => $this->levelUpAdmin($card, $actorId, $actorName, $actorServer),
+            'level_down' => $this->levelDownAdmin($card, $actorId, $actorName, $actorServer),
+            'permanent_ban' => ['success' => false, 'error' => 'permanent_ban_no_auto_execution'],
             default => ['success' => false, 'error' => 'invalid_action_type'],
         };
     }
@@ -401,72 +401,9 @@ class AdminCardService
     }
 
     /**
-     * confirm and execute permanent ban
+     * level up admin
      */
-    public function confirmPermanentBan(int $cardId, int $confirmerId, string $confirmerName, string $confirmerServer): array
-    {
-        $card = AdminCard::find($cardId);
-
-        if (! $card) {
-            return ['success' => false, 'error' => 'card_not_found'];
-        }
-
-        if (! $card->requiresConfirmation()) {
-            return ['success' => false, 'error' => 'invalid_status'];
-        }
-
-        if (! $card->isPermanentBan()) {
-            return ['success' => false, 'error' => 'invalid_action_type'];
-        }
-
-        // execute permanent ban
-        $result = $this->applyPermanentBan($card, $confirmerId, $confirmerName, $confirmerServer);
-
-        if (! $result['success']) {
-            return $result;
-        }
-
-        // update card status
-        $card->update([
-            'status' => 'approved',
-            'reviewed_by' => $confirmerId,
-            'reviewed_at' => now(),
-        ]);
-
-        $this->actionLog->log(
-            'admin_permanent_ban_confirmed',
-            $confirmerId,
-            $confirmerName,
-            $confirmerServer,
-            null,
-            $card->target_admin_name,
-            $card->creator_server,
-            [
-                'card_id' => $card->id,
-                'ban_id' => $result['ban_id'],
-            ],
-            request()->ip()
-        );
-
-        Log::info('Permanent ban confirmed and applied', [
-            'card_id' => $card->id,
-            'confirmer' => $confirmerName,
-            'target' => $card->target_admin_name,
-            'ban_id' => $result['ban_id'],
-        ]);
-
-        return [
-            'success' => true,
-            'ban_applied' => true,
-            'target' => $card->target_admin_name,
-            'ban_id' => $result['ban_id'],
-        ];
-    }
-
-    /**
-     * apply permanent ban through Ban_System
-     */
-    private function applyPermanentBan(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    private function levelUpAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
     {
         $connection = self::SERVER_CONNECTIONS[$card->creator_server] ?? null;
 
@@ -481,42 +418,90 @@ class AdminCardService
             return ['success' => false, 'error' => 'admin_not_found'];
         }
 
-        // check if admin is already banned
-        if (AdminBan::isAdminBannedByName($card->target_admin_name)) {
-            return ['success' => false, 'error' => 'already_banned'];
-        }
+        $currentLevel = $targetAdmin->Level ?? 0;
+        $newLevel = $currentLevel + 1;
 
-        // create ban record
-        $ban = AdminBan::create([
-            'admin_id' => $targetAdmin->ID ?? $targetAdmin->idAccount,
-            'admin_name' => $card->target_admin_name,
-            'server' => $card->creator_server,
-            'reason' => $card->reason,
-            'evidence' => $card->evidence,
-            'banned_by' => $actorId,
-        ]);
+        // update level in a27dmins table
+        DB::connection($connection)
+            ->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$card->target_admin_name])
+            ->update(['Level' => $newLevel]);
 
-        // log to logsadmin2 for arkxa bot notification
+        // log to logsadmin2
         DB::connection($connection)->table('logsadmin2')->insert([
             'idadm' => $targetAdmin->ID ?? $targetAdmin->idAccount,
             'name' => $card->target_admin_name,
             'ip' => $targetAdmin->IP ?? '',
             'admin' => $actorName,
             'ipp' => request()->ip() ?? '',
-            'type' => 5, // type 5 = permanent_ban
-            'kolvo' => 0,
+            'type' => 3, // type 3 = level_up
+            'kolvo' => $newLevel,
             'reason' => $card->reason,
             'date' => now('Europe/Moscow'),
         ]);
 
-        Log::info('Permanent ban applied via card system', [
+        Log::info('Admin level increased via card system', [
             'card_id' => $card->id,
             'admin_name' => $card->target_admin_name,
-            'admin_id' => $targetAdmin->ID ?? $targetAdmin->idAccount,
-            'ban_id' => $ban->id,
-            'reason' => $card->reason,
+            'old_level' => $currentLevel,
+            'new_level' => $newLevel,
         ]);
 
-        return ['success' => true, 'ban_id' => $ban->id];
+        return ['success' => true, 'old_level' => $currentLevel, 'new_level' => $newLevel];
+    }
+
+    /**
+     * level down admin
+     */
+    private function levelDownAdmin(AdminCard $card, int $actorId, string $actorName, string $actorServer): array
+    {
+        $connection = self::SERVER_CONNECTIONS[$card->creator_server] ?? null;
+
+        if (! $connection) {
+            return ['success' => false, 'error' => 'invalid_server'];
+        }
+
+        // get target admin
+        $targetAdmin = $this->gameService->getAdminByName($card->creator_server, $card->target_admin_name);
+
+        if (! $targetAdmin) {
+            return ['success' => false, 'error' => 'admin_not_found'];
+        }
+
+        $currentLevel = $targetAdmin->Level ?? 0;
+
+        if ($currentLevel < 1) {
+            return ['success' => false, 'error' => 'already_minimum_level'];
+        }
+
+        $newLevel = $currentLevel - 1;
+
+        // update level in a27dmins table
+        DB::connection($connection)
+            ->table('a27dmins')
+            ->whereRaw('BINARY Name = ?', [$card->target_admin_name])
+            ->update(['Level' => $newLevel]);
+
+        // log to logsadmin2
+        DB::connection($connection)->table('logsadmin2')->insert([
+            'idadm' => $targetAdmin->ID ?? $targetAdmin->idAccount,
+            'name' => $card->target_admin_name,
+            'ip' => $targetAdmin->IP ?? '',
+            'admin' => $actorName,
+            'ipp' => request()->ip() ?? '',
+            'type' => 4, // type 4 = level_down
+            'kolvo' => $newLevel,
+            'reason' => $card->reason,
+            'date' => now('Europe/Moscow'),
+        ]);
+
+        Log::info('Admin level decreased via card system', [
+            'card_id' => $card->id,
+            'admin_name' => $card->target_admin_name,
+            'old_level' => $currentLevel,
+            'new_level' => $newLevel,
+        ]);
+
+        return ['success' => true, 'old_level' => $currentLevel, 'new_level' => $newLevel];
     }
 }

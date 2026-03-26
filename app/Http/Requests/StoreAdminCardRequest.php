@@ -34,7 +34,7 @@ class StoreAdminCardRequest extends FormRequest
             'action_type' => [
                 'required',
                 'string',
-                Rule::in(['warning_add', 'warning_remove', 'permanent_ban']),
+                Rule::in(['warning_add', 'warning_remove', 'level_up', 'level_down', 'permanent_ban']),
             ],
             'reason' => [
                 'required',

@@ -198,45 +198,7 @@ class AdminCardController extends Controller
         return response()->json([
             'success' => true,
             'status' => $result['status'],
-            'requires_confirmation' => $result['requires_confirmation'] ?? false,
             'action_executed' => $result['action_executed'] ?? false,
-        ]);
-    }
-
-    /**
-     * Confirm permanent ban (Level 7+ access)
-     */
-    public function confirmBan(Request $request, int $cardId): JsonResponse
-    {
-        $user = $request->user();
-        $server = $this->resolveServer($request);
-
-        if (! $server) {
-            return response()->json(['error' => 'boundary_of_fantasy_and_reality_blocked'], 403);
-        }
-
-        $myLevel = $this->getAdminLevelOnServer($request, $server);
-
-        if ($myLevel < 7) {
-            return response()->json(['error' => 'insufficient_level', 'required_level' => 7], 403);
-        }
-
-        $result = $this->cardService->confirmPermanentBan(
-            $cardId,
-            $user->game_account_id,
-            $user->game_account_name,
-            $server,
-            $request->ip()
-        );
-
-        if (! $result['success']) {
-            return response()->json(['error' => $result['error']], $result['status'] ?? 400);
-        }
-
-        return response()->json([
-            'success' => true,
-            'ban_applied' => true,
-            'target' => $result['target'],
         ]);
     }
 }
